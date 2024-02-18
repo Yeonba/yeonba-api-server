@@ -95,4 +95,13 @@ public class UserController {
             .ok()
             .body(new CustomResponse<>());
     }
+
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 할 수 있습니다.")
+    @DeleteMapping("/users")
+    public ResponseEntity<CustomResponse<Void>> deleteUser() {
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>());
+    }
 }
