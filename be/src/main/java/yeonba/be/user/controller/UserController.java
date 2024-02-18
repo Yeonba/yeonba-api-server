@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.user.dto.request.UserJoinRequest;
+import yeonba.be.user.dto.response.BlockedUserResponse;
+import yeonba.be.user.dto.response.BlockedUsersResponse;
 import yeonba.be.user.dto.response.UnwantedAcquaintanceResponse;
 import yeonba.be.user.dto.response.UnwantedAcquaintancesResponse;
 import yeonba.be.user.dto.response.UserJoinResponse;
@@ -55,6 +57,20 @@ public class UserController {
         return ResponseEntity
             .ok()
             .body(new CustomResponse<>(new UnwantedAcquaintancesResponse(sampleUnwantedAcquaintances)));
+    }
+
+    @Operation(summary = "차단 목록 조회", description = "차단한 사용자 목록을 조회합니다.")
+    @GetMapping("/users/block")
+    public ResponseEntity<CustomResponse<BlockedUsersResponse>> getBlockedUsers() {
+
+        List<BlockedUserResponse> sampleResponse = Arrays.asList(
+            new BlockedUserResponse(1, "https://avatars.githubusercontent.com/u/101340860?v=4", "안민재"),
+            new BlockedUserResponse(2, "https://avatars.githubusercontent.com/u/101340860?v=4", "안민재")
+        );
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(new BlockedUsersResponse(sampleResponse)));
     }
 
     @Operation(summary = "차단 해제", description = "차단한 사용자를 해제할 수 있습니다.")
