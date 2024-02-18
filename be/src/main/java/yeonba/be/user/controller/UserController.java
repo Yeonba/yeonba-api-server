@@ -109,7 +109,7 @@ public class UserController {
 
   @Operation(
       summary = "access token 재발급",
-      description = "refresh token을 검증하고, access token을 재발급합니다."
+      description = "refresh token을 통해 access token을 재발급받을 수 있습니다."
   )
   @PostMapping("/users/refresh")
   public ResponseEntity<CustomResponse<UserRefreshTokenResponse>> refresh(
