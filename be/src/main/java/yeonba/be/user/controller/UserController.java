@@ -8,10 +8,12 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import yeonba.be.user.dto.request.UserDormantRequest;
 import yeonba.be.user.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.response.BlockedUserResponse;
 import yeonba.be.user.dto.response.BlockedUsersResponse;
@@ -78,6 +80,16 @@ public class UserController {
     public ResponseEntity<CustomResponse<Void>> unblockUser(
         @Parameter(description = "사용자 ID", example = "1")
         @PathVariable long userId) {
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>());
+    }
+
+    @Operation(summary = "휴면 계정 전환", description = "계정의 휴면 상태를 전환할 수 있습니다.")
+    @PatchMapping("/users/dormant")
+    public ResponseEntity<CustomResponse<Void>> dormantUser(
+        @RequestBody UserDormantRequest request) {
 
         return ResponseEntity
             .ok()
