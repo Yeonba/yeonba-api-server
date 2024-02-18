@@ -1,5 +1,6 @@
 package yeonba.be.user.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,23 +15,24 @@ import yeonba.be.util.CustomResponse;
 @RestController
 public class UserController {
 
-    @GetMapping("/user")
+    @GetMapping("/users")
     public ResponseEntity<CustomResponse<Void>> test() {
 
         return ResponseEntity
-                .ok()
-                .body(new CustomResponse<>());
+            .ok()
+            .body(new CustomResponse<>());
     }
 
-    @PostMapping("/user/join")
+    @Operation(summary = "회원가입", description = "회원가입을 할 수 있습니다.")
+    @PostMapping("/users/join")
     public ResponseEntity<CustomResponse<UserJoinResponse>> join(
-            @RequestBody UserJoinRequest request) {
+        @RequestBody UserJoinRequest request) {
 
         // TODO: 회원가입 로직 구현
         String createdJwt = "created";
 
         return ResponseEntity
-                .ok()
-                .body(new CustomResponse<>(new UserJoinResponse(createdJwt)));
+            .ok()
+            .body(new CustomResponse<>(new UserJoinResponse(createdJwt)));
     }
 }
