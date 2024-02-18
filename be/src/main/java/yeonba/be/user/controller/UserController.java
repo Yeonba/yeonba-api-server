@@ -23,6 +23,7 @@ import yeonba.be.user.dto.response.UnwantedAcquaintanceResponse;
 import yeonba.be.user.dto.response.UnwantedAcquaintancesResponse;
 import yeonba.be.user.dto.response.UserArrowsResponse;
 import yeonba.be.user.dto.response.UserJoinResponse;
+import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserRefreshTokenResponse;
 import yeonba.be.util.CustomResponse;
 
@@ -154,5 +155,34 @@ public class UserController {
     return ResponseEntity
         .ok()
         .body(new CustomResponse<>());
+  }
+
+  @Operation(
+      summary = "사용자 프로필 조회",
+      description = "다른 사용자의 프로필을 조회할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "200",
+      description = "사용자 프로필 정상 조회"
+  )
+  @GetMapping("/users/{userId}")
+  public ResponseEntity<CustomResponse<UserProfileResponse>> profile(
+      @Parameter(description = "조회대상 사용자 ID", example = "1")
+      @PathVariable Long userId){
+
+    return ResponseEntity
+        .ok()
+        .body(new CustomResponse<>(
+            new UserProfileResponse(
+                "존잘남",
+                23,
+                177,
+                "서울시 강남구",
+                80,
+                "저음",
+                "여우상",
+                false
+            )
+        ));
   }
 }
