@@ -40,7 +40,7 @@ public class UserJoinRequest {
     @Schema(description = "닮은 동물상 ID", example = "1")
     private int lookAlikeAnimalId;
 
-    @Schema(description = "프로필 이미지", example = "https://www.naver.com/profile.jpg")
+    @Schema(description = "프로필 이미지", example = "https://avatars.githubusercontent.com/u/156646513?s=200&v=4")
     private String[] images;
 
     @Schema(description = "목소리", example = "중음")
