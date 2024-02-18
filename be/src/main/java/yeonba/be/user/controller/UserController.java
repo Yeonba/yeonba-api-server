@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.user.dto.request.UserDormantRequest;
 import yeonba.be.user.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.request.UserRefreshTokenRequest;
+import yeonba.be.user.dto.request.UserReportRequest;
 import yeonba.be.user.dto.response.BlockedUserResponse;
 import yeonba.be.user.dto.response.BlockedUsersResponse;
 import yeonba.be.user.dto.response.UnwantedAcquaintanceResponse;
@@ -168,7 +169,7 @@ public class UserController {
   @GetMapping("/users/{userId}")
   public ResponseEntity<CustomResponse<UserProfileResponse>> profile(
       @Parameter(description = "조회대상 사용자 ID", example = "1")
-      @PathVariable Long userId){
+      @PathVariable long userId) {
 
     return ResponseEntity
         .ok()
@@ -184,5 +185,24 @@ public class UserController {
                 false
             )
         ));
+  }
+
+  @Operation(
+      summary = "사용자 신고",
+      description = "다른 사용자를 신고할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "204",
+      description = "신고 정상 처리"
+  )
+  @PostMapping("/users/{userId}/report")
+  public ResponseEntity<CustomResponse<Void>> report(
+      @Parameter(description = "신고 대상 사용자 ID", example = "1")
+      @PathVariable long userId,
+      @RequestBody UserReportRequest request) {
+
+    return ResponseEntity
+        .ok()
+        .body(new CustomResponse<>());
   }
 }
