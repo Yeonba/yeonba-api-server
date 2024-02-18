@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.util.CustomResponse;
 
-@Tag(name = "User", description = "사용자 API")
+@Tag(name = "Chatting", description = "채팅 API")
 @RestController
 public class ChattingController {
 
