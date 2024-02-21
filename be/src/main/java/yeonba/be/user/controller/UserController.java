@@ -227,4 +227,22 @@ public class UserController {
         .ok()
         .body(new CustomResponse<>());
   }
+
+  @Operation(
+      summary = "화살 보내기",
+      description = "다른 사용자에게 화살을 보낼 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "204",
+      description = "화살 전송 정상 처리"
+  )
+  @PostMapping("/users/{userId}/arrow")
+  public ResponseEntity<CustomResponse<Void>> sendArrow(
+      @Parameter(description = "화살 받는 사용자 ID", example = "1")
+      @PathVariable long userId) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
+  }
 }
