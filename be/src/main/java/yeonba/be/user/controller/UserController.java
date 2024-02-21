@@ -245,4 +245,21 @@ public class UserController {
         .accepted()
         .body(new CustomResponse<>());
   }
+
+  @Operation(
+      summary = "차단하기",
+      description = "다른 사용자를 차단할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "204",
+      description = "차단 요청 정상 처리"
+  )
+  public ResponseEntity<CustomResponse<Void>> block(
+      @Parameter(description = "차단하는 사용자 ID", example = "1")
+      @PathVariable long userId) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
+  }
 }
