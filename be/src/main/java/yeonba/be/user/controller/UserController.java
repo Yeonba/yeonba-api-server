@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.user.dto.request.UserDormantRequest;
 import yeonba.be.user.dto.request.UserJoinRequest;
+import yeonba.be.user.dto.request.UserLoginRequest;
 import yeonba.be.user.dto.request.UserRefreshTokenRequest;
 import yeonba.be.user.dto.request.UserReportRequest;
 import yeonba.be.user.dto.response.BlockedUserResponse;
@@ -24,6 +25,7 @@ import yeonba.be.user.dto.response.UnwantedAcquaintanceResponse;
 import yeonba.be.user.dto.response.UnwantedAcquaintancesResponse;
 import yeonba.be.user.dto.response.UserArrowsResponse;
 import yeonba.be.user.dto.response.UserJoinResponse;
+import yeonba.be.user.dto.response.UserLoginResponse;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserRefreshTokenResponse;
 import yeonba.be.util.CustomResponse;
@@ -51,6 +53,26 @@ public class UserController {
     return ResponseEntity
         .ok()
         .body(new CustomResponse<>(new UserJoinResponse(createdJwt)));
+  }
+
+  @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
+  @PostMapping("/users/login")
+  public ResponseEntity<CustomResponse<UserLoginResponse>> login(
+      @RequestBody UserLoginRequest request) {
+
+    return ResponseEntity
+        .ok()
+        .body(new CustomResponse<>(
+            new UserLoginResponse(
+                """
+                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                    .eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
+                    .SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c""",
+                """
+                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                    .eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
+                    .SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"""
+            )));
   }
 
   @Operation(summary = "만나고 싶지 않은 지인 목록 조회", description = "만나고 싶지 않은 지인 목록을 조회합니다.")
