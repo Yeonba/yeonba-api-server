@@ -255,6 +255,7 @@ public class UserController {
       responseCode = "204",
       description = "차단 요청 정상 처리"
   )
+  @PostMapping("/users/{userId}/block")
   public ResponseEntity<CustomResponse<Void>> block(
       @Parameter(description = "차단하는 사용자 ID", example = "1")
       @PathVariable long userId) {
