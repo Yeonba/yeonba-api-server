@@ -28,6 +28,7 @@ import yeonba.be.user.dto.response.UserJoinResponse;
 import yeonba.be.user.dto.response.UserLoginResponse;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserRefreshTokenResponse;
+import yeonba.be.user.dto.response.UserSimpleProfileResponse;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "User", description = "사용자 API")
@@ -261,5 +262,25 @@ public class UserController {
     return ResponseEntity
         .accepted()
         .body(new CustomResponse<>());
+  }
+
+  @Operation(
+      summary = "자신의 간이 프로필 조회",
+      description = "사용자 자신의 간략한 프로필 정보를 조회할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "200",
+      description = "사용자 간이 프로필 조회 성공"
+  )
+  @GetMapping("/users/profile")
+  public ResponseEntity<CustomResponse<UserSimpleProfileResponse>> simpleProfile() {
+
+    return ResponseEntity
+        .ok()
+        .body(new CustomResponse<>(new UserSimpleProfileResponse(
+            "안민재",
+            "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
+            10
+        )));
   }
 }
