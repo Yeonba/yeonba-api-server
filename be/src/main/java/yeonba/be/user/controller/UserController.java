@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import yeonba.be.user.dto.request.UserAllowNotificationsRequest;
 import yeonba.be.user.dto.request.UserDormantRequest;
 import yeonba.be.user.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.request.UserLoginRequest;
@@ -283,5 +284,23 @@ public class UserController {
             "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
             10
         )));
+  }
+
+  @Operation(
+      summary = "알림 on/off 설정",
+      description = "알림별로 on/off를 설정할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "204",
+      description = "알림 on/off 설정 정상 처리"
+  )
+  @PatchMapping("/user/notifications")
+  public ResponseEntity<CustomResponse<Void>> allowNotifications(
+      @RequestBody UserAllowNotificationsRequest request
+  ) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
   }
 }
