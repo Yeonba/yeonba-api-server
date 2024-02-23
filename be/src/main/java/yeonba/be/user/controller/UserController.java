@@ -18,6 +18,7 @@ import yeonba.be.user.dto.request.UserAllowNotificationsRequest;
 import yeonba.be.user.dto.request.UserDormantRequest;
 import yeonba.be.user.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.request.UserLoginRequest;
+import yeonba.be.user.dto.request.UserPhoneNumberVerifyRequest;
 import yeonba.be.user.dto.request.UserRefreshTokenRequest;
 import yeonba.be.user.dto.request.UserReportRequest;
 import yeonba.be.user.dto.request.UserUpdateProfileRequest;
@@ -56,6 +57,23 @@ public class UserController {
     return ResponseEntity
         .ok()
         .body(new CustomResponse<>(new UserJoinResponse(createdJwt)));
+  }
+
+  @Operation(
+      summary = "전화번호 인증 코드 전송",
+      description = "전화번호 인증을 위해 해당 번호로 인증 코드를 발송합니다."
+  )
+  @ApiResponse(
+      responseCode = "204",
+      description = "전화번호 인증 코드 전송 성공"
+  )
+  @PostMapping("/users/help/id-inquiry/verification-code")
+  public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
+      @RequestBody UserPhoneNumberVerifyRequest request) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
   }
 
   @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
