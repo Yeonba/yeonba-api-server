@@ -19,6 +19,7 @@ import yeonba.be.user.dto.request.UserDormantRequest;
 import yeonba.be.user.dto.request.UserIdInquiryRequest;
 import yeonba.be.user.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.request.UserLoginRequest;
+import yeonba.be.user.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.user.dto.request.UserPhoneNumberVerifyRequest;
 import yeonba.be.user.dto.request.UserRefreshTokenRequest;
 import yeonba.be.user.dto.request.UserReportRequest;
@@ -93,6 +94,23 @@ public class UserController {
     return ResponseEntity
         .ok()
         .body(new CustomResponse<>(new UserIdInquiryResponse("mj3242@naver.com")));
+  }
+
+  @Operation(
+      summary = "비밀번호 찾기",
+      description = "이메일로 임시 비밀번호를 발급받을 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "204",
+      description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리"
+  )
+  @PostMapping("/users/help/pw-inquiry")
+  public ResponseEntity<CustomResponse<Void>> passwordInquiry(
+      @RequestBody UserPasswordInquiryRequest request) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
   }
 
   @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
