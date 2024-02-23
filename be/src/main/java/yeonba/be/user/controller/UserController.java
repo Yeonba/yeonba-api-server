@@ -20,6 +20,7 @@ import yeonba.be.user.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.request.UserLoginRequest;
 import yeonba.be.user.dto.request.UserRefreshTokenRequest;
 import yeonba.be.user.dto.request.UserReportRequest;
+import yeonba.be.user.dto.request.UserUpdateProfileRequest;
 import yeonba.be.user.dto.response.BlockedUserResponse;
 import yeonba.be.user.dto.response.BlockedUsersResponse;
 import yeonba.be.user.dto.response.UnwantedAcquaintanceResponse;
@@ -287,6 +288,24 @@ public class UserController {
   }
 
   @Operation(
+      summary = "자산의 프로필 수정",
+      description = "자신의 프로필 정보를 수정할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "204",
+      description = "자신의 프로필 수정 요청 정상 처리"
+  )
+  @PatchMapping("/users/profile")
+  public ResponseEntity<CustomResponse<Void>> updateProfile(
+      @RequestBody UserUpdateProfileRequest request
+  ) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
+  }
+
+  @Operation(
       summary = "알림 on/off 설정",
       description = "알림별로 on/off를 설정할 수 있습니다."
   )
@@ -298,6 +317,22 @@ public class UserController {
   public ResponseEntity<CustomResponse<Void>> allowNotifications(
       @RequestBody UserAllowNotificationsRequest request
   ) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
+  }
+
+  @Operation(
+      summary = "화살 충전",
+      description = "광고 시청시 화살 5개를 충전할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "204",
+      description = "화살 충전 정상 처리"
+  )
+  @PostMapping("/users/arrows")
+  public ResponseEntity<CustomResponse<Void>> earnArrows() {
 
     return ResponseEntity
         .accepted()
