@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.user.dto.request.UserAllowNotificationsRequest;
 import yeonba.be.user.dto.request.UserDormantRequest;
+import yeonba.be.user.dto.request.UserIdInquiryRequest;
 import yeonba.be.user.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.request.UserLoginRequest;
 import yeonba.be.user.dto.request.UserPhoneNumberVerifyRequest;
@@ -27,6 +28,7 @@ import yeonba.be.user.dto.response.BlockedUsersResponse;
 import yeonba.be.user.dto.response.UnwantedAcquaintanceResponse;
 import yeonba.be.user.dto.response.UnwantedAcquaintancesResponse;
 import yeonba.be.user.dto.response.UserArrowsResponse;
+import yeonba.be.user.dto.response.UserIdInquiryResponse;
 import yeonba.be.user.dto.response.UserJoinResponse;
 import yeonba.be.user.dto.response.UserLoginResponse;
 import yeonba.be.user.dto.response.UserProfileResponse;
@@ -74,6 +76,23 @@ public class UserController {
     return ResponseEntity
         .accepted()
         .body(new CustomResponse<>());
+  }
+
+  @Operation(
+      summary = "아이디 찾기",
+      description = "인증 코드를 바탕으로 아이디를 찾을 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "200",
+      description = "아이디 찾기 정상 처리"
+  )
+  @PostMapping("/users/help/id-inquiry")
+  public ResponseEntity<CustomResponse<UserIdInquiryResponse>> idInquiry(
+      @RequestBody UserIdInquiryRequest request) {
+
+    return ResponseEntity
+        .ok()
+        .body(new CustomResponse<>(new UserIdInquiryResponse("mj3242@naver.com")));
   }
 
   @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
