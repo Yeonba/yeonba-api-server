@@ -4,19 +4,29 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import yeonba.be.chatting.dto.ChattingRoomResponse;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "Chatting", description = "채팅 API")
 @RestController
 public class ChattingController {
 
+  @Operation(
+      summary = "채팅 목록 조회",
+      description = "자신이 참여 중인 채팅 목록을 조회할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "200",
+      description = "참여 중인 채팅 목록 조회 성공"
+  )
   @GetMapping("/chattings")
-  public ResponseEntity<CustomResponse<Void>> test() {
+  public ResponseEntity<CustomResponse<List<ChattingRoomResponse>>> chattings() {
 
     return ResponseEntity
         .ok()
