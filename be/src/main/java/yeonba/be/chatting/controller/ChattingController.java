@@ -5,12 +5,15 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import yeonba.be.chatting.dto.ChattingRoomResponse;
 import yeonba.be.chatting.dto.request.ChattingSendMessageRequest;
 import yeonba.be.util.CustomResponse;
@@ -66,6 +69,29 @@ public class ChattingController {
       @Parameter(description = "채팅방 ID", example = "1")
       @PathVariable long chattingId,
       @RequestBody ChattingSendMessageRequest request) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
+  }
+
+  @Operation(
+      summary = "사진 메시지 전송",
+      description = "사진을 전송할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "202",
+      description = "사진 전송 정상 처리"
+  )
+  @PostMapping(
+      path = "/chattings/{chattingId}/photo",
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+  )
+  public ResponseEntity<CustomResponse<Void>> sendPhoto(
+      @Parameter(description = "채팅방 ID", example = "1")
+      @PathVariable long chattingId,
+      @Parameter(description = "전송 사진 파일")
+      @RequestPart(value = "photoFile") MultipartFile photoFile) {
 
     return ResponseEntity
         .accepted()
