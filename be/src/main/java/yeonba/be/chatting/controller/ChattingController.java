@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.chatting.dto.ChattingRoomResponse;
+import yeonba.be.chatting.dto.request.ChattingSendMessageRequest;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "Chatting", description = "채팅 API")
@@ -48,6 +50,25 @@ public class ChattingController {
 
     return ResponseEntity
         .ok()
+        .body(new CustomResponse<>());
+  }
+
+  @Operation(
+      summary = "채팅 메시지 전송",
+      description = "단순 텍스트 형식 채팅 메시지를 전송할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "202",
+      description = "채팅 메시지 전송 정상 처리"
+  )
+  @PostMapping("/chattings/{chattingId}/message")
+  public ResponseEntity<CustomResponse<Void>> sendMessage(
+      @Parameter(description = "채팅방 ID", example = "1")
+      @PathVariable long chattingId,
+      @RequestBody ChattingSendMessageRequest request) {
+
+    return ResponseEntity
+        .accepted()
         .body(new CustomResponse<>());
   }
 }
