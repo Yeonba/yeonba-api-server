@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.user.dto.request.UserAllowNotificationsRequest;
+import yeonba.be.user.dto.request.UserChangePasswordRequest;
 import yeonba.be.user.dto.request.UserDormantRequest;
 import yeonba.be.user.dto.request.UserIdInquiryRequest;
 import yeonba.be.user.dto.request.UserJoinRequest;
@@ -340,6 +341,23 @@ public class UserController {
             "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
             10
         )));
+  }
+
+  @Operation(
+      summary = "비밀번호 수정",
+      description = "자신의 비밀번호를 수정할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "202",
+      description = "비밀번호 수정 완료"
+  )
+  @PatchMapping("/users/password")
+  public ResponseEntity<CustomResponse<Void>> changePassword(
+      @RequestBody UserChangePasswordRequest request) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
   }
 
   @Operation(
