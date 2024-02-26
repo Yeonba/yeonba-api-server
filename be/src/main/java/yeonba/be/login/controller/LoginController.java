@@ -18,7 +18,7 @@ import yeonba.be.user.dto.response.UserLoginResponse;
 import yeonba.be.user.dto.response.UserRefreshTokenResponse;
 import yeonba.be.util.CustomResponse;
 
-@Tag(name = "Login", description = "로그인 API")
+@Tag(name = "Login", description = "로그인 관련 API")
 public class LoginController {
 
   @Operation(summary = "회원가입", description = "회원가입을 할 수 있습니다.")
