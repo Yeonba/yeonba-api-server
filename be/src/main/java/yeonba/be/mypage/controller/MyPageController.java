@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
 import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
@@ -24,6 +25,7 @@ import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "MyPage", description = " My Page 관련 API")
+@RestController
 public class MyPageController {
 
   @Operation(
@@ -156,5 +158,4 @@ public class MyPageController {
         .ok()
         .body(new CustomResponse<>());
   }
-
 }

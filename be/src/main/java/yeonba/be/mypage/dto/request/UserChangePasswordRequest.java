@@ -21,9 +21,17 @@ public class UserChangePasswordRequest {
 
   @Schema(
       type = "string",
-      description = "변경할 비밀번호",
+      description = "변경할 새 비밀번호",
       example = "Abcd1234@!"
   )
   @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[~#@!]).{8,20}$")
   private String newPassword;
+
+  @Schema(
+      type = "string",
+      description = "변경할 새 비밀번호 확인 값, 검증에 쓰인다.",
+      example = "Abcd1234@!"
+  )
+  @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[~#@!]).{8,20}$")
+  private String newPasswordConfirmation;
 }
