@@ -1,4 +1,4 @@
-package yeonba.be.user.dto.request;
+package yeonba.be.mypage.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;

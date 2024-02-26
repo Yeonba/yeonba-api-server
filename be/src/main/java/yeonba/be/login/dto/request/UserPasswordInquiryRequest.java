@@ -1,4 +1,4 @@
-package yeonba.be.user.dto.response;
+package yeonba.be.login.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserIdInquiryResponse {
+public class UserPasswordInquiryRequest {
 
   @Schema(
       type = "string",
-      description = "이메일",
+      description = "임시 비밀번호를 받을 이메일",
       example = "mj3242@naver.com"
   )
   private String email;

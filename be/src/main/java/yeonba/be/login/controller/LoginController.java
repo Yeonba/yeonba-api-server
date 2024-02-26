@@ -6,16 +6,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import yeonba.be.login.dto.UserIdInquiryRequest;
-import yeonba.be.login.dto.UserJoinRequest;
-import yeonba.be.login.dto.UserLoginRequest;
-import yeonba.be.login.dto.UserPasswordInquiryRequest;
-import yeonba.be.login.dto.UserPhoneNumberVerifyRequest;
-import yeonba.be.login.dto.UserRefreshTokenRequest;
-import yeonba.be.user.dto.response.UserIdInquiryResponse;
-import yeonba.be.user.dto.response.UserJoinResponse;
-import yeonba.be.user.dto.response.UserLoginResponse;
-import yeonba.be.user.dto.response.UserRefreshTokenResponse;
+import yeonba.be.login.dto.request.UserIdInquiryRequest;
+import yeonba.be.login.dto.request.UserJoinRequest;
+import yeonba.be.login.dto.request.UserLoginRequest;
+import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
+import yeonba.be.login.dto.request.UserPhoneNumberVerifyRequest;
+import yeonba.be.login.dto.request.UserRefreshTokenRequest;
+import yeonba.be.login.dto.response.UserIdInquiryResponse;
+import yeonba.be.login.dto.response.UserJoinResponse;
+import yeonba.be.login.dto.response.UserLoginResponse;
+import yeonba.be.login.dto.response.UserRefreshTokenResponse;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "Login", description = "로그인 관련 API")
