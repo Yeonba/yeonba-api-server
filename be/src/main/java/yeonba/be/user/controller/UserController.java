@@ -17,12 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.user.dto.request.UserAllowNotificationsRequest;
 import yeonba.be.user.dto.request.UserChangePasswordRequest;
 import yeonba.be.user.dto.request.UserDormantRequest;
-import yeonba.be.user.dto.request.UserIdInquiryRequest;
-import yeonba.be.user.dto.request.UserJoinRequest;
-import yeonba.be.user.dto.request.UserLoginRequest;
-import yeonba.be.user.dto.request.UserPasswordInquiryRequest;
-import yeonba.be.user.dto.request.UserPhoneNumberVerifyRequest;
-import yeonba.be.user.dto.request.UserRefreshTokenRequest;
 import yeonba.be.user.dto.request.UserReportRequest;
 import yeonba.be.user.dto.request.UserUpdateProfileRequest;
 import yeonba.be.user.dto.response.BlockedUserResponse;
@@ -30,109 +24,13 @@ import yeonba.be.user.dto.response.BlockedUsersResponse;
 import yeonba.be.user.dto.response.UnwantedAcquaintanceResponse;
 import yeonba.be.user.dto.response.UnwantedAcquaintancesResponse;
 import yeonba.be.user.dto.response.UserArrowsResponse;
-import yeonba.be.user.dto.response.UserIdInquiryResponse;
-import yeonba.be.user.dto.response.UserJoinResponse;
-import yeonba.be.user.dto.response.UserLoginResponse;
 import yeonba.be.user.dto.response.UserProfileResponse;
-import yeonba.be.user.dto.response.UserRefreshTokenResponse;
 import yeonba.be.user.dto.response.UserSimpleProfileResponse;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "User", description = "사용자 API")
 @RestController
 public class UserController {
-
-  @GetMapping("/users")
-  public ResponseEntity<CustomResponse<Void>> test() {
-
-    return ResponseEntity
-        .ok()
-        .body(new CustomResponse<>());
-  }
-
-  @Operation(summary = "회원가입", description = "회원가입을 할 수 있습니다.")
-  @PostMapping("/users/join")
-  public ResponseEntity<CustomResponse<UserJoinResponse>> join(
-      @RequestBody UserJoinRequest request) {
-
-    // TODO: 회원가입 로직 구현
-    String createdJwt = "created";
-
-    return ResponseEntity
-        .ok()
-        .body(new CustomResponse<>(new UserJoinResponse(createdJwt)));
-  }
-
-  @Operation(
-      summary = "전화번호 인증 코드 전송",
-      description = "전화번호 인증을 위해 해당 번호로 인증 코드를 발송합니다."
-  )
-  @ApiResponse(
-      responseCode = "204",
-      description = "전화번호 인증 코드 전송 성공"
-  )
-  @PostMapping("/users/help/id-inquiry/verification-code")
-  public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
-      @RequestBody UserPhoneNumberVerifyRequest request) {
-
-    return ResponseEntity
-        .accepted()
-        .body(new CustomResponse<>());
-  }
-
-  @Operation(
-      summary = "아이디 찾기",
-      description = "인증 코드를 바탕으로 아이디를 찾을 수 있습니다."
-  )
-  @ApiResponse(
-      responseCode = "200",
-      description = "아이디 찾기 정상 처리"
-  )
-  @PostMapping("/users/help/id-inquiry")
-  public ResponseEntity<CustomResponse<UserIdInquiryResponse>> idInquiry(
-      @RequestBody UserIdInquiryRequest request) {
-
-    return ResponseEntity
-        .ok()
-        .body(new CustomResponse<>(new UserIdInquiryResponse("mj3242@naver.com")));
-  }
-
-  @Operation(
-      summary = "비밀번호 찾기",
-      description = "이메일로 임시 비밀번호를 발급받을 수 있습니다."
-  )
-  @ApiResponse(
-      responseCode = "204",
-      description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리"
-  )
-  @PostMapping("/users/help/pw-inquiry")
-  public ResponseEntity<CustomResponse<Void>> passwordInquiry(
-      @RequestBody UserPasswordInquiryRequest request) {
-
-    return ResponseEntity
-        .accepted()
-        .body(new CustomResponse<>());
-  }
-
-  @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
-  @PostMapping("/users/login")
-  public ResponseEntity<CustomResponse<UserLoginResponse>> login(
-      @RequestBody UserLoginRequest request) {
-
-    return ResponseEntity
-        .ok()
-        .body(new CustomResponse<>(
-            new UserLoginResponse(
-                """
-                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-                    .eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
-                    .SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c""",
-                """
-                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-                    .eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
-                    .SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"""
-            )));
-  }
 
   @Operation(summary = "만나고 싶지 않은 지인 목록 조회", description = "만나고 싶지 않은 지인 목록을 조회합니다.")
   @GetMapping("/users/unwanted-acquaintances")
@@ -192,20 +90,6 @@ public class UserController {
         .body(new CustomResponse<>());
   }
 
-  @Operation(
-      summary = "access token 재발급",
-      description = "refresh token을 통해 access token을 재발급받을 수 있습니다."
-  )
-  @PostMapping("/users/refresh")
-  public ResponseEntity<CustomResponse<UserRefreshTokenResponse>> refresh(
-      @RequestBody UserRefreshTokenRequest request) {
-
-    String createdJwt = "created";
-
-    return ResponseEntity
-        .ok()
-        .body(new CustomResponse<>(new UserRefreshTokenResponse(createdJwt)));
-  }
 
   @Operation(
       summary = "사용자 화살 개수 조회",

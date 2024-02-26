@@ -1,4 +1,4 @@
-package yeonba.be.user.dto.request;
+package yeonba.be.login.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
