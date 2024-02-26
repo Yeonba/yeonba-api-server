@@ -1,4 +1,4 @@
-package yeonba.be.user.dto.response;
+package yeonba.be.mypage.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;

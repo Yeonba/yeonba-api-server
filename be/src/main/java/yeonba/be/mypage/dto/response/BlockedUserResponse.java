@@ -1,4 +1,4 @@
-package yeonba.be.user.dto.response;
+package yeonba.be.mypage.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

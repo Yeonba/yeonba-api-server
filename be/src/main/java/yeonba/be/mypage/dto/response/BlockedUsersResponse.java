@@ -1,4 +1,4 @@
-package yeonba.be.user.dto.response;
+package yeonba.be.mypage.dto.response;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
