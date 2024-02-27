@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.login.dto.request.UserIdInquiryRequest;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
@@ -19,6 +20,7 @@ import yeonba.be.login.dto.response.UserRefreshTokenResponse;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "Login", description = "로그인 관련 API")
+@RestController
 public class LoginController {
 
   @Operation(summary = "회원가입", description = "회원가입을 할 수 있습니다.")
