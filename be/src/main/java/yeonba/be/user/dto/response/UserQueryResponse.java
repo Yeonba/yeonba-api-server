@@ -9,6 +9,13 @@ import lombok.Getter;
 public class UserQueryResponse {
 
   @Schema(
+      type = "number",
+      description = "사용자 ID",
+      example = "12"
+  )
+  private Long id;
+
+  @Schema(
       type = "string",
       description = "닉네임",
       example = "존잘남"
