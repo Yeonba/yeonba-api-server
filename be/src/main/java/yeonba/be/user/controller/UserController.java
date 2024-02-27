@@ -69,6 +69,24 @@ public class UserController {
   }
 
   @Operation(
+      summary = "즐겨찾기 등록",
+      description = "다른 사용자를 자신의 즐겨찾기에 등록할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "202",
+      description = "즐겨찾기 등록 정상 처리"
+  )
+  @PostMapping("/favorites/{userId}")
+  public ResponseEntity<CustomResponse<Void>> registerFavorite(
+      @Parameter(description = "즐겨찾기에 등록될 사용자 ID", example = "1")
+      @PathVariable long userId) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
+  }
+
+  @Operation(
       summary = "사용자 신고",
       description = "다른 사용자를 신고할 수 있습니다."
   )
