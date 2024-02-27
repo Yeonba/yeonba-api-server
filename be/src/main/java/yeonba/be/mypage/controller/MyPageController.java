@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
 import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
+import yeonba.be.mypage.dto.request.UserCheckPasswordMatchRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.BlockedUserResponse;
@@ -46,6 +48,23 @@ public class MyPageController {
             "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
             10
         )));
+  }
+
+  @Operation(
+      summary = "현재 비밀번호 확인",
+      description = "입력한 비밀번호가 현재 비밀번호와 일치하는 지 검증합니다."
+  )
+  @ApiResponse(
+      responseCode = "202",
+      description = "입력한 비밀번호 검증 완료"
+  )
+  @PostMapping("/users/password")
+  public ResponseEntity<CustomResponse<Void>> checkPasswordMatch(
+      @RequestBody UserCheckPasswordMatchRequest request) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
   }
 
   @Operation(
