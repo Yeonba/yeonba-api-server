@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,8 @@ import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
 import yeonba.be.mypage.dto.response.UnwantedAcquaintanceResponse;
 import yeonba.be.mypage.dto.response.UnwantedAcquaintancesResponse;
+import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
+import yeonba.be.mypage.dto.response.UserProfileImageResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.util.CustomResponse;
 
@@ -47,6 +51,56 @@ public class MyPageController {
             "안민재",
             "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
             10
+        )));
+  }
+
+  @Operation(
+      summary = "자신의 상세 프로필 조회",
+      description = "사용자 자신의 상세 프로필 정보를 조회할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "200",
+      description = "자신의 상세 프로필 조회 성공"
+  )
+  @GetMapping("/users/profile/detail")
+  public ResponseEntity<CustomResponse<UserProfileDetailResponse>> profileDetail() {
+    
+    List<UserProfileImageResponse> profileImages = List.of(
+        new UserProfileImageResponse(
+            1L,
+            "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
+            LocalDateTime.of(2012, 10, 1, 12, 0, 5)
+        ),
+        new UserProfileImageResponse(
+            2L,
+            "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
+            LocalDateTime.of(2012, 10, 1, 12, 0, 5)
+        ),
+        new UserProfileImageResponse(
+            3L,
+            "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
+            LocalDateTime.of(2012, 10, 1, 12, 0, 5)
+        )
+    );
+
+    return ResponseEntity
+        .ok()
+        .body(new CustomResponse<>(new UserProfileDetailResponse(
+            profileImages,
+            "남",
+            "안민재",
+            LocalDate.of(1998, 1, 1),
+            181,
+            "mj3242@naver.com",
+            "01011112222",
+            "존잘남",
+            80,
+            "마른 체형",
+            "학생",
+            "자주",
+            "가끔",
+            "ISTP",
+            LocalDateTime.of(2012, 10, 1, 11, 30, 2)
         )));
   }
 
