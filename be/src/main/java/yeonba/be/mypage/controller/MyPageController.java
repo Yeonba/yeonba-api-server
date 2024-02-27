@@ -4,10 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +18,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
 import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserCheckPasswordMatchRequest;
@@ -141,6 +145,28 @@ public class MyPageController {
   }
 
   @Operation(
+      summary = "자신의 프로필 사진 수정",
+      description = "자신의 프로필 사진을 수정할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "202",
+      description = "자신의 프로필 사진 수정 정상 처리"
+  )
+  @PutMapping(
+      path = "/users/profile-photos",
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+  )
+  public ResponseEntity<CustomResponse<Void>> updateProfilePhotos(
+      @Parameter(description = "업로드할 새로운 프로필 사진들, 반드시 한 번에 3개씩 업로드")
+      @RequestPart("photoFiles")
+      @Size(min = 3, max = 3) List<MultipartFile> photoFiles) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
+  }
+
+  @Operation(
       summary = "자산의 프로필 수정",
       description = "자신의 프로필 정보를 수정할 수 있습니다."
   )
@@ -150,8 +176,7 @@ public class MyPageController {
   )
   @PatchMapping("/users/profile")
   public ResponseEntity<CustomResponse<Void>> updateProfile(
-      @RequestBody UserUpdateProfileRequest request
-  ) {
+      @RequestBody UserUpdateProfileRequest request) {
 
     return ResponseEntity
         .accepted()
@@ -168,8 +193,7 @@ public class MyPageController {
   )
   @PatchMapping("/user/notifications")
   public ResponseEntity<CustomResponse<Void>> allowNotifications(
-      @RequestBody UserAllowNotificationsRequest request
-  ) {
+      @RequestBody UserAllowNotificationsRequest request) {
 
     return ResponseEntity
         .accepted()
