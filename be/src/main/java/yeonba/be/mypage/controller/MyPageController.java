@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
@@ -21,6 +22,7 @@ import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserCheckPasswordMatchRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
+import yeonba.be.mypage.dto.request.UserUpdateUnwantedAcquaintancesRequest;
 import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
 import yeonba.be.mypage.dto.response.UnwantedAcquaintanceResponse;
@@ -64,7 +66,7 @@ public class MyPageController {
   )
   @GetMapping("/users/profile/detail")
   public ResponseEntity<CustomResponse<UserProfileDetailResponse>> profileDetail() {
-    
+
     List<UserProfileImageResponse> profileImages = List.of(
         new UserProfileImageResponse(
             1L,
@@ -186,6 +188,23 @@ public class MyPageController {
     return ResponseEntity
         .ok()
         .body(new CustomResponse<>(new UnwantedAcquaintancesResponse(sampleUnwantedAcquaintances)));
+  }
+
+  @Operation(
+      summary = "만나고 싶지 않은 지인 목록 수정",
+      description = "만나고 싶지 않은 지인 목록을 수정합니다."
+  )
+  @ApiResponse(
+      responseCode = "202",
+      description = "지인 목록 수정 정상 처리"
+  )
+  @PutMapping("/users/unwanted-acquaintances")
+  public ResponseEntity<CustomResponse<Void>> updateUnwantedAcquaintances(
+      @RequestBody UserUpdateUnwantedAcquaintancesRequest request) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
   }
 
   @Operation(summary = "차단 목록 조회", description = "차단한 사용자 목록을 조회합니다.")
