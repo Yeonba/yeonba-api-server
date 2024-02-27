@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,6 +80,24 @@ public class UserController {
   @PostMapping("/favorites/{userId}")
   public ResponseEntity<CustomResponse<Void>> registerFavorite(
       @Parameter(description = "즐겨찾기에 등록될 사용자 ID", example = "1")
+      @PathVariable long userId) {
+
+    return ResponseEntity
+        .accepted()
+        .body(new CustomResponse<>());
+  }
+
+  @Operation(
+      summary = "즐겨찾기 삭제",
+      description = "즐겨찾기에 등록한 사용자를 삭제합니다."
+  )
+  @ApiResponse(
+      responseCode = "202",
+      description = "즐겨찾기 삭제 정상 처리"
+  )
+  @DeleteMapping("/favorites/{userId}")
+  public ResponseEntity<CustomResponse<Void>> deleteFavorite(
+      @Parameter(description = "즐겨찾기에서 삭제할 사용자 ID", example = "1")
       @PathVariable long userId) {
 
     return ResponseEntity
