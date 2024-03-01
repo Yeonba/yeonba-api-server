@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "user")
+@Table(name = "users")
 @Getter
 @Entity
 @NoArgsConstructor
@@ -71,5 +71,10 @@ public class User {
         this.smokingHabit = smokingHabit;
         this.mbti = mbti;
         this.lastAccessedAt = lastAccessedAt;
+    }
+
+    public void changePassword(String encryptedNewPassword) {
+
+        this.encryptedPassword = encryptedNewPassword;
     }
 }
