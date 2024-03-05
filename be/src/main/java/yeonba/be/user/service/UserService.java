@@ -14,7 +14,6 @@ public class UserService {
     public User findById(long userId) {
 
         return userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
-
 }

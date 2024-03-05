@@ -53,6 +53,7 @@ public class User {
     private Area area;
 
     private LocalDateTime lastAccessedAt;
+    private LocalDateTime deletedAt;
 
     public User(String name, String nickname, LocalDate birth, int height, String email, String encryptedPassword, String phoneNumber, int arrow, double photoSyncRate, String bodyType, String job, String drinkingHabit, String smokingHabit, String mbti, LocalDateTime lastAccessedAt) {
         this.name = name;
@@ -76,5 +77,15 @@ public class User {
     public void changePassword(String encryptedNewPassword) {
 
         this.encryptedPassword = encryptedNewPassword;
+    }
+
+    /**
+     * 삭제된 사용자인지 검증
+     */
+    public void validateDeletedUser(LocalDateTime now) {
+
+        if (this.deletedAt.isAfter(now)) {
+            throw new IllegalArgumentException("삭제된 사용자입니다.");
+        }
     }
 }
