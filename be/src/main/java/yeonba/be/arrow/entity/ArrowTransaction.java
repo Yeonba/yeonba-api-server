@@ -18,7 +18,7 @@ import yeonba.be.user.entity.User;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArraowTransaction {
+public class ArrowTransaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +34,7 @@ public class ArraowTransaction {
 
     private LocalDateTime createdAt;
 
-    public ArraowTransaction(User sentUser, User receivedUser) {
+    public ArrowTransaction(User sentUser, User receivedUser) {
 
         this.sentUser = sentUser;
         this.receivedUser = receivedUser;
