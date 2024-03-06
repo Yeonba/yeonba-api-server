@@ -55,7 +55,10 @@ public class User {
     private LocalDateTime lastAccessedAt;
     private LocalDateTime deletedAt;
 
-    public User(String name, String nickname, LocalDate birth, int height, String email, String encryptedPassword, String phoneNumber, int arrow, double photoSyncRate, String bodyType, String job, String drinkingHabit, String smokingHabit, String mbti, LocalDateTime lastAccessedAt) {
+    public User(String name, String nickname, LocalDate birth, int height, String email,
+        String encryptedPassword, String phoneNumber, int arrow, double photoSyncRate,
+        String bodyType, String job, String drinkingHabit, String smokingHabit, String mbti,
+        LocalDateTime lastAccessedAt) {
         this.name = name;
         this.nickname = nickname;
         this.birth = birth;
@@ -87,5 +90,13 @@ public class User {
         if (this.deletedAt.isAfter(now)) {
             throw new IllegalArgumentException("삭제된 사용자입니다.");
         }
+    }
+
+    public void updateLastAccessedAt(LocalDateTime accessedAt) {
+        this.lastAccessedAt = accessedAt;
+    }
+
+    public void addArrow(int arrow) {
+        this.arrow += arrow;
     }
 }
