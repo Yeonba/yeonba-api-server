@@ -47,6 +47,19 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     );
   }
 
+  @ExceptionHandler
+  public ResponseEntity<Object> handleAllException(
+      Exception exception,
+      WebRequest request
+  ) {
+
+    return handleExceptionInternal(
+        exception,
+        request,
+        exception.getMessage()
+    );
+  }
+
   private ResponseEntity<Object> handleExceptionInternal(
       GeneralException exception,
       HttpServletRequest request
@@ -100,6 +113,25 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         body,
         HttpHeaders.EMPTY,
         ExceptionType.BAD_REQUEST.getHttpStatus(),
+        request
+    );
+  }
+
+  private ResponseEntity<Object> handleExceptionInternal(
+      Exception exception,
+      WebRequest request,
+      String errorPoint
+  ) {
+
+    CustomResponse<String> body = CustomResponse.onFailure(
+        ExceptionType.INTERNAL_SERVER_ERROR.getReason(),
+        errorPoint
+    );
+    return super.handleExceptionInternal(
+        exception,
+        body,
+        HttpHeaders.EMPTY,
+        ExceptionType.INTERNAL_SERVER_ERROR.getHttpStatus(),
         request
     );
   }
