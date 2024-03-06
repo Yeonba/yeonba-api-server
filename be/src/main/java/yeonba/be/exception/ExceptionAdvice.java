@@ -1,6 +1,8 @@
 package yeonba.be.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +29,20 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 
     return handleExceptionInternal(
         exception,
+        request
+    );
+  }
+
+  @ExceptionHandler(value = ConstraintViolationException.class)
+  public ResponseEntity<Object> handleConstraintViolationException(
+      ConstraintViolationException exception,
+      WebRequest request
+  ) {
+
+    String exceptionMessage = getConstraintViolationMessage(exception);
+    return handleExceptionInternalConstraint(
+        exception,
+        exceptionMessage,
         request
     );
   }
@@ -108,6 +124,29 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         ExceptionType.BAD_REQUEST.getReason(),
         exceptionArgs
     );
+    return super.handleExceptionInternal(
+        exception,
+        body,
+        HttpHeaders.EMPTY,
+        ExceptionType.BAD_REQUEST.getHttpStatus(),
+        request
+    );
+  }
+
+  private String getConstraintViolationMessage(ConstraintViolationException exception) {
+    return exception.getConstraintViolations().stream()
+        .map(ConstraintViolation::getMessage)
+        .findFirst()
+        .orElseThrow(() -> new RuntimeException("ConstraintViolationException 추출 도중 오류 발생"));
+  }
+
+  private ResponseEntity<Object> handleExceptionInternalConstraint(
+      ConstraintViolationException exception,
+      String exceptionMessage,
+      WebRequest request
+  ) {
+
+    CustomResponse<Object> body = new CustomResponse<>(exceptionMessage);
     return super.handleExceptionInternal(
         exception,
         body,
