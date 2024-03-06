@@ -5,6 +5,13 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ExceptionType {
+
+  BAD_REQUEST(
+      HttpStatus.BAD_REQUEST,
+      "COMMON400",
+      "잘못된 요청입니다."
+  ),
+
   INTERNAL_SERVER_ERROR(
       HttpStatus.INTERNAL_SERVER_ERROR,
       "COMMON500",
