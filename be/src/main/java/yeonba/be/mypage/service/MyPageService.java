@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
+import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.service.UserService;
@@ -23,6 +24,12 @@ public class MyPageService {
             user.getRepresentativeProfilePhoto(),
             user.getArrow()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileDetailResponse getProfileDetail(User user) {
+
+        return new UserProfileDetailResponse(user);
     }
 
     @Transactional
