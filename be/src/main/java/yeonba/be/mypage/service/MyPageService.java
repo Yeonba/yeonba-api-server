@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
+import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.user.entity.User;
@@ -30,6 +31,16 @@ public class MyPageService {
     public UserProfileDetailResponse getProfileDetail(User user) {
 
         return new UserProfileDetailResponse(user);
+    }
+
+    @Transactional
+    public void updateProfile(UserUpdateProfileRequest request, User user) {
+
+        User validatedUser = userService.findById(user.getId());
+
+        // TODO: 선호 조건 테이블 생성 후 로직 추가
+
+        // validatedUser.updateProfile(request);
     }
 
     @Transactional
