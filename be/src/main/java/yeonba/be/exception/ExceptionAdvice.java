@@ -20,13 +20,13 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
       HttpServletRequest request
   ) {
 
-    return handlerExceptionInternal(
+    return handleExceptionInternal(
         exception,
         request
     );
   }
 
-  private ResponseEntity<Object> handlerExceptionInternal(
+  private ResponseEntity<Object> handleExceptionInternal(
       GeneralException exception,
       HttpServletRequest request
   ) {
