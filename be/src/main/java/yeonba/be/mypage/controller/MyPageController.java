@@ -48,24 +48,17 @@ public class MyPageController {
 
     private final MyPageService myPageService;
 
-    @Operation(
-        summary = "자신의 프로필 조회",
-        description = "사용자 자신의 프로필 정보를 조회할 수 있습니다."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "자신의 프로필 조회 성공"
-    )
+    @Operation(summary = "자신의 프로필 조회", description = "사용자 자신의 프로필 정보를 조회할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "자신의 프로필 조회 성공")
     @GetMapping("/users/profile")
-    public ResponseEntity<CustomResponse<UserSimpleProfileResponse>> simpleProfile() {
+    public ResponseEntity<CustomResponse<UserSimpleProfileResponse>> getSimpleProfile(
+        @RequestAttribute("user") User user) {
+
+        UserSimpleProfileResponse response = myPageService.getSimpleProfile(user);
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(new UserSimpleProfileResponse(
-                "안민재",
-                "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
-                10
-            )));
+            .body(new CustomResponse<>(response));
     }
 
     @Operation(

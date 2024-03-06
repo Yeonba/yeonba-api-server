@@ -25,5 +25,5 @@ public class UserSimpleProfileResponse {
       description = "가진 화살 수",
       example = "10"
   )
-  private Integer ownedArrows;
+  private int arrows;
 }
