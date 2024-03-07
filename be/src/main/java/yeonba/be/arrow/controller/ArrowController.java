@@ -46,10 +46,10 @@ public class ArrowController {
   )
   @PostMapping("/daily-check")
   public ResponseEntity<CustomResponse<Void>> dailyCheck(
-      @RequestAttribute("user") User user
-  ) {
+      @RequestAttribute("user") User user) {
 
     arrowService.dailyCheck(user);
+
     return ResponseEntity
         .ok()
         .body(new CustomResponse<>());
