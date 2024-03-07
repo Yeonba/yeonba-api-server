@@ -24,27 +24,24 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
   @ExceptionHandler(value = GeneralException.class)
   public ResponseEntity<Object> handleGeneralException(
       GeneralException exception,
-      HttpServletRequest request
-  ) {
+      HttpServletRequest request) {
 
     return handleExceptionInternal(
         exception,
-        request
-    );
+        request);
   }
 
   @ExceptionHandler(value = ConstraintViolationException.class)
   public ResponseEntity<Object> handleConstraintViolationException(
       ConstraintViolationException exception,
-      WebRequest request
-  ) {
+      WebRequest request) {
 
     String exceptionMessage = getConstraintViolationMessage(exception);
+
     return handleExceptionInternalConstraint(
         exception,
         exceptionMessage,
-        request
-    );
+        request);
   }
 
   @Override
@@ -52,44 +49,40 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
       MethodArgumentNotValidException exception,
       HttpHeaders headers,
       HttpStatusCode status,
-      WebRequest request
-  ) {
+      WebRequest request) {
 
     Map<String, String> exceptionArgs = getMethodArgumentExceptionArgs(exception);
+
     return handleExceptionInternalArgs(
         exception,
         exceptionArgs,
-        request
-    );
+        request);
   }
 
   @ExceptionHandler
   public ResponseEntity<Object> handleAllException(
       Exception exception,
-      WebRequest request
-  ) {
+      WebRequest request) {
 
     return handleExceptionInternal(
         exception,
         request,
-        exception.getMessage()
-    );
+        exception.getMessage());
   }
 
   private ResponseEntity<Object> handleExceptionInternal(
       GeneralException exception,
-      HttpServletRequest request
-  ) {
+      HttpServletRequest request) {
 
     CustomResponse<Object> body = new CustomResponse<>(exception.getExceptionReason());
     WebRequest webRequest = new ServletWebRequest(request);
+
     return super.handleExceptionInternal(
         exception,
         body,
         HttpHeaders.EMPTY,
         exception.getHttpStatus(),
-        webRequest
-    );
+        webRequest);
   }
 
   private Map<String, String> getMethodArgumentExceptionArgs(
@@ -117,23 +110,22 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
   private ResponseEntity<Object> handleExceptionInternalArgs(
       MethodArgumentNotValidException exception,
       Map<String, String> exceptionArgs,
-      WebRequest request
-  ) {
+      WebRequest request) {
 
     CustomResponse<Map<String, String>> body = CustomResponse.onFailure(
         ExceptionType.BAD_REQUEST.getReason(),
-        exceptionArgs
-    );
+        exceptionArgs);
+
     return super.handleExceptionInternal(
         exception,
         body,
         HttpHeaders.EMPTY,
         ExceptionType.BAD_REQUEST.getHttpStatus(),
-        request
-    );
+        request);
   }
 
   private String getConstraintViolationMessage(ConstraintViolationException exception) {
+
     return exception.getConstraintViolations().stream()
         .map(ConstraintViolation::getMessage)
         .findFirst()
@@ -143,35 +135,32 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
   private ResponseEntity<Object> handleExceptionInternalConstraint(
       ConstraintViolationException exception,
       String exceptionMessage,
-      WebRequest request
-  ) {
+      WebRequest request) {
 
     CustomResponse<Object> body = new CustomResponse<>(exceptionMessage);
+
     return super.handleExceptionInternal(
         exception,
         body,
         HttpHeaders.EMPTY,
         ExceptionType.BAD_REQUEST.getHttpStatus(),
-        request
-    );
+        request);
   }
 
   private ResponseEntity<Object> handleExceptionInternal(
       Exception exception,
       WebRequest request,
-      String errorPoint
-  ) {
+      String errorPoint) {
 
     CustomResponse<String> body = CustomResponse.onFailure(
         ExceptionType.INTERNAL_SERVER_ERROR.getReason(),
-        errorPoint
-    );
+        errorPoint);
+
     return super.handleExceptionInternal(
         exception,
         body,
         HttpHeaders.EMPTY,
         ExceptionType.INTERNAL_SERVER_ERROR.getHttpStatus(),
-        request
-    );
+        request);
   }
 }
