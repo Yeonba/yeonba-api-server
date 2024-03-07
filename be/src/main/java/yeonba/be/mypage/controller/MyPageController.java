@@ -88,10 +88,10 @@ public class MyPageController {
     @PutMapping(path = "/users/profile-photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CustomResponse<Void>> updateProfilePhotos(
         @Parameter(description = "업로드할 새로운 프로필 사진들, 반드시 한 번에 3개씩 업로드")
-        @RequestPart("photoFiles")
-        @Size(min = 3, max = 3) List<MultipartFile> photoFiles) {
+        @RequestPart("photoFiles") @Size(min = 3, max = 3) List<MultipartFile> photoFiles,
+        @RequestAttribute("userId") long userId) {
 
-        // TODO: S3 적용 후 작업 예정
+        myPageService.updateProfilePhotos(photoFiles, userId);
 
         return ResponseEntity
             .accepted()
