@@ -36,6 +36,7 @@ public class CustomResponse<T> {
   }
 
   public static <T> CustomResponse<T> onFailure(String message, T data) {
+
     return new CustomResponse<>(message, data);
   }
 }
