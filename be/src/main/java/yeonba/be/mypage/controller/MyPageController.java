@@ -5,18 +5,16 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
 import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
-import yeonba.be.mypage.dto.request.UserCheckPasswordMatchRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.request.UserUpdateUnwantedAcquaintancesRequest;
@@ -34,11 +31,9 @@ import yeonba.be.mypage.dto.response.BlockedUsersResponse;
 import yeonba.be.mypage.dto.response.UnwantedAcquaintanceResponse;
 import yeonba.be.mypage.dto.response.UnwantedAcquaintancesResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
-import yeonba.be.mypage.dto.response.UserProfileImageResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.mypage.service.MyPageService;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.service.UserService;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "MyPage", description = " My Page 관련 API")
@@ -48,74 +43,30 @@ public class MyPageController {
 
     private final MyPageService myPageService;
 
-    @Operation(
-        summary = "자신의 프로필 조회",
-        description = "사용자 자신의 프로필 정보를 조회할 수 있습니다."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "자신의 프로필 조회 성공"
-    )
-    @GetMapping("/users/profile")
-    public ResponseEntity<CustomResponse<UserSimpleProfileResponse>> simpleProfile() {
+    @Operation(summary = "자신의 프로필 조회", description = "사용자 자신의 프로필 정보를 조회할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "자신의 프로필 조회 성공")
+    @GetMapping("/users/profiles")
+    public ResponseEntity<CustomResponse<UserSimpleProfileResponse>> getSimpleProfile(
+        @RequestAttribute("userId") long userId) {
+
+        UserSimpleProfileResponse response = myPageService.getSimpleProfile(userId);
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(new UserSimpleProfileResponse(
-                "안민재",
-                "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
-                10
-            )));
+            .body(new CustomResponse<>(response));
     }
 
-    @Operation(
-        summary = "자신의 상세 프로필 조회",
-        description = "사용자 자신의 상세 프로필 정보를 조회할 수 있습니다."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "자신의 상세 프로필 조회 성공"
-    )
-    @GetMapping("/users/profile/detail")
-    public ResponseEntity<CustomResponse<UserProfileDetailResponse>> profileDetail() {
+    @Operation(summary = "자신의 상세 프로필 조회", description = "사용자 자신의 상세 프로필 정보를 조회할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "자신의 상세 프로필 조회 성공")
+    @GetMapping("/users/profiles/details")
+    public ResponseEntity<CustomResponse<UserProfileDetailResponse>> getProfileDetail(
+        @RequestAttribute("userId") long userId) {
 
-        List<UserProfileImageResponse> profileImages = List.of(
-            new UserProfileImageResponse(
-                1L,
-                "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
-                LocalDateTime.of(2012, 10, 1, 12, 0, 5)
-            ),
-            new UserProfileImageResponse(
-                2L,
-                "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
-                LocalDateTime.of(2012, 10, 1, 12, 0, 5)
-            ),
-            new UserProfileImageResponse(
-                3L,
-                "https://yeonba-bucket.s3.ap-northeast-2.amazonaws.com/wanna_go_home.jpg",
-                LocalDateTime.of(2012, 10, 1, 12, 0, 5)
-            )
-        );
+        UserProfileDetailResponse response = myPageService.getProfileDetail(userId);
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(new UserProfileDetailResponse(
-                profileImages,
-                "남",
-                "안민재",
-                LocalDate.of(1998, 1, 1),
-                181,
-                "mj3242@naver.com",
-                "01011112222",
-                "존잘남",
-                80,
-                "마른 체형",
-                "학생",
-                "자주",
-                "가끔",
-                "ISTP",
-                LocalDateTime.of(2012, 10, 1, 11, 30, 2)
-            )));
+            .body(new CustomResponse<>(response));
     }
 
     @Operation(summary = "비밀번호 수정", description = "자신의 비밀번호를 수정할 수 있습니다.")
@@ -123,48 +74,38 @@ public class MyPageController {
     @PatchMapping("/users/password")
     public ResponseEntity<CustomResponse<Void>> changePassword(
         @RequestBody UserChangePasswordRequest request,
-        @RequestAttribute("user") User user) {
+        @RequestAttribute("userId") long userId) {
 
-        myPageService.changePassword(request, user);
+        myPageService.changePassword(request, userId);
 
         return ResponseEntity
             .accepted()
             .body(new CustomResponse<>());
     }
 
-    @Operation(
-        summary = "자신의 프로필 사진 수정",
-        description = "자신의 프로필 사진을 수정할 수 있습니다."
-    )
-    @ApiResponse(
-        responseCode = "202",
-        description = "자신의 프로필 사진 수정 정상 처리"
-    )
-    @PutMapping(
-        path = "/users/profile-photos",
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @Operation(summary = "자신의 프로필 사진 수정", description = "자신의 프로필 사진을 수정할 수 있습니다.")
+    @ApiResponse(responseCode = "202", description = "자신의 프로필 사진 수정 정상 처리")
+    @PutMapping(path = "/users/profile-photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CustomResponse<Void>> updateProfilePhotos(
         @Parameter(description = "업로드할 새로운 프로필 사진들, 반드시 한 번에 3개씩 업로드")
-        @RequestPart("photoFiles")
-        @Size(min = 3, max = 3) List<MultipartFile> photoFiles) {
+        @RequestPart("photoFiles") @Size(min = 3, max = 3) List<MultipartFile> photoFiles,
+        @RequestAttribute("userId") long userId) {
+
+        myPageService.updateProfilePhotos(photoFiles, userId);
 
         return ResponseEntity
             .accepted()
             .body(new CustomResponse<>());
     }
 
-    @Operation(
-        summary = "자산의 프로필 수정",
-        description = "자신의 프로필 정보를 수정할 수 있습니다."
-    )
-    @ApiResponse(
-        responseCode = "204",
-        description = "자신의 프로필 수정 요청 정상 처리"
-    )
-    @PatchMapping("/users/profile")
+    @Operation(summary = "자산의 프로필 수정", description = "자신의 프로필 정보를 수정할 수 있습니다.")
+    @ApiResponse(responseCode = "204", description = "자신의 프로필 수정 요청 정상 처리")
+    @PatchMapping("/users/profiles")
     public ResponseEntity<CustomResponse<Void>> updateProfile(
-        @RequestBody UserUpdateProfileRequest request) {
+        @Validated @RequestBody UserUpdateProfileRequest request,
+        @RequestAttribute("userId") long userId) {
+
+        myPageService.updateProfile(request, userId);
 
         return ResponseEntity
             .accepted()

@@ -15,10 +15,13 @@ public class DevAuthInterceptor implements HandlerInterceptor {
     private final UserService userService;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request,
+        HttpServletResponse response,
+        Object handler) throws Exception {
 
+        long devUserId = 2L;
         User user = userService.findById(2L);
-        request.setAttribute("user", user);
+        request.setAttribute("userId", devUserId);
 
         return true;
     }

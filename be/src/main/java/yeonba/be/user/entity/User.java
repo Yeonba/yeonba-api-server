@@ -1,14 +1,17 @@
 package yeonba.be.user.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,13 +55,13 @@ public class User {
     @JoinColumn(name = "area_id")
     private Area area;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    List<ProfilePhoto> profilePhotos;
+
     private LocalDateTime lastAccessedAt;
     private LocalDateTime deletedAt;
 
-    public User(String name, String nickname, LocalDate birth, int height, String email,
-        String encryptedPassword, String phoneNumber, int arrow, double photoSyncRate,
-        String bodyType, String job, String drinkingHabit, String smokingHabit, String mbti,
-        LocalDateTime lastAccessedAt) {
+    public User(String name, String nickname, LocalDate birth, int height, String email, String encryptedPassword, String phoneNumber, int arrow, double photoSyncRate, String bodyType, String job, String drinkingHabit, String smokingHabit, String mbti, LocalDateTime lastAccessedAt) {
         this.name = name;
         this.nickname = nickname;
         this.birth = birth;
@@ -92,11 +95,8 @@ public class User {
         }
     }
 
-    public void updateLastAccessedAt(LocalDateTime accessedAt) {
-        this.lastAccessedAt = accessedAt;
-    }
+    public String getRepresentativeProfilePhoto() {
 
-    public void addArrow(int arrow) {
-        this.arrow += arrow;
+        return this.profilePhotos.get(0).getPhotoUrl();
     }
 }
