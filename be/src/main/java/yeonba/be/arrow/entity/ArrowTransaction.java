@@ -10,7 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -22,7 +21,6 @@ import yeonba.be.user.entity.User;
 @Entity
 @EntityListeners(value = AuditingEntityListener.class)
 @NoArgsConstructor
-@AllArgsConstructor
 public class ArrowTransaction {
 
     @Id
@@ -37,13 +35,19 @@ public class ArrowTransaction {
     @JoinColumn(name = "received_user_id")
     private User receivedUser;
 
+    @Column(nullable = false)
+    private int arrows;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public ArrowTransaction(User sentUser, User receivedUser) {
-
+    public ArrowTransaction(
+        User sentUser,
+        User receivedUser,
+        int arrows) {
         this.sentUser = sentUser;
         this.receivedUser = receivedUser;
+        this.arrows = arrows;
     }
 }
