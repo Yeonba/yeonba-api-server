@@ -1,14 +1,17 @@
 package yeonba.be.user.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,6 +55,9 @@ public class User {
     @JoinColumn(name = "area_id")
     private Area area;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    List<ProfilePhoto> profilePhotos;
+
     private LocalDateTime lastAccessedAt;
     private LocalDateTime deletedAt;
 
@@ -87,5 +93,10 @@ public class User {
         if (this.deletedAt.isAfter(now)) {
             throw new IllegalArgumentException("삭제된 사용자입니다.");
         }
+    }
+
+    public String getRepresentativeProfilePhoto() {
+
+        return this.profilePhotos.get(0).getPhotoUrl();
     }
 }
