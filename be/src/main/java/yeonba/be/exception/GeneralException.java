@@ -15,8 +15,4 @@ public class GeneralException extends RuntimeException {
   public String getExceptionReason() {
     return exceptionType.getReason();
   }
-
-  public String getExceptionCode() {
-    return exceptionType.getCode();
-  }
 }
