@@ -18,17 +18,28 @@ public class ArrowService {
   private final UserService userService;
   private final ArrowTransactionCommandRepository arrowTransactionCommandRepository;
 
+  /*
+    출석 체크는 다음 과정을 거쳐 이뤄진다.
+    1. 사용자 최종 접속 일시를 통해 이미 출석 체크하였는지 확인
+    2. 화살 송수신 내역 저장
+    3. 사용자 최종 접속 일시 갱신
+    4. 사용자 화살 개수 증가
+   */
+
   @Transactional
-  public void dailyCheck(User user){
+  public void dailyCheck(User user) {
 
     User dailyCheckUser = userService.findById(user.getId());
 
     LocalDateTime dailyCheckedAt = LocalDateTime.now();
-    if(isAlreadyCheckedUser(dailyCheckUser, dailyCheckedAt.toLocalDate())){
+    if (isAlreadyCheckedUser(dailyCheckUser, dailyCheckedAt.toLocalDate())) {
       throw new IllegalArgumentException("이미 출석 체크한 사용자입니다.");
     }
 
-    ArrowTransaction arrowTransaction = new ArrowTransaction(null, dailyCheckUser);
+    ArrowTransaction arrowTransaction = new ArrowTransaction(
+        null,
+        dailyCheckUser,
+        DAILY_CHECK_ARROW_COUNT);
     arrowTransactionCommandRepository.save(arrowTransaction);
 
     dailyCheckUser.updateLastAccessedAt(dailyCheckedAt);
