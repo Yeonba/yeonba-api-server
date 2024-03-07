@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import yeonba.be.arrow.entity.ArrowTransaction;
 
 @Repository
-public interface ArrowTransactionCommandRepository
-    extends JpaRepository<ArrowTransaction, Long> {
+public interface ArrowTransactionCommandRepository extends JpaRepository<ArrowTransaction, Long> {
+
 }
