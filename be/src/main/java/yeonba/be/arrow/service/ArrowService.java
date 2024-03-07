@@ -47,12 +47,14 @@ public class ArrowService {
   }
 
   private boolean isAlreadyCheckedUser(User user, LocalDate dailyCheckDate){
+
     return user.getLastAccessedAt()
         .toLocalDate()
         .equals(dailyCheckDate);
   }
 
   private void addUserArrow(User user, int arrowCount){
+
     user.addArrow(arrowCount);
   }
 }
