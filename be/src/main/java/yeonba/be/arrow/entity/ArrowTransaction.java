@@ -46,6 +46,7 @@ public class ArrowTransaction {
         User sentUser,
         User receivedUser,
         int arrows) {
+
         this.sentUser = sentUser;
         this.receivedUser = receivedUser;
         this.arrows = arrows;
