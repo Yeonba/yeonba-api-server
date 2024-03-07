@@ -41,8 +41,8 @@ public class ArrowController {
 
   @Operation(summary = "출석 체크", description = "출석 체크를 통해 사용자가 10개의 화살을 획득할 수 있습니다.")
   @ApiResponse(
-      responseCode = "200",
-      description = "정상적으로 출석 체크 완료"
+      responseCode = "202",
+      description = "출석 체크 정상 처리"
   )
   @PostMapping("/daily-check")
   public ResponseEntity<CustomResponse<Void>> dailyCheck(
@@ -51,7 +51,7 @@ public class ArrowController {
     arrowService.dailyCheck(user);
 
     return ResponseEntity
-        .ok()
+        .accepted()
         .body(new CustomResponse<>());
   }
 
