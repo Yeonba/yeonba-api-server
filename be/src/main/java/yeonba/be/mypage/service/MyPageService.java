@@ -18,7 +18,9 @@ public class MyPageService {
     private final UserService userService;
 
     @Transactional(readOnly = true)
-    public UserSimpleProfileResponse getSimpleProfile(User user) {
+    public UserSimpleProfileResponse getSimpleProfile(long userId) {
+
+        User user = userService.findById(userId);
 
         return new UserSimpleProfileResponse(
             user.getName(),
@@ -28,15 +30,17 @@ public class MyPageService {
     }
 
     @Transactional(readOnly = true)
-    public UserProfileDetailResponse getProfileDetail(User user) {
+    public UserProfileDetailResponse getProfileDetail(long userId) {
+
+        User user = userService.findById(userId);
 
         return new UserProfileDetailResponse(user);
     }
 
     @Transactional
-    public void updateProfile(UserUpdateProfileRequest request, User user) {
+    public void updateProfile(UserUpdateProfileRequest request, long userId) {
 
-        User validatedUser = userService.findById(user.getId());
+        User validatedUser = userService.findById(userId);
 
         // TODO: 선호 조건 테이블 생성 후 로직 추가
 
@@ -44,7 +48,9 @@ public class MyPageService {
     }
 
     @Transactional
-    public void changePassword(UserChangePasswordRequest request, User user) {
+    public void changePassword(UserChangePasswordRequest request, long userId) {
+
+        User user = userService.findById(userId);
 
         // TODO: 비밀번호 암호화 후 비교
         String encryptedOldPassword = request.getOldPassword();
@@ -57,11 +63,9 @@ public class MyPageService {
             throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인 값이 일치하지 않습니다.");
         }
 
-        User validatedUser = userService.findById(user.getId());
-
         // TODO: 암호화 후 비밀번호 변경
         String encryptedNewPassword = request.getNewPassword();
 
-        validatedUser.changePassword(encryptedNewPassword);
+        user.changePassword(encryptedNewPassword);
     }
 }

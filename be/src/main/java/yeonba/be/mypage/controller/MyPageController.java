@@ -47,9 +47,9 @@ public class MyPageController {
     @ApiResponse(responseCode = "200", description = "자신의 프로필 조회 성공")
     @GetMapping("/users/profiles")
     public ResponseEntity<CustomResponse<UserSimpleProfileResponse>> getSimpleProfile(
-        @RequestAttribute("user") User user) {
+        @RequestAttribute("userId") long userId) {
 
-        UserSimpleProfileResponse response = myPageService.getSimpleProfile(user);
+        UserSimpleProfileResponse response = myPageService.getSimpleProfile(userId);
 
         return ResponseEntity
             .ok()
@@ -60,9 +60,9 @@ public class MyPageController {
     @ApiResponse(responseCode = "200", description = "자신의 상세 프로필 조회 성공")
     @GetMapping("/users/profiles/details")
     public ResponseEntity<CustomResponse<UserProfileDetailResponse>> getProfileDetail(
-        @RequestAttribute("user") User user) {
+        @RequestAttribute("userId") long userId) {
 
-        UserProfileDetailResponse response = myPageService.getProfileDetail(user);
+        UserProfileDetailResponse response = myPageService.getProfileDetail(userId);
 
         return ResponseEntity
             .ok()
@@ -74,9 +74,9 @@ public class MyPageController {
     @PatchMapping("/users/password")
     public ResponseEntity<CustomResponse<Void>> changePassword(
         @RequestBody UserChangePasswordRequest request,
-        @RequestAttribute("user") User user) {
+        @RequestAttribute("userId") long userId) {
 
-        myPageService.changePassword(request, user);
+        myPageService.changePassword(request, userId);
 
         return ResponseEntity
             .accepted()
@@ -103,9 +103,9 @@ public class MyPageController {
     @PatchMapping("/users/profiles")
     public ResponseEntity<CustomResponse<Void>> updateProfile(
         @Validated @RequestBody UserUpdateProfileRequest request,
-        @RequestAttribute("user") User user) {
+        @RequestAttribute("userId") long userId) {
 
-        myPageService.updateProfile(request, user);
+        myPageService.updateProfile(request, userId);
 
         return ResponseEntity
             .accepted()
