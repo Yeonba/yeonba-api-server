@@ -43,6 +43,13 @@ public class ArrowTransaction {
     private LocalDateTime createdAt;
 
     public ArrowTransaction(
+        User receivedUser,
+        int arrows) {
+        this.receivedUser = receivedUser;
+        this.arrows = arrows;
+    }
+
+    public ArrowTransaction(
         User sentUser,
         User receivedUser,
         int arrows) {
