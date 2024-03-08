@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.arrow.dto.UserArrowsResponse;
 import yeonba.be.arrow.service.ArrowService;
-import yeonba.be.user.entity.User;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "Arrow", description = "화살 관련 API")
@@ -40,15 +39,12 @@ public class ArrowController {
   }
 
   @Operation(summary = "출석 체크", description = "출석 체크를 통해 사용자가 10개의 화살을 획득할 수 있습니다.")
-  @ApiResponse(
-      responseCode = "202",
-      description = "출석 체크 정상 처리"
-  )
+  @ApiResponse(responseCode = "202", description = "출석 체크 정상 처리")
   @PostMapping("/daily-check")
   public ResponseEntity<CustomResponse<Void>> dailyCheck(
-      @RequestAttribute("user") User user) {
+      @RequestAttribute("userId") long userId) {
 
-    arrowService.dailyCheck(user);
+    arrowService.dailyCheck(userId);
 
     return ResponseEntity
         .accepted()
