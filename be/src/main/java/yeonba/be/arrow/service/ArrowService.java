@@ -27,9 +27,9 @@ public class ArrowService {
    */
 
   @Transactional
-  public void dailyCheck(User user) {
+  public void dailyCheck(long userId) {
 
-    User dailyCheckUser = userService.findById(user.getId());
+    User dailyCheckUser = userService.findById(userId);
 
     LocalDateTime dailyCheckedAt = LocalDateTime.now();
     if (isAlreadyCheckedUser(dailyCheckUser, dailyCheckedAt.toLocalDate())) {
@@ -37,9 +37,9 @@ public class ArrowService {
     }
 
     ArrowTransaction arrowTransaction = new ArrowTransaction(
-        null,
         dailyCheckUser,
-        DAILY_CHECK_ARROW_COUNT);
+        DAILY_CHECK_ARROW_COUNT
+    );
     arrowTransactionCommandRepository.save(arrowTransaction);
 
     dailyCheckUser.updateLastAccessedAt(dailyCheckedAt);
