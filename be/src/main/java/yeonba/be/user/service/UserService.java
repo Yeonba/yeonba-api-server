@@ -3,13 +3,13 @@ package yeonba.be.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.repository.UserRepository;
+import yeonba.be.user.repository.UserQueryRepository;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final UserQueryRepository userRepository;
 
     public User findById(long userId) {
 
