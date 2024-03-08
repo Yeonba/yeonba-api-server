@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yeonba.be.arrow.dto.UserArrowsResponse;
 import yeonba.be.arrow.entity.ArrowTransaction;
 import yeonba.be.arrow.repository.ArrowTransactionCommandRepository;
 import yeonba.be.user.entity.User;
@@ -44,6 +45,14 @@ public class ArrowService {
 
     dailyCheckUser.updateLastAccessedAt(dailyCheckedAt);
     dailyCheckUser.addArrow(DAILY_CHECK_ARROW_COUNT);
+  }
+
+  @Transactional(readOnly = true)
+  public UserArrowsResponse getUserArrows(long userId) {
+
+    User user = userService.findById(userId);
+
+    return new UserArrowsResponse(user.getArrow());
   }
 
   private boolean isAlreadyCheckedUser(User user, LocalDate dailyCheckDate) {
