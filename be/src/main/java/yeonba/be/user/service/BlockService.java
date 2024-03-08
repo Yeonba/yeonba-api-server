@@ -42,8 +42,6 @@ public class BlockService {
 
   private boolean isAlreadyBlockedUser(User user, User blockedUser) {
 
-    return blockQueryRepository
-        .findByUserAndBlockedUser(user, blockedUser)
-        .isPresent();
+    return blockQueryRepository.existsByUserAndBlockedUser(user, blockedUser);
   }
 }
