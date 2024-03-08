@@ -43,18 +43,13 @@ public class ArrowService {
     arrowTransactionCommandRepository.save(arrowTransaction);
 
     dailyCheckUser.updateLastAccessedAt(dailyCheckedAt);
-    addUserArrow(dailyCheckUser, DAILY_CHECK_ARROW_COUNT);
+    dailyCheckUser.addArrow(DAILY_CHECK_ARROW_COUNT);
   }
 
-  private boolean isAlreadyCheckedUser(User user, LocalDate dailyCheckDate){
+  private boolean isAlreadyCheckedUser(User user, LocalDate dailyCheckDate) {
 
     return user.getLastAccessedAt()
         .toLocalDate()
         .equals(dailyCheckDate);
-  }
-
-  private void addUserArrow(User user, int arrowCount){
-
-    user.addArrow(arrowCount);
   }
 }
