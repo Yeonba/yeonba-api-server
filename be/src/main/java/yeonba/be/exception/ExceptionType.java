@@ -16,7 +16,16 @@ public enum ExceptionType {
 
   USER_NOT_FOUND(
       HttpStatus.BAD_REQUEST,
-      "해당 사용자가 존재하지 않습니다.");
+      "해당 사용자가 존재하지 않습니다."),
+
+  // favorite
+  CAN_NOT_FAVORITE_SELF(
+      HttpStatus.BAD_REQUEST,
+      "자기 자신을 즐겨찾기할 수 없습니다."),
+
+  ALREADY_FAVORITE_USER(
+      HttpStatus.BAD_REQUEST,
+      "이미 즐겨찾기한 사용자입니다.");
 
   private final HttpStatus httpStatus;
   private final String reason;
