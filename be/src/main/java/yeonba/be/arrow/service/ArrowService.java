@@ -9,7 +9,6 @@ import yeonba.be.arrow.dto.request.ArrowSendRequest;
 import yeonba.be.arrow.entity.ArrowTransaction;
 import yeonba.be.arrow.repository.ArrowCommand;
 import yeonba.be.arrow.repository.ArrowQuery;
-import yeonba.be.arrow.repository.ArrowTransactionCommandRepository;
 import yeonba.be.exception.ExceptionType;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.User;
@@ -21,7 +20,6 @@ public class ArrowService {
 
   private final int DAILY_CHECK_ARROW_COUNT = 10;
   private final UserService userService;
-  private final ArrowTransactionCommandRepository arrowTransactionCommandRepository;
   private final ArrowQuery arrowQuery;
   private final ArrowCommand arrowCommand;
 
@@ -47,7 +45,7 @@ public class ArrowService {
         dailyCheckUser,
         DAILY_CHECK_ARROW_COUNT
     );
-    arrowTransactionCommandRepository.save(arrowTransaction);
+    arrowCommand.save(arrowTransaction);
 
     dailyCheckUser.updateLastAccessedAt(dailyCheckedAt);
     dailyCheckUser.addArrow(DAILY_CHECK_ARROW_COUNT);
