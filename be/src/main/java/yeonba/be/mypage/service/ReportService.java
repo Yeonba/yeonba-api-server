@@ -66,22 +66,12 @@ public class ReportService {
       return;
     }
 
-    if (!isReportReasonExist(reason)) {
+    if (!StringUtils.hasText(reason)) {
       throw new GeneralException(ExceptionType.REPORT_REASON_NOT_EXIST);
     }
 
-    if (!isReportReasonLessOrEqualThanMaxLength(reason)) {
+    if (reason.length() > MAX_REPORT_REASON_LENGTH) {
       throw new GeneralException(ExceptionType.REPORT_REASON_LENGTH_NOT_VALID);
     }
-  }
-
-  private boolean isReportReasonExist(String reason) {
-
-    return StringUtils.hasText(reason);
-  }
-
-  private boolean isReportReasonLessOrEqualThanMaxLength(String reason) {
-
-    return reason.length() <= MAX_REPORT_REASON_LENGTH;
   }
 }
