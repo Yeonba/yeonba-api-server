@@ -3,17 +3,19 @@ package yeonba.be.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yeonba.be.exception.ExceptionType;
+import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.repository.BlockCommandRepository;
-import yeonba.be.user.repository.BlockQueryRepository;
+import yeonba.be.user.repository.BlockCommand;
+import yeonba.be.user.repository.BlockQuery;
 
 @Service
 @RequiredArgsConstructor
 public class BlockService {
 
-  private final BlockQueryRepository blockQueryRepository;
-  private final BlockCommandRepository blockCommandRepository;
+  private final BlockQuery blockQuery;
+  private final BlockCommand blockCommand;
   private final UserService userService;
 
   /*
@@ -26,22 +28,22 @@ public class BlockService {
   public void block(long userId, long blockedUserId) {
 
     if (userId == blockedUserId) {
-      throw new IllegalArgumentException("자기 자신을 차단할 수 없습니다.");
+      throw new GeneralException(ExceptionType.CAN_NOT_BLOCK_SELF);
     }
 
     User user = userService.findById(userId);
     User blockedUser = userService.findById(blockedUserId);
 
     if (isAlreadyBlockedUser(user, blockedUser)) {
-      throw new IllegalArgumentException("이미 차단한 사용자입니다.");
+      throw new GeneralException(ExceptionType.ALREADY_BLOCKED_USER);
     }
 
     Block block = new Block(user, blockedUser);
-    blockCommandRepository.save(block);
+    blockCommand.save(block);
   }
 
   private boolean isAlreadyBlockedUser(User user, User blockedUser) {
 
-    return blockQueryRepository.existsByUserAndBlockedUser(user, blockedUser);
+    return blockQuery.existsByUserAndBlockedUser(user, blockedUser);
   }
 }
