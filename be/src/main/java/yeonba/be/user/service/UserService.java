@@ -3,17 +3,16 @@ package yeonba.be.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.repository.UserQueryRepository;
+import yeonba.be.user.repository.UserQuery;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserQueryRepository userRepository;
+  private final UserQuery userQuery;
 
-    public User findById(long userId) {
+  public User findById(long userId) {
 
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-    }
+    return userQuery.findById(userId);
+  }
 }
