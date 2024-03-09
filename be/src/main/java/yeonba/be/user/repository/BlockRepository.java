@@ -6,7 +6,7 @@ import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
 
 @Repository
-public interface BlockQueryRepository extends JpaRepository<Block, Long> {
+public interface BlockRepository extends JpaRepository<Block, Long> {
 
   boolean existsByUserAndBlockedUser(User user, User blockedUser);
 }
