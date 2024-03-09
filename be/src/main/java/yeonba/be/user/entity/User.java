@@ -15,6 +15,8 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import yeonba.be.exception.ExceptionType;
+import yeonba.be.exception.GeneralException;
 
 @Table(name = "users")
 @Getter
@@ -124,5 +126,13 @@ public class User {
     public void addArrow(int arrow) {
 
         this.arrow += arrow;
+    }
+
+    public void minusArrow(int arrow) {
+        if (this.arrow < arrow) {
+            throw new GeneralException(ExceptionType.NOT_ENOUGH_ARROW_TO_SEND);
+        }
+
+        this.arrow -= arrow;
     }
 }
