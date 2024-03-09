@@ -105,6 +105,13 @@ public class User {
         }
     }
 
+    public void validateNotSameUser(User user) {
+
+        if (this.equals(user)) {
+            throw new IllegalArgumentException("동일한 사용자입니다.");
+        }
+    }
+
     public void changePassword(String encryptedNewPassword) {
 
         this.encryptedPassword = encryptedNewPassword;
