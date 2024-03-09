@@ -7,7 +7,7 @@ import org.springframework.util.StringUtils;
 import yeonba.be.exception.ExceptionType;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.mypage.entity.Report;
-import yeonba.be.mypage.repository.ReportCommandRepository;
+import yeonba.be.mypage.repository.ReportCommand;
 import yeonba.be.user.dto.request.UserReportRequest;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.service.UserService;
@@ -20,7 +20,7 @@ public class ReportService {
   private final int MAX_REPORT_REASON_LENGTH = 1024;
 
   private final UserService userService;
-  private final ReportCommandRepository reportCommandRepository;
+  private final ReportCommand reportCommand;
 
   /*
     신고 생성은 다음 과정을 거쳐 이뤄진다.
@@ -48,7 +48,7 @@ public class ReportService {
         reportedUser,
         request.getCategory(),
         request.getReason());
-    reportCommandRepository.save(report);
+    reportCommand.save(report);
   }
 
   /*
