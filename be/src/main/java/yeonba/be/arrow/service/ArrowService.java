@@ -97,8 +97,7 @@ public class ArrowService {
 
   private boolean isAlreadySentArrowUser(User sender, User recipient) {
 
-    return arrowQuery
-        .existsBySentUserAndReceivedUser(sender, recipient);
+    return arrowQuery.existsBySentUserAndReceivedUser(sender, recipient);
   }
 
 }
