@@ -9,14 +9,14 @@ import yeonba.be.arrow.dto.UserArrowsResponse;
 import yeonba.be.arrow.entity.ArrowTransaction;
 import yeonba.be.arrow.repository.ArrowTransactionCommandRepository;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.service.UserService;
+import yeonba.be.user.repository.UserQuery;
 
 @Service
 @RequiredArgsConstructor
 public class ArrowService {
 
   private final int DAILY_CHECK_ARROW_COUNT = 10;
-  private final UserService userService;
+  private final UserQuery userQuery;
   private final ArrowTransactionCommandRepository arrowTransactionCommandRepository;
 
   /*
@@ -30,7 +30,7 @@ public class ArrowService {
   @Transactional
   public void dailyCheck(long userId) {
 
-    User dailyCheckUser = userService.findById(userId);
+    User dailyCheckUser = userQuery.findById(userId);
 
     LocalDateTime dailyCheckedAt = LocalDateTime.now();
     if (isAlreadyCheckedUser(dailyCheckUser, dailyCheckedAt.toLocalDate())) {
@@ -50,7 +50,7 @@ public class ArrowService {
   @Transactional(readOnly = true)
   public UserArrowsResponse getUserArrows(long userId) {
 
-    User user = userService.findById(userId);
+    User user = userQuery.findById(userId);
 
     return new UserArrowsResponse(user.getArrow());
   }
