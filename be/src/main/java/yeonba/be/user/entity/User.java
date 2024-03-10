@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +22,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class User {
 
     @Id
@@ -94,6 +96,20 @@ public class User {
         this.smokingHabit = smokingHabit;
         this.mbti = mbti;
         this.lastAccessedAt = lastAccessedAt;
+    }
+
+    public void validateSameUser(User user) {
+
+        if (!this.equals(user)) {
+            throw new IllegalArgumentException("동일한 사용자가 아닙니다.");
+        }
+    }
+
+    public void validateNotSameUser(User user) {
+
+        if (this.equals(user)) {
+            throw new IllegalArgumentException("동일한 사용자입니다.");
+        }
     }
 
     public void changePassword(String encryptedNewPassword) {
