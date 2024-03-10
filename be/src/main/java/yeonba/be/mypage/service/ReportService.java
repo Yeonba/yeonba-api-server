@@ -36,12 +36,11 @@ public class ReportService {
       UserReportRequest request) {
 
     checkReportRequest(request);
-    if (userId == reportedUserId) {
-      throw new GeneralException(ExceptionType.CAN_NOT_REPORT_SELF);
-    }
 
     User user = userService.findById(userId);
     User reportedUser = userService.findById(reportedUserId);
+
+    user.validateNotSameUser(reportedUser);
 
     Report report = new Report(
         user,
