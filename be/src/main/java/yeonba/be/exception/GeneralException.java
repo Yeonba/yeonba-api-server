@@ -6,13 +6,13 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public class GeneralException extends RuntimeException {
 
-  private final ExceptionType exceptionType;
+  private final BaseException exception;
 
   public HttpStatus getHttpStatus() {
-    return exceptionType.getHttpStatus();
+    return exception.getHttpStatus();
   }
 
   public String getExceptionReason() {
-    return exceptionType.getReason();
+    return exception.getReason();
   }
 }
