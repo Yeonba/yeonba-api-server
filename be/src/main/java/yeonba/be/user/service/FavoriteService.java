@@ -33,12 +33,22 @@ public class FavoriteService {
 
     user.validateNotSameUser(favoriteUser);
 
-    if (favoriteQuery.existsByUserAndFavoriteUser(user, favoriteUser)) {
+    if (favoriteQuery.isFavoriteExist(user, favoriteUser)) {
       throw new GeneralException(FavoriteException.ALREADY_FAVORITE_USER);
     }
 
     Favorite favorite = new Favorite(user, favoriteUser);
     favoriteCommand.save(favorite);
+  }
+
+  @Transactional
+  public void deleteFavorite(long userId, long favoriteUserId) {
+
+    User user = userQuery.findById(userId);
+    User favoriteUser = userQuery.findById(favoriteUserId);
+
+    Favorite favorite = favoriteQuery.find(user, favoriteUser);
+    favoriteCommand.delete(favorite);
   }
 
 }
