@@ -26,11 +26,13 @@ public enum ArrowException implements BaseException {
 
   @Override
   public HttpStatus getHttpStatus() {
+
     return httpStatus;
   }
 
   @Override
   public String getReason() {
+
     return reason;
   }
 }
