@@ -3,10 +3,11 @@ package yeonba.be.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import yeonba.be.exception.ExceptionType;
+import yeonba.be.exception.FavoriteException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.Favorite;
 import yeonba.be.user.entity.User;
+import yeonba.be.user.repository.UserQuery;
 import yeonba.be.user.repository.favorite.FavoriteCommand;
 import yeonba.be.user.repository.favorite.FavoriteQuery;
 
@@ -14,9 +15,10 @@ import yeonba.be.user.repository.favorite.FavoriteQuery;
 @RequiredArgsConstructor
 public class FavoriteService {
 
-  private final UserService userService;
-  private final FavoriteQuery favoriteQuery;
   private final FavoriteCommand favoriteCommand;
+  private final FavoriteQuery favoriteQuery;
+  private final UserQuery userQuery;
+
 
   /*
     즐겨찾기 등록 비즈니스 로직은 다음 예외들을 검증
@@ -26,15 +28,13 @@ public class FavoriteService {
   @Transactional
   public void addFavorite(long userId, long favoriteUserId) {
 
-    if (userId == favoriteUserId) {
-      throw new GeneralException(ExceptionType.CAN_NOT_FAVORITE_SELF);
-    }
+    User user = userQuery.findById(userId);
+    User favoriteUser = userQuery.findById(favoriteUserId);
 
-    User user = userService.findById(userId);
-    User favoriteUser = userService.findById(favoriteUserId);
+    user.validateNotSameUser(favoriteUser);
 
     if (favoriteQuery.existsByUserAndFavoriteUser(user, favoriteUser)) {
-      throw new GeneralException(ExceptionType.ALREADY_FAVORITE_USER);
+      throw new GeneralException(FavoriteException.ALREADY_FAVORITE_USER);
     }
 
     Favorite favorite = new Favorite(user, favoriteUser);
