@@ -113,14 +113,14 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
       WebRequest request) {
 
     CustomResponse<Map<String, String>> body = CustomResponse.onFailure(
-        ExceptionType.BAD_REQUEST.getReason(),
+        CommonException.BAD_REQUEST.getReason(),
         exceptionArgs);
 
     return super.handleExceptionInternal(
         exception,
         body,
         HttpHeaders.EMPTY,
-        ExceptionType.BAD_REQUEST.getHttpStatus(),
+        CommonException.BAD_REQUEST.getHttpStatus(),
         request);
   }
 
@@ -143,7 +143,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         exception,
         body,
         HttpHeaders.EMPTY,
-        ExceptionType.BAD_REQUEST.getHttpStatus(),
+        CommonException.BAD_REQUEST.getHttpStatus(),
         request);
   }
 
@@ -153,14 +153,14 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
       String errorPoint) {
 
     CustomResponse<String> body = CustomResponse.onFailure(
-        ExceptionType.INTERNAL_SERVER_ERROR.getReason(),
+        CommonException.INTERNAL_SERVER_ERROR.getReason(),
         errorPoint);
 
     return super.handleExceptionInternal(
         exception,
         body,
         HttpHeaders.EMPTY,
-        ExceptionType.INTERNAL_SERVER_ERROR.getHttpStatus(),
+        CommonException.INTERNAL_SERVER_ERROR.getHttpStatus(),
         request);
   }
 }
