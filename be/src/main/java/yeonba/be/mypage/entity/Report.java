@@ -24,34 +24,35 @@ import yeonba.be.user.entity.User;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Report {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "reported_user_id")
-    private User reportedUser;
+  @ManyToOne
+  @JoinColumn(name = "reported_user_id")
+  private User reportedUser;
 
-    @Column(nullable = false)
-    private String category;
+  @Column(nullable = false)
+  private String category;
 
-    private String reason;
+  private String reason;
 
-    @CreatedDate
-    private LocalDateTime createdAt;
+  @CreatedDate
+  private LocalDateTime createdAt;
 
-    public Report(
-        User user,
-        User reportedUser,
-        String category,
-        String reason) {
-        this.user = user;
-        this.reportedUser = reportedUser;
-        this.category = category;
-        this.reason = reason;
-    }
+  public Report(
+      User user,
+      User reportedUser,
+      String category,
+      String reason) {
+
+    this.user = user;
+    this.reportedUser = reportedUser;
+    this.category = category;
+    this.reason = reason;
+  }
 }
