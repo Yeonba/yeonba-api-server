@@ -80,26 +80,33 @@ public class MyPageService {
         user.changePassword(encryptedNewPassword);
     }
 
-    public void updateProfilePhotos(List<MultipartFile> profilePhotos, long userId) {
+    public void updateProfilePhotos(List<MultipartFile> profilePhotos, MultipartFile realTimePhoto, long userId) {
 
         User user = userQuery.findById(userId);
 
-        // TODO: 같은 사용자에 대해서는 같은 경로에 항상 저장되도록 할 것인지 회의 후 결정
-        List<String> profilePhotoUrls = uploadProfilePhotos(profilePhotos);
+        // TODO: AI server 연동 후 얼굴 인식 로직 추가
+        // TODO: 사용자마다 정해전 경로에 파일을 업로드 하기 때문에 회원 가입 시 파일을 저장할 경로를 만들어야 함.
+        uploadProfilePhotos(profilePhotos, user);
+
     }
 
-    private List<String> uploadProfilePhotos(List<MultipartFile> profilePhotos) {
+    /**
+     * 사용자마다 정해진 profile photo url에 파일을 업로드한다.
+     */
+    private void uploadProfilePhotos(List<MultipartFile> profilePhotos, User user) {
 
-        List<String> fileNames = new ArrayList<>();
+        List<String> fileNames = user.getProfilePhotoUrls();
 
         // TODO: 회의 후 확장자 제한 로직 추가, 확장자 검증 후 업로드 시작
         // validateFileExtension(profilePhoto);
 
-        for (MultipartFile profilePhoto : profilePhotos) {
+        for (int profilePhotoIdx = 0; profilePhotoIdx < profilePhotos.size(); profilePhotoIdx++) {
+
+            MultipartFile profilePhoto = profilePhotos.get(profilePhotoIdx);
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(profilePhoto.getOriginalFilename())
+                .key(fileNames.get(profilePhotoIdx))
                 .contentDisposition("inline")
                 .contentType(profilePhoto.getContentType())
                 .build();
@@ -109,13 +116,10 @@ public class MyPageService {
                     RequestBody.fromInputStream(profilePhoto.getInputStream(),
                         profilePhoto.getSize()));
 
-                fileNames.add(profilePhoto.getOriginalFilename());
             } catch (Exception e) {
                 throw new IllegalStateException(
                     "Failed to upload file: " + profilePhoto.getOriginalFilename(), e);
             }
         }
-
-        return fileNames;
     }
 }

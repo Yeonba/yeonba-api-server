@@ -150,4 +150,11 @@ public class User {
 
     this.arrow += arrow;
   }
+
+  public List<String> getProfilePhotoUrls() {
+
+    return this.profilePhotos.stream()
+        .map(ProfilePhoto::getPhotoUrl)
+        .toList();
+  }
 }
