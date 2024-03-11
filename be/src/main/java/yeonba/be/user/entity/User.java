@@ -1,6 +1,8 @@
 package yeonba.be.user.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,18 +14,21 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
 
 @Table(name = "users")
 @Getter
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
+@EntityListeners(value = AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "id")
 public class User {
 
@@ -31,20 +36,46 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   private boolean gender;
+
+  @Column(nullable = false)
   private String name;
+
+  @Column(nullable = false)
   private String nickname;
+
+  @Column(nullable = false)
   private LocalDate birth;
+  private int age;
   private int height;
+
+  @Column(nullable = false)
   private String email;
+
+  @Column(nullable = false)
   private String encryptedPassword;
+
+  @Column(nullable = false)
+  private String salt;
+
+  @Column(nullable = false)
   private String phoneNumber;
   private int arrow;
   private double photoSyncRate;
   private boolean inactiveStatus;
+
+  @Column(nullable = false)
   private String bodyType;
+
+  @Column(nullable = false)
   private String job;
+
+  @Column(nullable = false)
   private String drinkingHabit;
+
+  @Column(nullable = false)
   private String smokingHabit;
+
+  @Column(nullable = false)
   private String mbti;
 
   @ManyToOne
@@ -63,15 +94,25 @@ public class User {
   List<ProfilePhoto> profilePhotos;
 
   private LocalDateTime lastAccessedAt;
+
+  @CreatedDate
+  private LocalDateTime createdAt;
+
+  @LastModifiedDate
+  private LocalDateTime updatedAt;
+
   private LocalDateTime deletedAt;
 
   public User(
+      boolean gender,
       String name,
       String nickname,
       LocalDate birth,
+      int age,
       int height,
       String email,
       String encryptedPassword,
+      String salt,
       String phoneNumber,
       int arrow,
       double photoSyncRate,
@@ -80,14 +121,20 @@ public class User {
       String drinkingHabit,
       String smokingHabit,
       String mbti,
+      VocalRange vocalRange,
+      Animal animal,
+      Area area,
+      List<ProfilePhoto> profilePhotos,
       LocalDateTime lastAccessedAt) {
-
+    this.gender = gender;
     this.name = name;
     this.nickname = nickname;
     this.birth = birth;
+    this.age = age;
     this.height = height;
     this.email = email;
     this.encryptedPassword = encryptedPassword;
+    this.salt = salt;
     this.phoneNumber = phoneNumber;
     this.arrow = arrow;
     this.photoSyncRate = photoSyncRate;
@@ -97,6 +144,10 @@ public class User {
     this.drinkingHabit = drinkingHabit;
     this.smokingHabit = smokingHabit;
     this.mbti = mbti;
+    this.vocalRange = vocalRange;
+    this.animal = animal;
+    this.area = area;
+    this.profilePhotos = profilePhotos;
     this.lastAccessedAt = lastAccessedAt;
   }
 
