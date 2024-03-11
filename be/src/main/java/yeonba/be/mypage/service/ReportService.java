@@ -10,7 +10,7 @@ import yeonba.be.mypage.entity.Report;
 import yeonba.be.mypage.repository.ReportCommand;
 import yeonba.be.user.dto.request.UserReportRequest;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.service.UserService;
+import yeonba.be.user.repository.UserQuery;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +19,7 @@ public class ReportService {
   private final String CATEGORY_ETC = "기타";
   private final int MAX_REPORT_REASON_LENGTH = 1024;
 
-  private final UserService userService;
+  private final UserQuery userQuery;
   private final ReportCommand reportCommand;
 
   /*
@@ -37,8 +37,8 @@ public class ReportService {
 
     checkReportRequest(request);
 
-    User user = userService.findById(userId);
-    User reportedUser = userService.findById(reportedUserId);
+    User user = userQuery.findById(userId);
+    User reportedUser = userQuery.findById(reportedUserId);
 
     user.validateNotSameUser(reportedUser);
 
