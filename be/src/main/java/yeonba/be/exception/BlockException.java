@@ -18,11 +18,13 @@ public enum BlockException implements BaseException {
 
   @Override
   public HttpStatus getHttpStatus() {
+
     return httpStatus;
   }
 
   @Override
   public String getReason() {
+
     return reason;
   }
 }
