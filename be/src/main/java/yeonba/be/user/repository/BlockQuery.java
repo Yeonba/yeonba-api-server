@@ -10,7 +10,7 @@ public class BlockQuery {
 
   private final BlockRepository blockRepository;
 
-  public boolean existsByUserAndBlockedUser(User user, User blockedUser) {
+  public boolean isBlockExist(User user, User blockedUser) {
 
     return blockRepository.existsByUserAndBlockedUser(user, blockedUser);
   }
