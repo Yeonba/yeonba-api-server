@@ -56,12 +56,12 @@ public class ArrowController {
   public ResponseEntity<CustomResponse<Void>> sendArrow(
       @RequestAttribute("userId") long senderId,
       @Parameter(description = "화살 받는 사용자 ID", example = "1")
-      @PathVariable("userId") long recipientId,
+      @PathVariable("userId") long receiverId,
       @RequestBody ArrowSendRequest request) {
 
     arrowService.sendArrow(
         senderId,
-        recipientId,
+        receiverId,
         request);
 
     return ResponseEntity
