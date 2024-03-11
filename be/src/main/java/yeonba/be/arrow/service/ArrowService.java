@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.arrow.dto.UserArrowsResponse;
 import yeonba.be.arrow.entity.ArrowTransaction;
 import yeonba.be.arrow.repository.ArrowTransactionCommandRepository;
+import yeonba.be.exception.ArrowException;
+import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 
@@ -34,13 +36,12 @@ public class ArrowService {
 
     LocalDateTime dailyCheckedAt = LocalDateTime.now();
     if (isAlreadyCheckedUser(dailyCheckUser, dailyCheckedAt.toLocalDate())) {
-      throw new IllegalArgumentException("이미 출석 체크한 사용자입니다.");
+      throw new GeneralException(ArrowException.ALREADY_CHECKED_USER);
     }
 
     ArrowTransaction arrowTransaction = new ArrowTransaction(
         dailyCheckUser,
-        DAILY_CHECK_ARROW_COUNT
-    );
+        DAILY_CHECK_ARROW_COUNT);
     arrowTransactionCommandRepository.save(arrowTransaction);
 
     dailyCheckUser.updateLastAccessedAt(dailyCheckedAt);
