@@ -10,7 +10,7 @@ public class ArrowCommand {
 
   private final ArrowTransactionRepository arrowTransactionRepository;
 
-  public ArrowTransaction save(ArrowTransaction arrowTransaction){
+  public ArrowTransaction save(ArrowTransaction arrowTransaction) {
 
     return arrowTransactionRepository.save(arrowTransaction);
   }

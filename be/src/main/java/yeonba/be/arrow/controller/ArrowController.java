@@ -24,20 +24,17 @@ public class ArrowController {
 
   private final ArrowService arrowService;
 
-  @Operation(
-      summary = "사용자 화살 개수 조회",
-      description = "사용자 화살 개수를 조회할 수 있습니다."
-  )
-  @ApiResponse(
-      responseCode = "200",
-      description = "사용자 화살 개수 정상 조회"
-  )
+  @Operation(summary = "사용자 화살 개수 조회", description = "사용자 화살 개수를 조회할 수 있습니다.")
+  @ApiResponse(responseCode = "200", description = "사용자 화살 개수 정상 조회")
   @GetMapping("/users/arrows")
-  public ResponseEntity<CustomResponse<UserArrowsResponse>> arrows() {
+  public ResponseEntity<CustomResponse<UserArrowsResponse>> arrows(
+      @RequestAttribute("userId") long userId) {
+
+    UserArrowsResponse response = arrowService.getUserArrows(userId);
 
     return ResponseEntity
         .ok()
-        .body(new CustomResponse<>(new UserArrowsResponse(10)));
+        .body(new CustomResponse<>(response));
   }
 
   @Operation(summary = "출석 체크", description = "출석 체크를 통해 사용자가 10개의 화살을 획득할 수 있습니다.")
