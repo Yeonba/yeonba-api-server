@@ -19,6 +19,7 @@ import yeonba.be.user.dto.request.UserQueryRequest;
 import yeonba.be.user.dto.request.UserReportRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
+import yeonba.be.user.service.UserService;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "User", description = "사용자 API")
@@ -26,6 +27,7 @@ import yeonba.be.util.CustomResponse;
 @RequiredArgsConstructor
 public class UserController {
 
+  private final UserService userService;
   private final ReportService reportService;
 
   @Operation(
@@ -46,33 +48,19 @@ public class UserController {
   }
 
 
-  @Operation(
-      summary = "다른 사용자 프로필 조회",
-      description = "다른 사용자의 프로필을 조회할 수 있습니다."
-  )
-  @ApiResponse(
-      responseCode = "200",
-      description = "사용자 프로필 정상 조회"
-  )
+  @Operation(summary = "다른 사용자 프로필 조회", description = "다른 사용자의 프로필을 조회할 수 있습니다.")
+  @ApiResponse(responseCode = "200", description = "사용자 프로필 정상 조회")
   @GetMapping("/users/{userId}")
   public ResponseEntity<CustomResponse<UserProfileResponse>> profile(
+      @RequestAttribute("userId") long userId,
       @Parameter(description = "조회대상 사용자 ID", example = "1")
-      @PathVariable long userId) {
+      @PathVariable("userId") long targetUserId) {
+
+    UserProfileResponse response = userService.getTargetUserProfile(userId, targetUserId);
 
     return ResponseEntity
         .ok()
-        .body(new CustomResponse<>(
-            new UserProfileResponse(
-                "존잘남",
-                23,
-                177,
-                "서울시 강남구",
-                80,
-                "저음",
-                "여우상",
-                false
-            )
-        ));
+        .body(new CustomResponse<>(response));
   }
 
   @Operation(
