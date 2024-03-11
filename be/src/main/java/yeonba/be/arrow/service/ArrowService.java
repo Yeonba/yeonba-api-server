@@ -1,6 +1,5 @@
 package yeonba.be.arrow.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -8,8 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.arrow.dto.UserArrowsResponse;
 import yeonba.be.arrow.entity.ArrowTransaction;
 import yeonba.be.arrow.repository.ArrowCommand;
-import yeonba.be.exception.ArrowException;
-import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 
@@ -35,9 +32,7 @@ public class ArrowService {
     User dailyCheckUser = userQuery.findById(userId);
 
     LocalDateTime dailyCheckedAt = LocalDateTime.now();
-    if (isAlreadyCheckedUser(dailyCheckUser, dailyCheckedAt.toLocalDate())) {
-      throw new GeneralException(ArrowException.ALREADY_CHECKED_USER);
-    }
+    dailyCheckUser.validateDailyCheck(dailyCheckedAt.toLocalDate());
 
     ArrowTransaction arrowTransaction = new ArrowTransaction(
         dailyCheckUser,
@@ -54,12 +49,5 @@ public class ArrowService {
     User user = userQuery.findById(userId);
 
     return new UserArrowsResponse(user.getArrow());
-  }
-
-  private boolean isAlreadyCheckedUser(User user, LocalDate dailyCheckDate) {
-
-    return user.getLastAccessedAt()
-        .toLocalDate()
-        .equals(dailyCheckDate);
   }
 }
