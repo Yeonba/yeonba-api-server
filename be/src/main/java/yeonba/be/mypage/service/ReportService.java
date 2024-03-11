@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import yeonba.be.exception.ExceptionType;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.ReportException;
 import yeonba.be.mypage.entity.Report;
 import yeonba.be.mypage.repository.ReportCommand;
 import yeonba.be.user.dto.request.UserReportRequest;
@@ -66,11 +66,11 @@ public class ReportService {
     }
 
     if (!StringUtils.hasText(reason)) {
-      throw new GeneralException(ExceptionType.REPORT_REASON_NOT_EXIST);
+      throw new GeneralException(ReportException.REPORT_REASON_NOT_EXIST);
     }
 
     if (reason.length() > MAX_REPORT_REASON_LENGTH) {
-      throw new GeneralException(ExceptionType.REPORT_REASON_LENGTH_NOT_VALID);
+      throw new GeneralException(ReportException.REPORT_REASON_LENGTH_NOT_VALID);
     }
   }
 }
