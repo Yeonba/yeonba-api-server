@@ -1,22 +1,22 @@
 package yeonba.be.arrow.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yeonba.be.arrow.dto.UserArrowsResponse;
 import yeonba.be.arrow.entity.ArrowTransaction;
-import yeonba.be.arrow.repository.ArrowTransactionCommandRepository;
+import yeonba.be.arrow.repository.ArrowCommand;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.service.UserService;
+import yeonba.be.user.repository.UserQuery;
 
 @Service
 @RequiredArgsConstructor
 public class ArrowService {
 
   private final int DAILY_CHECK_ARROW_COUNT = 10;
-  private final UserService userService;
-  private final ArrowTransactionCommandRepository arrowTransactionCommandRepository;
+  private final UserQuery userQuery;
+  private final ArrowCommand arrowCommand;
 
   /*
     출석 체크는 다음 과정을 거쳐 이뤄진다.
@@ -29,27 +29,25 @@ public class ArrowService {
   @Transactional
   public void dailyCheck(long userId) {
 
-    User dailyCheckUser = userService.findById(userId);
+    User dailyCheckUser = userQuery.findById(userId);
 
     LocalDateTime dailyCheckedAt = LocalDateTime.now();
-    if (isAlreadyCheckedUser(dailyCheckUser, dailyCheckedAt.toLocalDate())) {
-      throw new IllegalArgumentException("이미 출석 체크한 사용자입니다.");
-    }
+    dailyCheckUser.validateDailyCheck(dailyCheckedAt.toLocalDate());
 
     ArrowTransaction arrowTransaction = new ArrowTransaction(
         dailyCheckUser,
-        DAILY_CHECK_ARROW_COUNT
-    );
-    arrowTransactionCommandRepository.save(arrowTransaction);
+        DAILY_CHECK_ARROW_COUNT);
+    arrowCommand.save(arrowTransaction);
 
     dailyCheckUser.updateLastAccessedAt(dailyCheckedAt);
     dailyCheckUser.addArrow(DAILY_CHECK_ARROW_COUNT);
   }
 
-  private boolean isAlreadyCheckedUser(User user, LocalDate dailyCheckDate) {
+  @Transactional(readOnly = true)
+  public UserArrowsResponse getUserArrows(long userId) {
 
-    return user.getLastAccessedAt()
-        .toLocalDate()
-        .equals(dailyCheckDate);
+    User user = userQuery.findById(userId);
+
+    return new UserArrowsResponse(user.getArrow());
   }
 }

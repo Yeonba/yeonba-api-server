@@ -6,13 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.service.UserService;
+import yeonba.be.user.repository.UserQuery;
 
 @Component
 @RequiredArgsConstructor
 public class DevAuthInterceptor implements HandlerInterceptor {
 
-    private final UserService userService;
+    private final UserQuery userQuery;
 
     @Override
     public boolean preHandle(HttpServletRequest request,
@@ -20,7 +20,7 @@ public class DevAuthInterceptor implements HandlerInterceptor {
         Object handler) throws Exception {
 
         long devUserId = 2L;
-        User user = userService.findById(2L);
+        User user = userQuery.findById(2L);
         request.setAttribute("userId", devUserId);
 
         return true;

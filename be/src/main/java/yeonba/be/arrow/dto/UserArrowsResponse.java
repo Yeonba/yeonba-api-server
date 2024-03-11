@@ -11,7 +11,6 @@ public class UserArrowsResponse {
   @Schema(
       type = "number",
       description = "사용자 화살 개수",
-      example = "10"
-  )
-  private Integer arrows;
+      example = "10")
+  private int arrows;
 }
