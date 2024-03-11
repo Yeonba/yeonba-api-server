@@ -2,8 +2,8 @@ package yeonba.be.user.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import yeonba.be.exception.ExceptionType;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.UserException;
 import yeonba.be.user.entity.User;
 
 @Component
@@ -15,7 +15,6 @@ public class UserQuery {
   public User findById(long userId) {
 
     return userRepository.findById(userId)
-        .orElseThrow(() -> new GeneralException(ExceptionType.USER_NOT_FOUND));
+        .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
   }
-
 }
