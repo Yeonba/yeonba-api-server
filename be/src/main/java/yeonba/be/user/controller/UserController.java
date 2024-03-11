@@ -93,18 +93,15 @@ public class UserController {
         .body(new CustomResponse<>());
   }
 
-  @Operation(
-      summary = "즐겨찾기 삭제",
-      description = "즐겨찾기에 등록한 사용자를 삭제합니다."
-  )
-  @ApiResponse(
-      responseCode = "202",
-      description = "즐겨찾기 삭제 정상 처리"
-  )
+  @Operation(summary = "즐겨찾기 삭제", description = "즐겨찾기에 등록한 사용자를 삭제합니다.")
+  @ApiResponse(responseCode = "202", description = "즐겨찾기 삭제 정상 처리")
   @DeleteMapping("/favorites/{userId}")
   public ResponseEntity<CustomResponse<Void>> deleteFavorite(
+      @RequestAttribute("userId") long userId,
       @Parameter(description = "즐겨찾기에서 삭제할 사용자 ID", example = "1")
-      @PathVariable long userId) {
+      @PathVariable("userId") long favoriteUserId) {
+
+    favoriteService.deleteFavorite(userId, favoriteUserId);
 
     return ResponseEntity
         .accepted()
