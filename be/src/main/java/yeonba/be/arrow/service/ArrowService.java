@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.arrow.dto.UserArrowsResponse;
 import yeonba.be.arrow.entity.ArrowTransaction;
-import yeonba.be.arrow.repository.ArrowTransactionCommandRepository;
+import yeonba.be.arrow.repository.ArrowCommand;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.User;
@@ -19,7 +19,7 @@ public class ArrowService {
 
   private final int DAILY_CHECK_ARROW_COUNT = 10;
   private final UserQuery userQuery;
-  private final ArrowTransactionCommandRepository arrowTransactionCommandRepository;
+  private final ArrowCommand arrowCommand;
 
   /*
     출석 체크는 다음 과정을 거쳐 이뤄진다.
@@ -42,7 +42,7 @@ public class ArrowService {
     ArrowTransaction arrowTransaction = new ArrowTransaction(
         dailyCheckUser,
         DAILY_CHECK_ARROW_COUNT);
-    arrowTransactionCommandRepository.save(arrowTransaction);
+    arrowCommand.save(arrowTransaction);
 
     dailyCheckUser.updateLastAccessedAt(dailyCheckedAt);
     dailyCheckUser.addArrow(DAILY_CHECK_ARROW_COUNT);
