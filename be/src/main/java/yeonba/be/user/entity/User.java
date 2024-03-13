@@ -146,8 +146,17 @@ public class User {
     this.lastAccessedAt = accessedAt;
   }
 
-  public void addArrow(int arrow) {
+  public void plusArrow(int arrow) {
 
     this.arrow += arrow;
+  }
+
+  public void minusArrow(int arrow) {
+
+    if (this.arrow < arrow) {
+      throw new GeneralException(ArrowException.NOT_ENOUGH_ARROW_TO_SEND);
+    }
+
+    this.arrow -= arrow;
   }
 }
