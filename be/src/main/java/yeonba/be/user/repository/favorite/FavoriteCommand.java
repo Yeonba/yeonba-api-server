@@ -10,9 +10,8 @@ public class FavoriteCommand {
 
   private final FavoriteRepository favoriteRepository;
 
-  public Favorite save(Favorite favorite){
+  public Favorite save(Favorite favorite) {
 
     return favoriteRepository.save(favorite);
   }
-
 }
