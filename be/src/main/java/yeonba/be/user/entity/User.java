@@ -64,7 +64,6 @@ public class User {
     private LocalDateTime lastAccessedAt;
     private LocalDateTime deletedAt;
 
-
     public User(
         String name,
         String nickname,
