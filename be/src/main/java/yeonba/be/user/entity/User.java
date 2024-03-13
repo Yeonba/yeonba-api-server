@@ -37,14 +37,13 @@ public class User {
     private int height;
     private String email;
     private String encryptedPassword;
+    private String salt;
     private String phoneNumber;
     private int arrow;
-    private double photoSyncRate;
+    private int photoSyncRate;
     private boolean inactiveStatus;
     private String bodyType;
     private String job;
-    private String drinkingHabit;
-    private String smokingHabit;
     private String mbti;
 
     @ManyToOne
@@ -65,6 +64,7 @@ public class User {
     private LocalDateTime lastAccessedAt;
     private LocalDateTime deletedAt;
 
+
     public User(
         String name,
         String nickname,
@@ -74,11 +74,9 @@ public class User {
         String encryptedPassword,
         String phoneNumber,
         int arrow,
-        double photoSyncRate,
+        int photoSyncRate,
         String bodyType,
         String job,
-        String drinkingHabit,
-        String smokingHabit,
         String mbti,
         LocalDateTime lastAccessedAt) {
 
@@ -94,8 +92,6 @@ public class User {
         this.inactiveStatus = true;
         this.bodyType = bodyType;
         this.job = job;
-        this.drinkingHabit = drinkingHabit;
-        this.smokingHabit = smokingHabit;
         this.mbti = mbti;
         this.lastAccessedAt = lastAccessedAt;
     }
