@@ -19,7 +19,7 @@ import yeonba.be.user.dto.request.UserQueryRequest;
 import yeonba.be.user.dto.request.UserReportRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
-import yeonba.be.user.service.UserService;
+import yeonba.be.user.service.BlockService;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "User", description = "사용자 API")
@@ -27,8 +27,8 @@ import yeonba.be.util.CustomResponse;
 @RequiredArgsConstructor
 public class UserController {
 
-  private final UserService userService;
   private final ReportService reportService;
+  private final BlockService blockService;
 
   @Operation(
       summary = "이성(다른 사용자) 목록 조회",
@@ -48,19 +48,33 @@ public class UserController {
   }
 
 
-  @Operation(summary = "다른 사용자 프로필 조회", description = "다른 사용자의 프로필을 조회할 수 있습니다.")
-  @ApiResponse(responseCode = "200", description = "사용자 프로필 정상 조회")
+  @Operation(
+      summary = "다른 사용자 프로필 조회",
+      description = "다른 사용자의 프로필을 조회할 수 있습니다."
+  )
+  @ApiResponse(
+      responseCode = "200",
+      description = "사용자 프로필 정상 조회"
+  )
   @GetMapping("/users/{userId}")
   public ResponseEntity<CustomResponse<UserProfileResponse>> profile(
-      @RequestAttribute("userId") long userId,
       @Parameter(description = "조회대상 사용자 ID", example = "1")
-      @PathVariable("userId") long targetUserId) {
-
-    UserProfileResponse response = userService.getTargetUserProfile(userId, targetUserId);
+      @PathVariable long userId) {
 
     return ResponseEntity
         .ok()
-        .body(new CustomResponse<>(response));
+        .body(new CustomResponse<>(
+            new UserProfileResponse(
+                "존잘남",
+                23,
+                177,
+                "서울시 강남구",
+                80,
+                "저음",
+                "여우상",
+                false
+            )
+        ));
   }
 
   @Operation(
@@ -118,18 +132,15 @@ public class UserController {
         .body(new CustomResponse<>());
   }
 
-  @Operation(
-      summary = "차단하기",
-      description = "다른 사용자를 차단할 수 있습니다."
-  )
-  @ApiResponse(
-      responseCode = "204",
-      description = "차단 요청 정상 처리"
-  )
+  @Operation(summary = "차단하기", description = "다른 사용자를 차단할 수 있습니다.")
+  @ApiResponse(responseCode = "202", description = "차단 요청 정상 처리")
   @PostMapping("/users/{userId}/block")
   public ResponseEntity<CustomResponse<Void>> block(
+      @RequestAttribute("userId") long userId,
       @Parameter(description = "차단하는 사용자 ID", example = "1")
-      @PathVariable long userId) {
+      @PathVariable("userId") long blockedUserId) {
+
+    blockService.block(userId, blockedUserId);
 
     return ResponseEntity
         .accepted()
