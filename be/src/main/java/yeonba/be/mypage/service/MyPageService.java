@@ -83,7 +83,6 @@ public class MyPageService {
         // TODO: AI server 연동 후 얼굴 인식 로직 추가
         // TODO: 사용자마다 정해전 경로에 파일을 업로드 하기 때문에 회원 가입 시 파일을 저장할 경로를 만들어야 함.
         uploadProfilePhotos(profilePhotos, user);
-
     }
 
     /**

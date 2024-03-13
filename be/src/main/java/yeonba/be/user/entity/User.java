@@ -161,4 +161,5 @@ public class User {
             .map(ProfilePhoto::getPhotoUrl)
             .toList();
     }
+
 }
