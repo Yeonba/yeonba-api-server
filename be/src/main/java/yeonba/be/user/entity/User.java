@@ -70,12 +70,6 @@ public class User {
   private String job;
 
   @Column(nullable = false)
-  private String drinkingHabit;
-
-  @Column(nullable = false)
-  private String smokingHabit;
-
-  @Column(nullable = false)
   private String mbti;
 
   @ManyToOne
@@ -118,14 +112,11 @@ public class User {
       double photoSyncRate,
       String bodyType,
       String job,
-      String drinkingHabit,
-      String smokingHabit,
       String mbti,
       VocalRange vocalRange,
       Animal animal,
       Area area,
-      List<ProfilePhoto> profilePhotos,
-      LocalDateTime lastAccessedAt) {
+      List<ProfilePhoto> profilePhotos) {
     this.gender = gender;
     this.name = name;
     this.nickname = nickname;
@@ -141,14 +132,11 @@ public class User {
     this.inactiveStatus = true;
     this.bodyType = bodyType;
     this.job = job;
-    this.drinkingHabit = drinkingHabit;
-    this.smokingHabit = smokingHabit;
     this.mbti = mbti;
     this.vocalRange = vocalRange;
     this.animal = animal;
     this.area = area;
     this.profilePhotos = profilePhotos;
-    this.lastAccessedAt = lastAccessedAt;
   }
 
   public void validateSameUser(User user) {
@@ -209,5 +197,13 @@ public class User {
     }
 
     this.arrow -= arrow;
+  }
+
+  public String getGender() {
+    if (this.gender) {
+      return "남";
+    }
+
+    return "여";
   }
 }
