@@ -201,6 +201,7 @@ public class User {
 
   public String getGender() {
     if (this.gender) {
+
       return "남";
     }
 
