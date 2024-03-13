@@ -27,129 +27,138 @@ import yeonba.be.exception.GeneralException;
 @EqualsAndHashCode(of = "id")
 public class User {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-  private boolean gender;
-  private String name;
-  private String nickname;
-  private LocalDate birth;
-  private int height;
-  private String email;
-  private String encryptedPassword;
-  private String salt;
-  private String phoneNumber;
-  private int arrow;
-  private int photoSyncRate;
-  private boolean inactiveStatus;
-  private String bodyType;
-  private String job;
-  private String mbti;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private boolean gender;
+    private String name;
+    private String nickname;
+    private LocalDate birth;
+    private int height;
+    private String email;
+    private String encryptedPassword;
+    private String salt;
+    private String phoneNumber;
+    private int arrow;
+    private int photoSyncRate;
+    private boolean inactiveStatus;
+    private String bodyType;
+    private String job;
+    private String mbti;
 
-  @ManyToOne
-  @JoinColumn(name = "vocal_range_id")
-  private VocalRange vocalRange;
+    @ManyToOne
+    @JoinColumn(name = "vocal_range_id")
+    private VocalRange vocalRange;
 
-  @ManyToOne
-  @JoinColumn(name = "animal_id")
-  private Animal animal;
+    @ManyToOne
+    @JoinColumn(name = "animal_id")
+    private Animal animal;
 
-  @ManyToOne
-  @JoinColumn(name = "area_id")
-  private Area area;
+    @ManyToOne
+    @JoinColumn(name = "area_id")
+    private Area area;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-  List<ProfilePhoto> profilePhotos;
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    List<ProfilePhoto> profilePhotos;
 
-  private LocalDateTime lastAccessedAt;
-  private LocalDateTime deletedAt;
+    private LocalDateTime lastAccessedAt;
+    private LocalDateTime deletedAt;
 
-  public User(
-      String name,
-      String nickname,
-      LocalDate birth,
-      int height,
-      String email,
-      String encryptedPassword,
-      String phoneNumber,
-      int arrow,
-      int photoSyncRate,
-      String bodyType,
-      String job,
-      String mbti,
-      LocalDateTime lastAccessedAt) {
+    public User(
+        String name,
+        String nickname,
+        LocalDate birth,
+        int height,
+        String email,
+        String encryptedPassword,
+        String phoneNumber,
+        int arrow,
+        int photoSyncRate,
+        String bodyType,
+        String job,
+        String mbti,
+        LocalDateTime lastAccessedAt) {
 
-    this.name = name;
-    this.nickname = nickname;
-    this.birth = birth;
-    this.height = height;
-    this.email = email;
-    this.encryptedPassword = encryptedPassword;
-    this.phoneNumber = phoneNumber;
-    this.arrow = arrow;
-    this.photoSyncRate = photoSyncRate;
-    this.inactiveStatus = true;
-    this.bodyType = bodyType;
-    this.job = job;
-    this.mbti = mbti;
-    this.lastAccessedAt = lastAccessedAt;
-  }
-
-  public void validateSameUser(User user) {
-
-    if (!this.equals(user)) {
-      throw new IllegalArgumentException("동일한 사용자가 아닙니다.");
+        this.name = name;
+        this.nickname = nickname;
+        this.birth = birth;
+        this.height = height;
+        this.email = email;
+        this.encryptedPassword = encryptedPassword;
+        this.phoneNumber = phoneNumber;
+        this.arrow = arrow;
+        this.photoSyncRate = photoSyncRate;
+        this.inactiveStatus = true;
+        this.bodyType = bodyType;
+        this.job = job;
+        this.mbti = mbti;
+        this.lastAccessedAt = lastAccessedAt;
     }
-  }
 
-  public void validateNotSameUser(User user) {
+    public void validateSameUser(User user) {
 
-    if (this.equals(user)) {
-      throw new IllegalArgumentException("동일한 사용자입니다.");
+        if (!this.equals(user)) {
+            throw new IllegalArgumentException("동일한 사용자가 아닙니다.");
+        }
     }
-  }
 
-  public void changePassword(String encryptedNewPassword) {
+    public void validateNotSameUser(User user) {
 
-    this.encryptedPassword = encryptedNewPassword;
-  }
-
-  /**
-   * 삭제된 사용자인지 검증
-   */
-  public void validateDeletedUser(LocalDateTime now) {
-
-    if (this.deletedAt.isAfter(now)) {
-      throw new IllegalArgumentException("삭제된 사용자입니다.");
+        if (this.equals(user)) {
+            throw new IllegalArgumentException("동일한 사용자입니다.");
+        }
     }
-  }
 
-  public void validateDailyCheck(LocalDate dailyCheckDay) {
+    public void changePassword(String encryptedNewPassword) {
 
-    if (this.lastAccessedAt.isAfter(dailyCheckDay.atStartOfDay())) {
-      throw new GeneralException(ArrowException.ALREADY_CHECKED_USER);
+        this.encryptedPassword = encryptedNewPassword;
     }
-  }
 
-  public String getRepresentativeProfilePhoto() {
+    /**
+     * 삭제된 사용자인지 검증
+     */
+    public void validateDeletedUser(LocalDateTime now) {
 
-    return this.profilePhotos.get(0).getPhotoUrl();
-  }
+        if (this.deletedAt.isAfter(now)) {
+            throw new IllegalArgumentException("삭제된 사용자입니다.");
+        }
+    }
 
-  public void updateLastAccessedAt(LocalDateTime accessedAt) {
+    public void validateDailyCheck(LocalDate dailyCheckDay) {
 
-    this.lastAccessedAt = accessedAt;
-  }
+        if (this.lastAccessedAt.isAfter(dailyCheckDay.atStartOfDay())) {
+            throw new GeneralException(ArrowException.ALREADY_CHECKED_USER);
+        }
+    }
 
-  public void addArrow(int arrow) {
+    public String getRepresentativeProfilePhoto() {
 
-    this.arrow += arrow;
-  }
+        return this.profilePhotos.get(0).getPhotoUrl();
+    }
 
-  public List<String> getProfilePhotoUrls() {
+    public void updateLastAccessedAt(LocalDateTime accessedAt) {
 
-    return this.profilePhotos.stream()
-        .map(ProfilePhoto::getPhotoUrl)
-        .toList();
-  }
+        this.lastAccessedAt = accessedAt;
+    }
+
+    public void plusArrow(int arrow) {
+
+        this.arrow += arrow;
+    }
+
+    public void minusArrow(int arrow) {
+
+        if (this.arrow < arrow) {
+            throw new GeneralException(ArrowException.NOT_ENOUGH_ARROW_TO_SEND);
+        }
+
+        this.arrow -= arrow;
+    }
+
+    public List<String> getProfilePhotoUrls() {
+
+        return this.profilePhotos.stream()
+            .map(ProfilePhoto::getPhotoUrl)
+            .toList();
+    }
 }
