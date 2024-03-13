@@ -33,12 +33,11 @@ public class FavoriteService {
 
     user.validateNotSameUser(favoriteUser);
 
-    if (favoriteQuery.existsByUserAndFavoriteUser(user, favoriteUser)) {
+    if (favoriteQuery.isFavoriteExist(user, favoriteUser)) {
       throw new GeneralException(FavoriteException.ALREADY_FAVORITE_USER);
     }
 
     Favorite favorite = new Favorite(user, favoriteUser);
     favoriteCommand.save(favorite);
   }
-
 }

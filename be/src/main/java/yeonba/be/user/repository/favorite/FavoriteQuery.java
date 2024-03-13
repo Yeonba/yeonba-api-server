@@ -10,9 +10,8 @@ public class FavoriteQuery {
 
   private final FavoriteRepository favoriteRepository;
 
-  public boolean existsByUserAndFavoriteUser(User user, User favoriteUser){
+  public boolean isFavoriteExist(User user, User favoriteUser) {
 
     return favoriteRepository.existsByUserAndFavoriteUser(user, favoriteUser);
   }
-
 }
