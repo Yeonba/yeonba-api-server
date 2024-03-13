@@ -2,6 +2,7 @@ package yeonba.be.login.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
@@ -26,6 +27,8 @@ public class LoginService {
    */
 
   // TODO : 비밀번호 암호화 로직 추가
+
+  @Transactional
   public void sendTemporaryPasswordMail(UserPasswordInquiryRequest request) {
 
     String email = request.getEmail();
