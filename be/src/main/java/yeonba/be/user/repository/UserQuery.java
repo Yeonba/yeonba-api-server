@@ -17,4 +17,10 @@ public class UserQuery {
     return userRepository.findById(userId)
         .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
   }
+
+  public User findByEmail(String email) {
+
+    return userRepository.findByEmail(email)
+        .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
+  }
 }
