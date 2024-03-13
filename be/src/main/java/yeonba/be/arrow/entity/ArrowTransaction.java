@@ -39,7 +39,7 @@ public class ArrowTransaction {
     private int arrows;
 
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     public ArrowTransaction(
