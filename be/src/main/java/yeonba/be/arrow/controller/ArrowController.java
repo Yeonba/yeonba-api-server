@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.arrow.dto.UserArrowsResponse;
+import yeonba.be.arrow.dto.request.ArrowSendRequest;
 import yeonba.be.arrow.service.ArrowService;
 import yeonba.be.util.CustomResponse;
 
@@ -48,18 +50,19 @@ public class ArrowController {
         .body(new CustomResponse<>());
   }
 
-  @Operation(
-      summary = "화살 보내기",
-      description = "다른 사용자에게 화살을 보낼 수 있습니다."
-  )
-  @ApiResponse(
-      responseCode = "204",
-      description = "화살 전송 정상 처리"
-  )
+  @Operation(summary = "화살 보내기", description = "다른 사용자에게 화살을 보낼 수 있습니다.")
+  @ApiResponse(responseCode = "202", description = "화살 전송 정상 처리")
   @PostMapping("/users/{userId}/arrow")
   public ResponseEntity<CustomResponse<Void>> sendArrow(
+      @RequestAttribute("userId") long senderId,
       @Parameter(description = "화살 받는 사용자 ID", example = "1")
-      @PathVariable long userId) {
+      @PathVariable("userId") long receiverId,
+      @RequestBody ArrowSendRequest request) {
+
+    arrowService.sendArrow(
+        senderId,
+        receiverId,
+        request);
 
     return ResponseEntity
         .accepted()
