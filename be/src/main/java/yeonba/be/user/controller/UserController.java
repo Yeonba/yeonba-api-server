@@ -20,6 +20,7 @@ import yeonba.be.user.dto.request.UserReportRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
 import yeonba.be.user.service.BlockService;
+import yeonba.be.user.service.FavoriteService;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "User", description = "사용자 API")
@@ -27,8 +28,9 @@ import yeonba.be.util.CustomResponse;
 @RequiredArgsConstructor
 public class UserController {
 
-  private final ReportService reportService;
   private final BlockService blockService;
+  private final ReportService reportService;
+  private final FavoriteService favoriteService;
 
   @Operation(
       summary = "이성(다른 사용자) 목록 조회",
@@ -77,18 +79,15 @@ public class UserController {
         ));
   }
 
-  @Operation(
-      summary = "즐겨찾기 등록",
-      description = "다른 사용자를 자신의 즐겨찾기에 등록할 수 있습니다."
-  )
-  @ApiResponse(
-      responseCode = "202",
-      description = "즐겨찾기 등록 정상 처리"
-  )
+  @Operation(summary = "즐겨찾기 등록", description = "다른 사용자를 자신의 즐겨찾기에 등록할 수 있습니다.")
+  @ApiResponse(responseCode = "202", description = "즐겨찾기 등록 정상 처리")
   @PostMapping("/favorites/{userId}")
   public ResponseEntity<CustomResponse<Void>> registerFavorite(
+      @RequestAttribute("userId") long userId,
       @Parameter(description = "즐겨찾기에 등록될 사용자 ID", example = "1")
-      @PathVariable long userId) {
+      @PathVariable("userId") long favoriteUserId) {
+
+    favoriteService.addFavorite(userId, favoriteUserId);
 
     return ResponseEntity
         .accepted()
