@@ -63,7 +63,6 @@ public class ArrowService {
   3. 화살 내역 저장
   4. 보내는 사용자 화살 감소, 화살이 부족할 경우 예외 발생
   5. 받는 사용자 화살 증가
-
  */
   @Transactional
   public void sendArrow(
