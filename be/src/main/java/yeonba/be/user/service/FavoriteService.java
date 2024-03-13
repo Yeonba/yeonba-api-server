@@ -19,7 +19,6 @@ public class FavoriteService {
   private final FavoriteQuery favoriteQuery;
   private final UserQuery userQuery;
 
-
   /*
     즐겨찾기 등록 비즈니스 로직은 다음 예외들을 검증
     1. 자기 자신을 즐겨찾기하는 경우
@@ -50,5 +49,4 @@ public class FavoriteService {
     Favorite favorite = favoriteQuery.find(user, favoriteUser);
     favoriteCommand.delete(favorite);
   }
-
 }
