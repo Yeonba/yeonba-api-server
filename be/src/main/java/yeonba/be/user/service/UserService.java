@@ -14,10 +14,8 @@ import yeonba.be.user.repository.UserQuery;
 @RequiredArgsConstructor
 public class UserService {
 
-
     private final ArrowQuery arrowQuery;
     private final UserQuery userQuery;
-
 
     @Transactional(readOnly = true)
     public UserProfileResponse getTargetUserProfile(long userId, long targetUserId) {
@@ -34,14 +32,13 @@ public class UserService {
 
         return new UserProfileResponse(
             profilePhotosUrls,
+            targetUser.getGender(),
             targetUser.getNickname(),
             targetUser.getArrow(),
             targetUser.getAge(),
             targetUser.getHeight(),
             targetUser.getArea().getName(),
             targetUser.getPhotoSyncRate(),
-            targetUser.getDrinkingHabit(),
-            targetUser.getSmokingHabit(),
             targetUser.getVocalRange().getClassification(),
             targetUser.getAnimal().getName(),
             isAlreadySentArrow);
