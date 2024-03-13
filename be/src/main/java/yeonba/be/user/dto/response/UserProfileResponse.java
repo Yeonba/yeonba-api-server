@@ -16,6 +16,12 @@ public class UserProfileResponse {
 
   @Schema(
       type = "string",
+      description = "성별",
+      example = "남")
+  private String gender;
+
+  @Schema(
+      type = "string",
       description = "닉네임",
       example = "존잘남")
   private String nickname;
@@ -49,18 +55,6 @@ public class UserProfileResponse {
       description = "사진 싱크로율",
       example = "80")
   private double photoSyncRate;
-
-  @Schema(
-      type = "string",
-      description = "음주 성향",
-      example = "가끔")
-  private String drinkingHabit;
-
-  @Schema(
-      type = "string",
-      description = "흡연 성향",
-      example = "자주")
-  private String smokingHabit;
 
   @Schema(
       type = "string",
