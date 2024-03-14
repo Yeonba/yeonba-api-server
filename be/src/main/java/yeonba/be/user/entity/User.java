@@ -60,7 +60,7 @@ public class User {
   @Column(nullable = false)
   private String phoneNumber;
   private int arrow;
-  private double photoSyncRate;
+  private int photoSyncRate;
   private boolean inactiveStatus;
 
   @Column(nullable = false)
@@ -109,7 +109,7 @@ public class User {
       String salt,
       String phoneNumber,
       int arrow,
-      double photoSyncRate,
+      int photoSyncRate,
       String bodyType,
       String job,
       String mbti,
@@ -206,5 +206,12 @@ public class User {
     }
 
     return "여";
+  }
+
+  public List<String> getProfilePhotoUrls() {
+
+    return this.profilePhotos.stream()
+        .map(ProfilePhoto::getPhotoUrl)
+        .toList();
   }
 }
