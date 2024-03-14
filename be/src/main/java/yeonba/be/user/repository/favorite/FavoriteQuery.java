@@ -23,5 +23,4 @@ public class FavoriteQuery {
     return favoriteRepository.findByUserAndFavoriteUser(user, favoriteUser)
         .orElseThrow(() -> new GeneralException(FavoriteException.FAVORITE_NOT_FOUND));
   }
-
 }

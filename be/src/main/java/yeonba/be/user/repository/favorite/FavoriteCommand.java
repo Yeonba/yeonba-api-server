@@ -18,5 +18,4 @@ public class FavoriteCommand {
   public void delete(Favorite favorite) {
     favoriteRepository.delete(favorite);
   }
-
 }
