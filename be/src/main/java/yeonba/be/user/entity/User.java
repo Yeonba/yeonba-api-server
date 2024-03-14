@@ -206,4 +206,11 @@ public class User {
 
     return "여";
   }
+
+  public List<String> getProfilePhotoUrls() {
+
+    return this.profilePhotos.stream()
+        .map(ProfilePhoto::getPhotoUrl)
+        .toList();
+  }
 }
