@@ -33,7 +33,6 @@ import yeonba.be.mypage.dto.response.UnwantedAcquaintancesResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.mypage.service.MyPageService;
-import yeonba.be.user.entity.User;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "MyPage", description = " My Page 관련 API")
@@ -87,18 +86,20 @@ public class MyPageController {
     @ApiResponse(responseCode = "202", description = "자신의 프로필 사진 수정 정상 처리")
     @PutMapping(path = "/users/profile-photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CustomResponse<Void>> updateProfilePhotos(
-        @Parameter(description = "업로드할 새로운 프로필 사진들, 반드시 한 번에 3개씩 업로드")
-        @RequestPart("photoFiles") @Size(min = 3, max = 3) List<MultipartFile> photoFiles,
-        @RequestAttribute("userId") long userId) {
+        @RequestAttribute("userId") long userId,
+        @Parameter(description = "업로드 할 새로운 프로필 사진들, 반드시 한 번에 2개씩 업로드")
+        @RequestPart("profilePhotos") @Size(min = 2, max = 2) List<MultipartFile> profilePhotos,
+        @Parameter(description = "프로필 사진과 싱크로율을 검증할 직접 찍은 사진")
+        @RequestPart("realTimePhoto") @Size(min = 1, max = 1) MultipartFile realTimePhoto) {
 
-        myPageService.updateProfilePhotos(photoFiles, userId);
+        myPageService.updateProfilePhotos(profilePhotos, realTimePhoto, userId);
 
         return ResponseEntity
             .accepted()
             .body(new CustomResponse<>());
     }
 
-    @Operation(summary = "자산의 프로필 수정", description = "자신의 프로필 정보를 수정할 수 있습니다.")
+    @Operation(summary = "자신의 프로필 수정", description = "자신의 프로필 정보를 수정할 수 있습니다.")
     @ApiResponse(responseCode = "204", description = "자신의 프로필 수정 요청 정상 처리")
     @PatchMapping("/users/profiles")
     public ResponseEntity<CustomResponse<Void>> updateProfile(
