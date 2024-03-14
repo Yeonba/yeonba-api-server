@@ -1,6 +1,5 @@
 package yeonba.be.mypage.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +14,7 @@ import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
+import yeonba.be.mypage.util.PasswordEncryptor;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 
@@ -24,6 +24,7 @@ public class MyPageService {
 
     private final S3Client s3Client;
     private final UserQuery userQuery;
+    private final PasswordEncryptor passwordEncryptor;
 
     @Value("${S3_BUCKET_NAME}")
     private String bucketName;
@@ -63,43 +64,44 @@ public class MyPageService {
 
         User user = userQuery.findById(userId);
 
-        // TODO: 비밀번호 암호화 후 비교
-        String encryptedOldPassword = request.getOldPassword();
+        String encryptedOldPassword = passwordEncryptor
+            .encrypt(request.getOldPassword(), user.getSalt());
 
-        if (!StringUtils.equals(user.getEncryptedPassword(), encryptedOldPassword)) {
-            throw new IllegalArgumentException("기존 비밀번호가 틀렸습니다.");
-        }
+        comparePasswords(request, user, encryptedOldPassword);
 
-        if (!StringUtils.equals(request.getNewPassword(), request.getNewPasswordConfirmation())) {
-            throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인 값이 일치하지 않습니다.");
-        }
-
-        // TODO: 암호화 후 비밀번호 변경
-        String encryptedNewPassword = request.getNewPassword();
+        String encryptedNewPassword = passwordEncryptor
+            .encrypt(request.getNewPassword(), user.getSalt());
 
         user.changePassword(encryptedNewPassword);
     }
 
-    public void updateProfilePhotos(List<MultipartFile> profilePhotos, long userId) {
+    public void updateProfilePhotos(List<MultipartFile> profilePhotos, MultipartFile realTimePhoto,
+        long userId) {
 
         User user = userQuery.findById(userId);
 
-        // TODO: 같은 사용자에 대해서는 같은 경로에 항상 저장되도록 할 것인지 회의 후 결정
-        List<String> profilePhotoUrls = uploadProfilePhotos(profilePhotos);
+        // TODO: AI server 연동 후 얼굴 인식 로직 추가
+        // TODO: 사용자마다 정해전 경로에 파일을 업로드 하기 때문에 회원 가입 시 파일을 저장할 경로를 만들어야 함.
+        uploadProfilePhotos(profilePhotos, user);
     }
 
-    private List<String> uploadProfilePhotos(List<MultipartFile> profilePhotos) {
+    /**
+     * 사용자마다 정해진 profile photo url에 파일을 업로드한다.
+     */
+    private void uploadProfilePhotos(List<MultipartFile> profilePhotos, User user) {
 
-        List<String> fileNames = new ArrayList<>();
+        List<String> fileNames = user.getProfilePhotoUrls();
 
         // TODO: 회의 후 확장자 제한 로직 추가, 확장자 검증 후 업로드 시작
         // validateFileExtension(profilePhoto);
 
-        for (MultipartFile profilePhoto : profilePhotos) {
+        for (int profilePhotoIdx = 0; profilePhotoIdx < profilePhotos.size(); profilePhotoIdx++) {
+
+            MultipartFile profilePhoto = profilePhotos.get(profilePhotoIdx);
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(profilePhoto.getOriginalFilename())
+                .key(fileNames.get(profilePhotoIdx))
                 .contentDisposition("inline")
                 .contentType(profilePhoto.getContentType())
                 .build();
@@ -109,13 +111,26 @@ public class MyPageService {
                     RequestBody.fromInputStream(profilePhoto.getInputStream(),
                         profilePhoto.getSize()));
 
-                fileNames.add(profilePhoto.getOriginalFilename());
             } catch (Exception e) {
                 throw new IllegalStateException(
                     "Failed to upload file: " + profilePhoto.getOriginalFilename(), e);
             }
         }
+    }
 
-        return fileNames;
+    /**
+     * 기존 비밀번호가 올바른지 검증 새 비밀번호와 새 비밀번호 확인 값이 일치하는지 검증
+     */
+    private void comparePasswords(UserChangePasswordRequest request,
+        User user,
+        String encryptedOldPassword) {
+
+        if (!user.getEncryptedPassword().equalsIgnoreCase(encryptedOldPassword)) {
+            throw new IllegalArgumentException("기존 비밀번호가 틀렸습니다.");
+        }
+
+        if (!StringUtils.equals(request.getNewPassword(), request.getNewPasswordConfirmation())) {
+            throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인 값이 일치하지 않습니다.");
+        }
     }
 }

@@ -126,11 +126,9 @@ public class UserProfileDetailResponse {
         this.email = user.getEmail();
         this.phoneNumber = user.getPhoneNumber();
         this.nickname = user.getNickname();
-        this.photoSyncRate = (int) (user.getPhotoSyncRate());
+        this.photoSyncRate = user.getPhotoSyncRate();
         this.bodyType = user.getBodyType();
         this.job = user.getJob();
-        this.drinkingHabit = user.getDrinkingHabit();
-        this.smokingHabit = user.getSmokingHabit();
         this.mbti = user.getMbti();
     }
 }
