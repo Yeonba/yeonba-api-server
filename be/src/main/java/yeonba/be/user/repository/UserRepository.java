@@ -9,4 +9,6 @@ import yeonba.be.user.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
   Optional<User> findByEmail(String email);
+
+  boolean existsByPhoneNumber(String phoneNumber);
 }
