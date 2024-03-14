@@ -1,12 +1,10 @@
 package yeonba.be.user.service;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.user.dto.response.UserProfileResponse;
-import yeonba.be.user.entity.ProfilePhoto;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 
@@ -23,15 +21,10 @@ public class UserService {
         User user = userQuery.findById(userId);
         User targetUser = userQuery.findById(targetUserId);
 
-        List<String> profilePhotosUrls = targetUser
-            .getProfilePhotos().stream()
-            .map(ProfilePhoto::getPhotoUrl)
-            .toList();
-
         boolean isAlreadySentArrow = arrowQuery.isArrowTransactionExist(user, targetUser);
 
         return new UserProfileResponse(
-            profilePhotosUrls,
+            targetUser.getProfilePhotoUrls(),
             targetUser.getGender(),
             targetUser.getNickname(),
             targetUser.getArrow(),
