@@ -1,58 +1,48 @@
 package yeonba.be.util;
 
-import java.security.SecureRandom;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class TemporaryPasswordGenerator {
 
   private static final int MIN_LENGTH = 8;
-  private static final int MAX_LENGTH = 20;
 
-  private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
-  private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private static final String DIGITS = "0123456789";
-  private static final String SPECIAL = "~#@!";
+  private static final String LOWER_CASES = "abcdefghijklmnopqrstuvwxyz";
+  private static final String SPECIAL_CHARS = "~#@!";
+  private static final String UPPER_CASES = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-  public static String generatePassword(){
-    String pattern = ServiceRegex.PASSWORD.getPattern();
-    SecureRandom random = new SecureRandom();
-    StringBuilder sb = new StringBuilder();
+  public static String generatePassword() {
 
-    int length = MIN_LENGTH + random.nextInt(MAX_LENGTH - MIN_LENGTH+1);
+    // 각 카테고리에서 최소 한 문자씩 선택
+    StringBuilder password = new StringBuilder();
+    password.append(RandomStringUtils.random(1, LOWER_CASES))
+        .append(RandomStringUtils.random(1, UPPER_CASES))
+        .append(RandomStringUtils.random(1, DIGITS))
+        .append(RandomStringUtils.random(1, SPECIAL_CHARS));
 
-    while(true){
-      sb.setLength(0);
-      for(int i=0; i<length; i++){
-        int choice = random.nextInt(4);
+    // 모든 가능한 문자를 포함하는 문자열
+    String allPossibleChars = DIGITS.concat(LOWER_CASES)
+        .concat(SPECIAL_CHARS)
+        .concat(UPPER_CASES);
 
-        if(choice == 0){
-          sb.append(getRandomCharacterFromSrc(LOWER, random));
-          continue;
-        }
+    // 나머지 길이 채우기
+    password.append(RandomStringUtils.random(MIN_LENGTH - 4, allPossibleChars));
 
-        if(choice==1){
-          sb.append(getRandomCharacterFromSrc(UPPER, random));
-          continue;
-        }
+    // 문자열 섞기
+    List<Character> passwordChars = new ArrayList<>(
+        password.chars()
+            .mapToObj(c -> (char) c)
+            .toList());
+    Collections.shuffle(passwordChars);
 
-        if(choice==2){
-          sb.append(getRandomCharacterFromSrc(DIGITS, random));
-          continue;
-        }
+    // 최종 임시 비밀번호 생성 및 반환
 
-        sb.append(getRandomCharacterFromSrc(SPECIAL, random));
-      }
-
-      String result = sb.toString();
-      if(result.matches(pattern)){
-
-        return result;
-      }
-    }
-  }
-
-  private static char getRandomCharacterFromSrc(String src, Random random){
-
-    return src.charAt(random.nextInt(src.length()));
+    return passwordChars.stream()
+        .map(String::valueOf)
+        .collect(Collectors.joining());
   }
 }
