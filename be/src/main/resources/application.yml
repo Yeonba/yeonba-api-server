@@ -12,7 +12,7 @@ spring:
         show_sql: true
         format_sql: true
   mail:
-    host: smtp.gmail.com
-    port: 587
+    host: ${GOOGLE_SMTP_HOST}
+    port: ${GOOGLE_SMTP_PORT}
     username: ${GOOGLE_SMTP_USERNAME}
     password: ${GOOGLE_SMTP_PASSWORD}
