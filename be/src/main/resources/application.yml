@@ -23,6 +23,6 @@ spring:
   sms:
     api_key: ${SMS_API_KEY}
     api_secret: ${SMS_API_SECRET}
-    provider: https://api.coolsms.co.kr
+    provider: ${SMS_PROVIDER}
     sender: ${SMS_SENDER}
 
