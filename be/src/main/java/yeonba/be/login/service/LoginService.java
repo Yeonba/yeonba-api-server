@@ -1,12 +1,16 @@
 package yeonba.be.login.service;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.LoginException;
 import yeonba.be.exception.UserException;
+import yeonba.be.login.dto.request.UserIdInquiryRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserPhoneNumberVerifyRequest;
+import yeonba.be.login.dto.response.UserIdInquiryResponse;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 import yeonba.be.util.EmailService;
@@ -70,5 +74,26 @@ public class LoginService {
 
     String message = String.format(VERIFICATION_CODE_MESSAGE, code);
     smsService.sendMessage(phoneNumber, message);
+  }
+
+  @Transactional(readOnly = true)
+  public UserIdInquiryResponse findEmail(UserIdInquiryRequest request) {
+    String phoneNumber = request.getPhoneNumber();
+    String verificationCode = request.getVerificationCode();
+
+    // 인증 코드 조회
+    String foundVerificationCode = (String) redisUtil.getData(phoneNumber)
+        .orElseThrow(() -> new GeneralException(LoginException.VERIFICATION_CODE_NOT_FOUND));
+
+    // 인증 코드 일치 확인
+    if (!StringUtils.equals(foundVerificationCode, verificationCode)) {
+      throw new GeneralException(LoginException.VERIFICATION_CODE_NOT_MATCH);
+    }
+
+    // 핸드폰 번호 기반 사용자 조회 및 인증 코드 내역 삭제
+    User user = userQuery.findByPhoneNumber(phoneNumber);
+    redisUtil.deleteData(phoneNumber);
+
+    return new UserIdInquiryResponse(user.getEmail());
   }
 }
