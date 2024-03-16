@@ -28,4 +28,10 @@ public class UserQuery {
 
     return userRepository.existsByPhoneNumber(phoneNumber);
   }
+
+  public User findByPhoneNumber(String phoneNumber) {
+
+    return userRepository.findByPhoneNumber(phoneNumber)
+        .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
+  }
 }
