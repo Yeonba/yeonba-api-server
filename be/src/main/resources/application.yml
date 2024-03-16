@@ -26,3 +26,8 @@ spring:
     provider: ${SMS_PROVIDER}
     sender: ${SMS_SENDER}
 
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
