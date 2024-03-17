@@ -3,6 +3,7 @@ package yeonba.be.login.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -78,7 +79,7 @@ public class LoginController {
   @ApiResponse(responseCode = "202", description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리")
   @PostMapping("/users/help/pw-inquiry")
   public ResponseEntity<CustomResponse<Void>> passwordInquiry(
-      @RequestBody UserPasswordInquiryRequest request) {
+      @RequestBody @Valid UserPasswordInquiryRequest request) {
 
     loginService.sendTemporaryPasswordMail(request);
 
