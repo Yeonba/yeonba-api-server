@@ -1,13 +1,33 @@
 spring:
   config:
     import: "classpath:application.properties"
+
   datasource:
     url: ${DATABASE_URL}
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     properties:
       hibernate:
         show_sql: true
         format_sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GOOGLE_SMTP_USERNAME}
+    password: ${GOOGLE_SMTP_PASSWORD}
+
+  sms:
+    api_key: ${SMS_API_KEY}
+    api_secret: ${SMS_API_SECRET}
+    provider: ${SMS_PROVIDER}
+    sender: ${SMS_SENDER}
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+

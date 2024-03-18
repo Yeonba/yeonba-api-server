@@ -17,4 +17,21 @@ public class UserQuery {
     return userRepository.findById(userId)
         .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
   }
+
+  public User findByEmail(String email) {
+
+    return userRepository.findByEmail(email)
+        .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
+  }
+
+  public boolean isUserExist(String phoneNumber) {
+
+    return userRepository.existsByPhoneNumber(phoneNumber);
+  }
+
+  public User findByPhoneNumber(String phoneNumber) {
+
+    return userRepository.findByPhoneNumber(phoneNumber)
+        .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
+  }
 }

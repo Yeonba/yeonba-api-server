@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import yeonba.be.user.entity.ProfilePhoto;
 import yeonba.be.user.entity.User;
 
 @Getter
@@ -64,12 +65,12 @@ public class UserProfileDetailResponse {
         type = "number",
         description = "사진 싱크로율",
         example = "80")
-    private int photoSyncRate;
+    private double photoSyncRate;
 
     @Schema(
         type = "string",
         description = "체형",
-        example = "마른 체형")
+        example = "메른 체형")
     private String bodyType;
 
     @Schema(
@@ -86,7 +87,9 @@ public class UserProfileDetailResponse {
 
     public UserProfileDetailResponse(User user) {
 
-        this.profilePhotoUrls = user.getProfilePhotoUrls();
+        this.profilePhotoUrls = user.getProfilePhotos().stream()
+            .map(ProfilePhoto::getPhotoUrl)
+            .toList();
         this.gender = user.getGender();
         this.name = user.getName();
         this.birth = user.getBirth();
