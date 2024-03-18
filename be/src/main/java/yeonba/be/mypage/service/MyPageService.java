@@ -91,6 +91,7 @@ public class MyPageService {
         uploadProfilePhotos(profilePhotos, user);
     }
 
+    @Transactional(readOnly = true)
     public List<BlockedUserResponse> getBlockedUsers(long userId) {
 
         User user = userQuery.findById(userId);
