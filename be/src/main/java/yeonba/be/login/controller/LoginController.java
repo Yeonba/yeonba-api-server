@@ -79,7 +79,7 @@ public class LoginController {
   @ApiResponse(responseCode = "202", description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리")
   @PostMapping("/users/help/pw-inquiry")
   public ResponseEntity<CustomResponse<Void>> passwordInquiry(
-      @RequestBody @Valid UserPasswordInquiryRequest request) {
+      @Valid @RequestBody UserPasswordInquiryRequest request) {
 
     loginService.sendTemporaryPasswordMail(request);
 
