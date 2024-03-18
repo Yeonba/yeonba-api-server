@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UserIdInquiryRequest {
+public class UserEmailInquiryRequest {
 
   @Schema(
       type = "string",
