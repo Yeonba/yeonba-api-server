@@ -176,10 +176,13 @@ public class MyPageController {
     }
 
     @Operation(summary = "차단 해제", description = "차단한 사용자를 해제할 수 있습니다.")
+    @ApiResponse(responseCode = "202", description = "차단 해제 정상 처리")
     @DeleteMapping("/users/{userId}/block")
     public ResponseEntity<CustomResponse<Void>> unblockUser(
-        @Parameter(description = "사용자 ID", example = "1")
-        @PathVariable long userId) {
+        @RequestAttribute("userId") long userId,
+        @Parameter(description = "사용자 ID", example = "1") @PathVariable("userId") long blockedUserId) {
+
+        myPageService.unblockUser(userId, blockedUserId);
 
         return ResponseEntity
             .ok()

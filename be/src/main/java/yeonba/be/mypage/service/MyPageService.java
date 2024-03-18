@@ -14,12 +14,12 @@ import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.BlockedUserResponse;
-import yeonba.be.mypage.dto.response.BlockedUsersResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.mypage.util.PasswordEncryptor;
 import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
+import yeonba.be.user.repository.BlockCommand;
 import yeonba.be.user.repository.BlockQuery;
 import yeonba.be.user.repository.UserQuery;
 
@@ -30,6 +30,7 @@ public class MyPageService {
     private final S3Client s3Client;
     private final UserQuery userQuery;
     private final BlockQuery blockQuery;
+    private final BlockCommand blockCommand;
     private final PasswordEncryptor passwordEncryptor;
 
     @Value("${S3_BUCKET_NAME}")
@@ -103,6 +104,16 @@ public class MyPageService {
                 block.getBlockedUser())
             )
             .toList();
+    }
+
+    @Transactional
+    public void unblockUser(long userId, long blockedUserId) {
+
+        User user = userQuery.findById(userId);
+        User blockedUser = userQuery.findById(blockedUserId);
+
+        Block block = blockQuery.findByUsers(user, blockedUser);
+        blockCommand.delete(block);
     }
 
     @Transactional
