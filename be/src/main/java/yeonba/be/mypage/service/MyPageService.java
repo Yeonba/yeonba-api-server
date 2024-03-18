@@ -95,9 +95,9 @@ public class MyPageService {
 
         User user = userQuery.findById(userId);
 
-        List<Block> blocksByUser = blockQuery.findBlocksByUser(user);
+        List<Block> blocks = blockQuery.findBlocksByUser(user);
 
-        return blocksByUser.stream()
+        return blocks.stream()
             .map(block -> new BlockedUserResponse(
                 block.getBlockedUser())
             )
