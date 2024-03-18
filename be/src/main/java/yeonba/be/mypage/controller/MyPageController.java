@@ -163,19 +163,16 @@ public class MyPageController {
     }
 
     @Operation(summary = "차단 목록 조회", description = "차단한 사용자 목록을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "차단 목록 조회 성공")
     @GetMapping("/users/block")
-    public ResponseEntity<CustomResponse<BlockedUsersResponse>> getBlockedUsers() {
+    public ResponseEntity<CustomResponse<BlockedUsersResponse>> getBlockedUsers(
+        @RequestAttribute("userId") long userId) {
 
-        List<BlockedUserResponse> sampleResponse = Arrays.asList(
-            new BlockedUserResponse(1, "https://avatars.githubusercontent.com/u/101340860?v=4",
-                "안민재"),
-            new BlockedUserResponse(2, "https://avatars.githubusercontent.com/u/101340860?v=4",
-                "안민재")
-        );
+        List<BlockedUserResponse> blockedUsers = myPageService.getBlockedUsers(userId);
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(new BlockedUsersResponse(sampleResponse)));
+            .body(new CustomResponse<>(new BlockedUsersResponse(blockedUsers)));
     }
 
     @Operation(summary = "차단 해제", description = "차단한 사용자를 해제할 수 있습니다.")
