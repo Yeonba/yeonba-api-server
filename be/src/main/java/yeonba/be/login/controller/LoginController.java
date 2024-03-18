@@ -9,13 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import yeonba.be.login.dto.request.UserIdInquiryRequest;
+import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserPhoneNumberVerifyRequest;
 import yeonba.be.login.dto.request.UserRefreshTokenRequest;
-import yeonba.be.login.dto.response.UserIdInquiryResponse;
+import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
 import yeonba.be.login.dto.response.UserRefreshTokenResponse;
@@ -41,9 +41,9 @@ public class LoginController {
         .body(new CustomResponse<>(new UserJoinResponse(createdJwt)));
   }
 
-  @Operation(summary = "전화번호 인증 코드 전송", description = "전화번호 인증을 위해 해당 번호로 인증 코드를 발송합니다.")
+  @Operation(summary = "이메일 찾기 인증 코드 sms 전송", description = "이메일 찾기를 위한 인증번호 sms 전송을 요청합니다.")
   @ApiResponse(responseCode = "202", description = "전화번호 인증 코드 전송 성공")
-  @PostMapping("/users/help/id-inquiry/verification-code")
+  @PostMapping("/users/help/email-inquiry/verification-code")
   public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
       @RequestBody @Valid UserPhoneNumberVerifyRequest request) {
 
@@ -54,13 +54,13 @@ public class LoginController {
         .body(new CustomResponse<>());
   }
 
-  @Operation(summary = "아이디 찾기", description = "인증 코드를 바탕으로 아이디를 찾을 수 있습니다.")
+  @Operation(summary = "이메일 찾기", description = "인증 코드를 바탕으로 아이디를 찾을 수 있습니다.")
   @ApiResponse(responseCode = "200", description = "아이디 찾기 정상 처리")
-  @PostMapping("/users/help/id-inquiry")
-  public ResponseEntity<CustomResponse<UserIdInquiryResponse>> idInquiry(
-      @RequestBody UserIdInquiryRequest request) {
+  @PostMapping("/users/help/email-inquiry")
+  public ResponseEntity<CustomResponse<UserEmailInquiryResponse>> idInquiry(
+      @RequestBody UserEmailInquiryRequest request) {
 
-    UserIdInquiryResponse response = loginService.findEmail(request);
+    UserEmailInquiryResponse response = loginService.findEmail(request);
 
     return ResponseEntity
         .ok()
