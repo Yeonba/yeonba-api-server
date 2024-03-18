@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserIdInquiryResponse {
+public class UserEmailInquiryResponse {
 
   @Schema(
       type = "string",
