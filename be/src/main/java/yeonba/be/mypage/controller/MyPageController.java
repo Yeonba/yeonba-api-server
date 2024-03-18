@@ -193,8 +193,10 @@ public class MyPageController {
     @ApiResponse(responseCode = "204", description = "휴면 상태 전환 요청 정상 처리")
     @PatchMapping("/users/dormant")
     public ResponseEntity<CustomResponse<Void>> dormantUser(
-
+        @RequestAttribute("userId") long userId,
         @Valid @RequestBody UserDormantRequest request) {
+
+        myPageService.changeDormantStatus(userId, request);
 
         return ResponseEntity
             .ok()

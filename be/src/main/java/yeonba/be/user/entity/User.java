@@ -214,4 +214,9 @@ public class User {
         .map(ProfilePhoto::getPhotoUrl)
         .toList();
   }
+
+  public void changeInactiveStatus(boolean inactiveStatus) {
+
+    this.inactiveStatus = inactiveStatus;
+  }
 }

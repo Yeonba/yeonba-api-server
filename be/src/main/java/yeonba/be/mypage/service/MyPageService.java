@@ -11,6 +11,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
+import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
@@ -83,6 +84,13 @@ public class MyPageService {
         // TODO: AI server 연동 후 얼굴 인식 로직 추가
         // TODO: 사용자마다 정해전 경로에 파일을 업로드 하기 때문에 회원 가입 시 파일을 저장할 경로를 만들어야 함.
         uploadProfilePhotos(profilePhotos, user);
+    }
+
+    @Transactional
+    public void changeDormantStatus(long userId, UserDormantRequest request) {
+
+        User user = userQuery.findById(userId);
+        user.changeInactiveStatus(request.isStatus());
     }
 
     /**
