@@ -7,10 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.LoginException;
 import yeonba.be.exception.UserException;
-import yeonba.be.login.dto.request.UserIdInquiryRequest;
+import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserPhoneNumberVerifyRequest;
-import yeonba.be.login.dto.response.UserIdInquiryResponse;
+import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 import yeonba.be.util.EmailService;
@@ -77,7 +77,7 @@ public class LoginService {
   }
 
   @Transactional(readOnly = true)
-  public UserIdInquiryResponse findEmail(UserIdInquiryRequest request) {
+  public UserEmailInquiryResponse findEmail(UserEmailInquiryRequest request) {
     String phoneNumber = request.getPhoneNumber();
     String verificationCode = request.getVerificationCode();
 
@@ -94,6 +94,6 @@ public class LoginService {
     User user = userQuery.findByPhoneNumber(phoneNumber);
     redisUtil.deleteData(phoneNumber);
 
-    return new UserIdInquiryResponse(user.getEmail());
+    return new UserEmailInquiryResponse(user.getEmail());
   }
 }
