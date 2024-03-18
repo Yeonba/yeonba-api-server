@@ -161,6 +161,11 @@ public class User {
         this.encryptedPassword = encryptedNewPassword;
     }
 
+    public void delete(LocalDateTime willDeleteTime) {
+
+        this.deletedAt = willDeleteTime;
+    }
+
     /**
      * 삭제된 사용자인지 검증
      */

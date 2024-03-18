@@ -204,8 +204,12 @@ public class MyPageController {
     }
 
     @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 할 수 있습니다.")
+    @ApiResponse(responseCode = "204", description = "계정 탈퇴 요청 정상 처리")
     @DeleteMapping("/users")
-    public ResponseEntity<CustomResponse<Void>> deleteUser() {
+    public ResponseEntity<CustomResponse<Void>> deleteUser(
+        @RequestAttribute("userId") long userId) {
+
+        myPageService.deleteUser(userId);
 
         return ResponseEntity
             .ok()

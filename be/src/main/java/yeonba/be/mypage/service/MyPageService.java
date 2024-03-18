@@ -1,5 +1,6 @@
 package yeonba.be.mypage.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -121,6 +122,16 @@ public class MyPageService {
 
         User user = userQuery.findById(userId);
         user.changeInactiveStatus(request.isStatus());
+    }
+
+    public void deleteUser(long userId) {
+
+        User user = userQuery.findById(userId);
+
+        // 탈퇴 취소 가능 기간
+        int recovableDays = 1;
+        LocalDateTime willDeleteTime = LocalDateTime.now().plusDays(recovableDays);
+        user.delete(willDeleteTime);
     }
 
     /**
