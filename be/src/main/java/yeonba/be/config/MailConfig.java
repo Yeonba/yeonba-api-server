@@ -10,16 +10,16 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 @Configuration
 public class MailConfig {
 
-  @Value("${spring.mail.host}")
+  @Value("${GOOGLE_SMTP_HOST}")
   private String serverHost;
 
-  @Value("${spring.mail.port}")
+  @Value("${GOOGLE_SMTP_PORT}")
   private int serverPort;
 
-  @Value("${spring.mail.username}")
+  @Value("${GOOGLE_SMTP_USERNAME}")
   private String username;
 
-  @Value("${spring.mail.password}")
+  @Value("${GOOGLE_SMTP_PASSWORD}")
   private String password;
 
   @Bean
