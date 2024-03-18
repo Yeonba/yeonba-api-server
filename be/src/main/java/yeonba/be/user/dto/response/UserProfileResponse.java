@@ -54,7 +54,7 @@ public class UserProfileResponse {
       type = "number",
       description = "사진 싱크로율",
       example = "80")
-  private double photoSyncRate;
+  private int photoSyncRate;
 
   @Schema(
       type = "string",
