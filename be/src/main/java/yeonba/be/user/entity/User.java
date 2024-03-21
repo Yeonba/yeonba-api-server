@@ -60,7 +60,7 @@ public class User {
   @Column(nullable = false)
   private String phoneNumber;
   private int arrow;
-  private double photoSyncRate;
+  private int photoSyncRate;
   private boolean inactiveStatus;
 
   @Column(nullable = false)
@@ -109,7 +109,7 @@ public class User {
       String salt,
       String phoneNumber,
       int arrow,
-      double photoSyncRate,
+      int photoSyncRate,
       String bodyType,
       String job,
       String mbti,
@@ -201,6 +201,7 @@ public class User {
 
   public String getGender() {
     if (this.gender) {
+
       return "남";
     }
 
