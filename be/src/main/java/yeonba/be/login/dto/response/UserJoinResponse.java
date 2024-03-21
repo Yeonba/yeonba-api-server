@@ -8,6 +8,15 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserJoinResponse {
 
-    @Schema(description = "JWT", example = "header.payload.signature")
-    private String jwt;
+	@Schema(
+		type = "string",
+		description = "access token",
+		example = "header.payload,signature")
+	private String accessToken;
+
+	@Schema(
+		type = "string",
+		description = "refresh token",
+		example = "header.payload.signature")
+	private String refreshToken;
 }
