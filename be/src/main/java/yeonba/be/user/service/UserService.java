@@ -2,7 +2,6 @@ package yeonba.be.user.service;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +28,7 @@ import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
 import yeonba.be.util.PasswordEncryptor;
+import yeonba.be.util.S3Service;
 import yeonba.be.util.SaltGenerator;
 
 @Service
@@ -48,6 +48,8 @@ public class UserService {
 	private final VocalRangeQuery vocalRangeQuery;
 
 	private final PasswordEncryptor passwordEncryptor;
+
+	private final S3Service s3Service;
 
 
 	@Transactional(readOnly = true)
@@ -94,7 +96,7 @@ public class UserService {
 		String encryptedPassword = passwordEncryptor.encrypt(password, salt);
 
 		// 음역대, 동물상, 지역 조회
-		VocalRange vocalRange = vocalRangeQuery.findBy(request.getVocalRange());
+		VocalRange vocalRange = vocalRangeQuery.find(request.getVocalRange());
 		Animal animal = animalQuery.findByName(request.getLookAlikeAnimal());
 		Area area = areaQuery.findByName(request.getActivityArea());
 
@@ -127,18 +129,12 @@ public class UserService {
 	public void saveProfilePhotos(User user, UserJoinRequest request) {
 		List<MultipartFile> photoFiles = request.getProfilePhotos();
 
-		//TODO: 프로필 사진 업로드 및 사진 URL 생성 로직 구현
-
-		List<String> photosUrls = photoFiles.stream()
-			.map(MultipartFile::getName)
+		List<String> profilePhotoUrls = s3Service.uploadProfilePhotos(photoFiles, user);
+		List<ProfilePhoto> profilePhotos = profilePhotoUrls.stream()
+			.map(profilePhotoUrl -> new ProfilePhoto(user, profilePhotoUrl))
 			.toList();
 
-		List<ProfilePhoto> profilePhotos = new ArrayList<>();
-		for (String photosUrl : photosUrls) {
-			profilePhotos.add(new ProfilePhoto(user, photosUrl));
-		}
-
-		profilePhotos.forEach(profilePhotoCommand::save);
+		profilePhotoCommand.save(profilePhotos);
 	}
 
 	@Transactional
@@ -146,7 +142,7 @@ public class UserService {
 
 		// 선호 음역대, 동물상, 지역 조회
 		Animal preferredAnimal = animalQuery.findByName(request.getPreferredAnimal());
-		VocalRange preferredVocalRange = vocalRangeQuery.findBy(request.getPreferredVocalRange());
+		VocalRange preferredVocalRange = vocalRangeQuery.find(request.getPreferredVocalRange());
 		Area preferredArea = areaQuery.findByName(request.getPreferredArea());
 
 		UserPreference userPreference = new UserPreference(
