@@ -77,12 +77,15 @@ public class UserService {
 	@Transactional
 	public User saveUser(UserJoinRequest request) {
 
-		// 성별 판별
-		Gender gender = Gender.fromGenderString(request.getGender());
+		// 이미 사용 중인 이메일인지 확인
+		if (userQuery.isAlreadyUsedEmail(request.getEmail())) {
+			throw new GeneralException(JoinException.ALREADY_USED_EMAIL);
+		}
 
-		// 나이 계산
-		LocalDate birth = request.getBirth();
-		int age = Period.between(birth, LocalDate.now()).getYears();
+		// 이미 사용 중인 닉네임인지 확인
+		if (userQuery.isAlreadyUsedNickname(request.getNickname())) {
+			throw new GeneralException(JoinException.ALREADY_USED_NICKNAME);
+		}
 
 		// 비밀빈호, 비밀번호 확인 값 일치 확인
 		String password = request.getPassword();
@@ -90,6 +93,13 @@ public class UserService {
 		if (!StringUtils.equals(password, passwordConfirmation)) {
 			throw new GeneralException(JoinException.PASSWORD_CONFIRMATION_NOT_MATCH);
 		}
+
+		// 성별 판별
+		Gender gender = Gender.fromGenderString(request.getGender());
+
+		// 나이 계산
+		LocalDate birth = request.getBirth();
+		int age = Period.between(birth, LocalDate.now()).getYears();
 
 		// salt 생성 및 비밀번호 암호화
 		String salt = SaltGenerator.generateRandomSalt();
@@ -124,7 +134,6 @@ public class UserService {
 		return userCommand.save(user);
 	}
 
-
 	@Transactional
 	public void saveProfilePhotos(User user, UserJoinRequest request) {
 		List<MultipartFile> photoFiles = request.getProfilePhotos();
@@ -135,6 +144,7 @@ public class UserService {
 			.toList();
 
 		profilePhotoCommand.save(profilePhotos);
+		user.updateProfilePhotos(profilePhotos);
 	}
 
 	@Transactional
