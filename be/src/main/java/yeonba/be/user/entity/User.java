@@ -13,6 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -85,7 +86,7 @@ public class User {
 	private Area area;
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-	List<ProfilePhoto> profilePhotos;
+	List<ProfilePhoto> profilePhotos = new ArrayList<>();
 
 	private LocalDateTime lastAccessedAt;
 
@@ -209,5 +210,9 @@ public class User {
 		return this.profilePhotos.stream()
 			.map(ProfilePhoto::getPhotoUrl)
 			.toList();
+	}
+
+	public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
+		this.profilePhotos = profilePhotos;
 	}
 }
