@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import yeonba.be.user.entity.ProfilePhoto;
 import yeonba.be.user.entity.User;
 
 @Service
@@ -62,6 +64,25 @@ public class S3Service {
 		}
 
 		return uploadedProfilePhotosUrls;
+	}
+
+	public void deleteProfilePhotos(List<ProfilePhoto> profilePhotos) {
+
+		for (ProfilePhoto profilePhoto : profilePhotos) {
+			String photoUrl = profilePhoto.getPhotoUrl();
+
+			DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+				.bucket(bucketName)
+				.key(photoUrl)
+				.build();
+
+			try {
+				s3Client.deleteObject(deleteObjectRequest);
+			} catch (Exception e) {
+				throw new IllegalStateException(
+					String.format("Failed to delete file, key : %s", photoUrl), e);
+			}
+		}
 	}
 
 	private boolean validateProfilePhotosExtensions(List<MultipartFile> profilePhotos) {
