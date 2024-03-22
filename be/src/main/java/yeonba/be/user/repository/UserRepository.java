@@ -8,9 +8,13 @@ import yeonba.be.user.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-  Optional<User> findByEmail(String email);
+	Optional<User> findByEmail(String email);
 
-  boolean existsByPhoneNumber(String phoneNumber);
+	boolean existsByPhoneNumber(String phoneNumber);
 
-  Optional<User> findByPhoneNumber(String phoneNumber);
+	Optional<User> findByPhoneNumber(String phoneNumber);
+
+	boolean existsByNickname(String nickname);
+
+	boolean existsByEmail(String email);
 }
