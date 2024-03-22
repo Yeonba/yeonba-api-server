@@ -8,14 +8,14 @@ import yeonba.be.user.entity.Favorite;
 @RequiredArgsConstructor
 public class FavoriteCommand {
 
-  private final FavoriteRepository favoriteRepository;
+	private final FavoriteRepository favoriteRepository;
 
-  public Favorite save(Favorite favorite) {
+	public Favorite save(Favorite favorite) {
 
-    return favoriteRepository.save(favorite);
-  }
+		return favoriteRepository.save(favorite);
+	}
 
-  public void delete(Favorite favorite) {
-    favoriteRepository.delete(favorite);
-  }
+	public void delete(Favorite favorite) {
+		favoriteRepository.delete(favorite);
+	}
 }

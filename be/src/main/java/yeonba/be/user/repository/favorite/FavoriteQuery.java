@@ -11,16 +11,16 @@ import yeonba.be.user.entity.User;
 @RequiredArgsConstructor
 public class FavoriteQuery {
 
-  private final FavoriteRepository favoriteRepository;
+	private final FavoriteRepository favoriteRepository;
 
-  public boolean isFavoriteExist(User user, User favoriteUser) {
+	public boolean isFavoriteExist(User user, User favoriteUser) {
 
-    return favoriteRepository.existsByUserAndFavoriteUser(user, favoriteUser);
-  }
+		return favoriteRepository.existsByUserAndFavoriteUser(user, favoriteUser);
+	}
 
-  public Favorite find(User user, User favoriteUser) {
+	public Favorite find(User user, User favoriteUser) {
 
-    return favoriteRepository.findByUserAndFavoriteUser(user, favoriteUser)
-        .orElseThrow(() -> new GeneralException(FavoriteException.FAVORITE_NOT_FOUND));
-  }
+		return favoriteRepository.findByUserAndFavoriteUser(user, favoriteUser)
+			.orElseThrow(() -> new GeneralException(FavoriteException.FAVORITE_NOT_FOUND));
+	}
 }
