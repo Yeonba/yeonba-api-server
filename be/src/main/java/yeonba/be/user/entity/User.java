@@ -166,16 +166,6 @@ public class User {
         this.deletedAt = willDeleteTime;
     }
 
-    /**
-     * 삭제된 사용자인지 검증
-     */
-    public void validateDeletedUser(LocalDateTime now) {
-
-        if (this.deletedAt.isAfter(now)) {
-            throw new IllegalArgumentException("삭제된 사용자입니다.");
-        }
-    }
-
     public void validateDailyCheck(LocalDate dailyCheckDay) {
 
         if (this.lastAccessedAt.isAfter(dailyCheckDay.atStartOfDay())) {
@@ -226,5 +216,15 @@ public class User {
     public void changeInactiveStatus(boolean inactiveStatus) {
 
         this.inactiveStatus = inactiveStatus;
+    }
+
+    public void hideUserInfo() {
+
+        this.name = "deleted";
+        this.nickname = "deleted";
+        this.age = 0;
+        this.height = 0;
+        this.email = "deleted";
+        this.phoneNumber = "deleted";
     }
 }
