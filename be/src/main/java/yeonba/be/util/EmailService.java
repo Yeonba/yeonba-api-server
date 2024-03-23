@@ -10,21 +10,21 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailService {
 
-  @Value("${GOOGLE_SMTP_USERNAME}")
-  private String serviceEmail;
+	@Value("${GOOGLE_SMTP_USERNAME}")
+	private String serviceEmail;
 
-  private final JavaMailSender mailSender;
+	private final JavaMailSender mailSender;
 
-  public void sendMail(
-      String to,
-      String subject,
-      String text) {
-    SimpleMailMessage mailMessage = new SimpleMailMessage();
-    mailMessage.setFrom(serviceEmail);
-    mailMessage.setTo(to);
-    mailMessage.setSubject(subject);
-    mailMessage.setText(text);
+	public void sendMail(
+		String to,
+		String subject,
+		String text) {
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setFrom(serviceEmail);
+		mailMessage.setTo(to);
+		mailMessage.setSubject(subject);
+		mailMessage.setText(text);
 
-    mailSender.send(mailMessage);
-  }
+		mailSender.send(mailMessage);
+	}
 }

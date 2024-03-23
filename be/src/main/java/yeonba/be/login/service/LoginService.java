@@ -13,10 +13,10 @@ import yeonba.be.util.TemporaryPasswordGenerator;
 @RequiredArgsConstructor
 public class LoginService {
 
-  private final String TEMPORARY_PASSWORD_EMAIL_SUBJECT = "연바(연애는 바로 지금) 임시비밀번호 발급";
-  private final String TEMPORARY_PASSWORD_EMAIL_TEXT = "임시비밀번호 : %s";
-  private final UserQuery userQuery;
-  private final EmailService emailService;
+	private final String TEMPORARY_PASSWORD_EMAIL_SUBJECT = "연바(연애는 바로 지금) 임시비밀번호 발급";
+	private final String TEMPORARY_PASSWORD_EMAIL_TEXT = "임시비밀번호 : %s";
+	private final UserQuery userQuery;
+	private final EmailService emailService;
 
   /*
   임시 비밀번호는 다음 과정을 거친다.
@@ -26,20 +26,20 @@ public class LoginService {
     4. 임시 비밀번호 발급 메일 전송
    */
 
-  // TODO : 비밀번호 암호화 로직 추가
+	// TODO : 비밀번호 암호화 로직 추가
 
-  @Transactional
-  public void sendTemporaryPasswordMail(UserPasswordInquiryRequest request) {
+	@Transactional
+	public void sendTemporaryPasswordMail(UserPasswordInquiryRequest request) {
 
-    String email = request.getEmail();
-    User user = userQuery.findByEmail(email);
+		String email = request.getEmail();
+		User user = userQuery.findByEmail(email);
 
-    String temporaryPassword = TemporaryPasswordGenerator.generatePassword();
+		String temporaryPassword = TemporaryPasswordGenerator.generatePassword();
 
-    String encryptedPassword = temporaryPassword;
-    user.changePassword(encryptedPassword);
+		String encryptedPassword = temporaryPassword;
+		user.changePassword(encryptedPassword);
 
-    String text = String.format(TEMPORARY_PASSWORD_EMAIL_TEXT, temporaryPassword);
-    emailService.sendMail(email, TEMPORARY_PASSWORD_EMAIL_SUBJECT, text);
-  }
+		String text = String.format(TEMPORARY_PASSWORD_EMAIL_TEXT, temporaryPassword);
+		emailService.sendMail(email, TEMPORARY_PASSWORD_EMAIL_SUBJECT, text);
+	}
 }
