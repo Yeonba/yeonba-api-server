@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserPhoneNumberVerifyRequest {
 
-  @Schema(
-      type = "string",
-      description = "전화번호",
-      example = "01011112222")
-  @Pattern(
-      regexp = "^010\\d{8}$",
-      message = "전화번호는 11자리 010으로 시작하며 하이픈(-) 없이 0~9의 숫자로 이뤄져야 합니다.")
-  private String phoneNumber;
+	@Schema(
+		type = "string",
+		description = "전화번호",
+		example = "01011112222")
+	@Pattern(
+		regexp = "^010\\d{8}$",
+		message = "전화번호는 11자리 010으로 시작하며 하이픈(-) 없이 0~9의 숫자로 이뤄져야 합니다.")
+	private String phoneNumber;
 }
