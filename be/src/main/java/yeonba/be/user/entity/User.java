@@ -73,6 +73,8 @@ public class User {
 	@Column(nullable = false)
 	private String mbti;
 
+	private String refreshToken;
+
 	@ManyToOne
 	@JoinColumn(name = "vocal_range_id")
 	private VocalRange vocalRange;
@@ -214,5 +216,9 @@ public class User {
 
 	public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
 		this.profilePhotos = profilePhotos;
+	}
+
+	public void updateRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
 	}
 }
