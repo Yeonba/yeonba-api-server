@@ -10,20 +10,20 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RedisUtil {
 
-  private final RedisTemplate<String, Object> redisTemplate;
+	private final RedisTemplate<String, Object> redisTemplate;
 
-  public void putData(String key, String value, long expiredTimeMinutes) {
-    redisTemplate.opsForValue()
-        .set(key, value, expiredTimeMinutes, TimeUnit.MINUTES);
-  }
+	public void putData(String key, String value, long expiredTimeMinutes) {
+		redisTemplate.opsForValue()
+			.set(key, value, expiredTimeMinutes, TimeUnit.MINUTES);
+	}
 
-  public Optional<Object> getData(String key) {
-    Object value = redisTemplate.opsForValue().get(key);
+	public Optional<Object> getData(String key) {
+		Object value = redisTemplate.opsForValue().get(key);
 
-    return Optional.ofNullable(value);
-  }
+		return Optional.ofNullable(value);
+	}
 
-  public void deleteData(String key) {
-    redisTemplate.delete(key);
-  }
+	public void deleteData(String key) {
+		redisTemplate.delete(key);
+	}
 }
