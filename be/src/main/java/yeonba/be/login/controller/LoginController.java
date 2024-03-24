@@ -3,7 +3,6 @@ package yeonba.be.login.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,13 +40,17 @@ public class LoginController {
 			.body(new CustomResponse<>(new UserJoinResponse(createdJwt)));
 	}
 
-	@Operation(summary = "이메일 찾기 인증 코드 sms 전송", description = "이메일 찾기를 위한 인증번호 sms 전송을 요청합니다.")
-	@ApiResponse(responseCode = "202", description = "전화번호 인증 코드 전송 성공")
-	@PostMapping("/users/help/email-inquiry/verification-code")
+	@Operation(
+		summary = "전화번호 인증 코드 전송",
+		description = "전화번호 인증을 위해 해당 번호로 인증 코드를 발송합니다."
+	)
+	@ApiResponse(
+		responseCode = "204",
+		description = "전화번호 인증 코드 전송 성공"
+	)
+	@PostMapping("/users/help/id-inquiry/verification-code")
 	public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
-		@RequestBody @Valid UserPhoneNumberVerifyRequest request) {
-
-		loginService.sendVerificationCodeMessage(request);
+		@RequestBody UserPhoneNumberVerifyRequest request) {
 
 		return ResponseEntity
 			.accepted()
@@ -67,13 +70,17 @@ public class LoginController {
 			.body(new CustomResponse<>(response));
 	}
 
-	@Operation(summary = "비밀번호 찾기", description = "이메일로 임시 비밀번호를 발급받을 수 있습니다.")
-	@ApiResponse(responseCode = "202", description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리")
+	@Operation(
+		summary = "비밀번호 찾기",
+		description = "이메일로 임시 비밀번호를 발급받을 수 있습니다."
+	)
+	@ApiResponse(
+		responseCode = "204",
+		description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리"
+	)
 	@PostMapping("/users/help/pw-inquiry")
 	public ResponseEntity<CustomResponse<Void>> passwordInquiry(
 		@RequestBody UserPasswordInquiryRequest request) {
-
-		loginService.sendTemporaryPasswordMail(request);
 
 		return ResponseEntity
 			.accepted()

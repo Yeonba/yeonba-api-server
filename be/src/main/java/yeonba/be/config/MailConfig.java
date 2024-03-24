@@ -10,31 +10,31 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 @Configuration
 public class MailConfig {
 
-  @Value("${spring.mail.host}")
-  private String serverHost;
+	@Value("${GOOGLE_SMTP_HOST}")
+	private String serverHost;
 
-  @Value("${spring.mail.port}")
-  private int serverPort;
+	@Value("${GOOGLE_SMTP_PORT}")
+	private int serverPort;
 
-  @Value("${spring.mail.username}")
-  private String username;
+	@Value("${GOOGLE_SMTP_USERNAME}")
+	private String username;
 
-  @Value("${spring.mail.password}")
-  private String password;
+	@Value("${GOOGLE_SMTP_PASSWORD}")
+	private String password;
 
-  @Bean
-  public JavaMailSender javaMailSender() {
-    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-    mailSender.setHost(serverHost);
-    mailSender.setPort(serverPort);
-    mailSender.setUsername(username);
-    mailSender.setPassword(password);
+	@Bean
+	public JavaMailSender javaMailSender() {
+		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+		mailSender.setHost(serverHost);
+		mailSender.setPort(serverPort);
+		mailSender.setUsername(username);
+		mailSender.setPassword(password);
 
-    Properties properties = mailSender.getJavaMailProperties();
-    properties.put("mail.transport.protocol", "smtp");
-    properties.put("mail.smtp.auth", "true");
-    properties.put("mail.smtp.starttls.enable", "true");
+		Properties properties = mailSender.getJavaMailProperties();
+		properties.put("mail.transport.protocol", "smtp");
+		properties.put("mail.smtp.auth", "true");
+		properties.put("mail.smtp.starttls.enable", "true");
 
-    return mailSender;
-  }
+		return mailSender;
+	}
 }
