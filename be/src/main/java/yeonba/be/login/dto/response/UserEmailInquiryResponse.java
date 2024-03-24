@@ -8,9 +8,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserEmailInquiryResponse {
 
-  @Schema(
-      type = "string",
-      description = "이메일",
-      example = "mj3242@naver.com")
-  private String email;
+	@Schema(
+		type = "string",
+		description = "이메일",
+		example = "mj3242@naver.com")
+	private String email;
 }
