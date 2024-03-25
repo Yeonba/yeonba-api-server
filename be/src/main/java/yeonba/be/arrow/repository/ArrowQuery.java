@@ -8,11 +8,11 @@ import yeonba.be.user.entity.User;
 @RequiredArgsConstructor
 public class ArrowQuery {
 
-  private final ArrowTransactionRepository arrowTransactionRepository;
+    private final ArrowTransactionRepository arrowTransactionRepository;
 
-  public boolean isArrowTransactionExist(User sentUser, User receivedUser) {
+    public boolean isArrowTransactionExist(User sentUser, User receivedUser) {
 
-    return arrowTransactionRepository
-        .existsBySentUserAndReceivedUser(sentUser, receivedUser);
-  }
+        return arrowTransactionRepository
+            .existsBySentUserAndReceivedUser(sentUser, receivedUser);
+    }
 }
