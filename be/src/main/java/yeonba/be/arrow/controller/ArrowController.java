@@ -22,66 +22,63 @@ import yeonba.be.util.CustomResponse;
 @RequiredArgsConstructor
 public class ArrowController {
 
-  private final ArrowService arrowService;
+    private final ArrowService arrowService;
 
-  @Operation(summary = "사용자 화살 개수 조회", description = "사용자 화살 개수를 조회할 수 있습니다.")
-  @ApiResponse(responseCode = "200", description = "사용자 화살 개수 정상 조회")
-  @GetMapping("/users/arrows")
-  public ResponseEntity<CustomResponse<UserArrowsResponse>> arrows(
-      @RequestAttribute("userId") long userId) {
+    @Operation(summary = "사용자 화살 개수 조회", description = "사용자 화살 개수를 조회할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "사용자 화살 개수 정상 조회")
+    @GetMapping("/users/arrows")
+    public ResponseEntity<CustomResponse<UserArrowsResponse>> arrows(
+        @RequestAttribute("userId") long userId) {
 
-    UserArrowsResponse response = arrowService.getUserArrows(userId);
+        UserArrowsResponse response = arrowService.getUserArrows(userId);
 
-    return ResponseEntity
-        .ok()
-        .body(new CustomResponse<>(response));
-  }
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(response));
+    }
 
-  @Operation(summary = "출석 체크", description = "출석 체크를 통해 사용자가 10개의 화살을 획득할 수 있습니다.")
-  @ApiResponse(responseCode = "202", description = "출석 체크 정상 처리")
-  @PostMapping("/daily-check")
-  public ResponseEntity<CustomResponse<Void>> dailyCheck(
-      @RequestAttribute("userId") long userId) {
+    @Operation(summary = "출석 체크", description = "출석 체크를 통해 사용자가 10개의 화살을 획득할 수 있습니다.")
+    @ApiResponse(responseCode = "202", description = "출석 체크 정상 처리")
+    @PostMapping("/daily-check")
+    public ResponseEntity<CustomResponse<Void>> dailyCheck(
+        @RequestAttribute("userId") long userId) {
 
-    arrowService.dailyCheck(userId);
+        arrowService.dailyCheck(userId);
 
-    return ResponseEntity
-        .accepted()
-        .body(new CustomResponse<>());
-  }
+        return ResponseEntity
+            .accepted()
+            .body(new CustomResponse<>());
+    }
 
-  @Operation(summary = "화살 보내기", description = "다른 사용자에게 화살을 보낼 수 있습니다.")
-  @ApiResponse(responseCode = "202", description = "화살 전송 정상 처리")
-  @PostMapping("/users/{userId}/arrow")
-  public ResponseEntity<CustomResponse<Void>> sendArrow(
-      @RequestAttribute("userId") long senderId,
-      @Parameter(description = "화살 받는 사용자 ID", example = "1")
-      @PathVariable("userId") long receiverId,
-      @RequestBody ArrowSendRequest request) {
+    @Operation(summary = "화살 보내기", description = "다른 사용자에게 화살을 보낼 수 있습니다.")
+    @ApiResponse(responseCode = "202", description = "화살 전송 정상 처리")
+    @PostMapping("/users/{userId}/arrow")
+    public ResponseEntity<CustomResponse<Void>> sendArrow(
+        @RequestAttribute("userId") long senderId,
+        @Parameter(description = "화살 받는 사용자 ID", example = "1")
+        @PathVariable("userId") long receiverId,
+        @RequestBody ArrowSendRequest request) {
 
-    arrowService.sendArrow(
-        senderId,
-        receiverId,
-        request);
+        arrowService.sendArrow(
+            senderId,
+            receiverId,
+            request);
 
-    return ResponseEntity
-        .accepted()
-        .body(new CustomResponse<>());
-  }
+        return ResponseEntity
+            .accepted()
+            .body(new CustomResponse<>());
+    }
 
-  @Operation(
-      summary = "화살 충전",
-      description = "광고 시청시 화살 5개를 충전할 수 있습니다."
-  )
-  @ApiResponse(
-      responseCode = "204",
-      description = "화살 충전 정상 처리"
-  )
-  @PostMapping("/users/arrows")
-  public ResponseEntity<CustomResponse<Void>> earnArrows() {
+    @Operation(summary = "화살 충전", description = "광고 시청시 화살 5개를 충전할 수 있습니다.")
+    @ApiResponse(responseCode = "204", description = "화살 충전 정상 처리")
+    @PostMapping("/users/arrows")
+    public ResponseEntity<CustomResponse<Void>> chargeArrows(
+        @RequestAttribute("userId") long userId) {
 
-    return ResponseEntity
-        .accepted()
-        .body(new CustomResponse<>());
-  }
+        arrowService.chargeArrows(userId);
+
+        return ResponseEntity
+            .accepted()
+            .body(new CustomResponse<>());
+    }
 }

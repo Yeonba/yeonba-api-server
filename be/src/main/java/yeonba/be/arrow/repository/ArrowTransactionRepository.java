@@ -6,7 +6,8 @@ import yeonba.be.arrow.entity.ArrowTransaction;
 import yeonba.be.user.entity.User;
 
 @Repository
-public interface ArrowTransactionRepository extends JpaRepository<ArrowTransaction, Long> {
+public interface ArrowTransactionRepository extends JpaRepository<ArrowTransaction, Long>,
+    ArrowTransactionRepositoryCustom {
 
   boolean existsBySentUserAndReceivedUser(User sentUser, User receivedUser);
 }
