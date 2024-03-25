@@ -1,5 +1,6 @@
 package yeonba.be.arrow.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import yeonba.be.user.repository.UserQuery;
 public class ArrowService {
 
     private final int DAILY_CHECK_ARROW_COUNT = 10;
+    private final int ADVERTISEMENT_ARROW_COUNT = 5;
     private final UserQuery userQuery;
     private final ArrowCommand arrowCommand;
     private final ArrowQuery arrowQuery;
@@ -30,7 +32,6 @@ public class ArrowService {
     3. 사용자 최종 접속 일시 갱신
     4. 사용자 화살 개수 증가
    */
-
     @Transactional
     public void dailyCheck(long userId) {
 
@@ -95,7 +96,15 @@ public class ArrowService {
 
         User user = userQuery.findById(userId);
 
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        arrowQuery.validateAdvertisementArrowCount(userId, today);
 
+        ArrowTransaction arrowTransaction = new ArrowTransaction(
+            user,
+            ADVERTISEMENT_ARROW_COUNT);
+
+        arrowCommand.save(arrowTransaction);
+        user.plusArrow(ADVERTISEMENT_ARROW_COUNT);
     }
 
 }
