@@ -26,10 +26,10 @@ public class UserQuery {
 			.orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
 	}
 
-	public List<User> findDeletedUsers() {
+	public List<User> findWillDeleteUsers() {
 
 		LocalDateTime now = LocalDateTime.now();
 
-		return userRepository.findAllByDeletedAtIsBefore(now);
+		return userRepository.findAllByDeletedAtIsBeforeAndDeletedIsFalse(now);
 	}
 }

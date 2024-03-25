@@ -192,7 +192,7 @@ public class MyPageService {
     @Transactional
     public void hideDeletedUser() {
 
-        userQuery.findDeletedUsers().forEach(User::hideUserInfo);
-
+        userQuery.findWillDeleteUsers()
+            .forEach(User::hideUserInfo);
     }
 }

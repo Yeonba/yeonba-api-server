@@ -61,7 +61,7 @@ public class User {
     private String phoneNumber;
     private int arrow;
     private int photoSyncRate;
-    private boolean inactiveStatus;
+    private boolean inactive;
 
     @Column(nullable = false)
     private String bodyType;
@@ -97,6 +97,9 @@ public class User {
 
     private LocalDateTime deletedAt;
 
+	@Column(name = "is_deleted")
+	private boolean deleted;
+
     @OneToMany(mappedBy = "blockedUser", fetch = FetchType.LAZY)
     private List<Block> blocks;
 
@@ -120,6 +123,7 @@ public class User {
         Animal animal,
         Area area,
         List<ProfilePhoto> profilePhotos) {
+
         this.gender = gender;
         this.name = name;
         this.nickname = nickname;
@@ -132,7 +136,7 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.arrow = arrow;
         this.photoSyncRate = photoSyncRate;
-        this.inactiveStatus = true;
+        this.inactive = false;
         this.bodyType = bodyType;
         this.job = job;
         this.mbti = mbti;
@@ -215,7 +219,7 @@ public class User {
 
     public void changeInactiveStatus(boolean inactiveStatus) {
 
-        this.inactiveStatus = inactiveStatus;
+        this.inactive = inactiveStatus;
     }
 
     public void hideUserInfo() {
@@ -226,5 +230,6 @@ public class User {
         this.height = 0;
         this.email = "deleted";
         this.phoneNumber = "deleted";
+		this.deleted = true;
     }
 }
