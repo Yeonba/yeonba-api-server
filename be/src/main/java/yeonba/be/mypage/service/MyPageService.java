@@ -1,9 +1,11 @@
 package yeonba.be.mypage.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,11 +13,16 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
+import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
+import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.mypage.util.PasswordEncryptor;
+import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
+import yeonba.be.user.repository.BlockCommand;
+import yeonba.be.user.repository.BlockQuery;
 import yeonba.be.user.repository.UserQuery;
 
 @Service
@@ -24,6 +31,8 @@ public class MyPageService {
 
     private final S3Client s3Client;
     private final UserQuery userQuery;
+    private final BlockQuery blockQuery;
+    private final BlockCommand blockCommand;
     private final PasswordEncryptor passwordEncryptor;
 
     @Value("${S3_BUCKET_NAME}")
@@ -85,6 +94,48 @@ public class MyPageService {
         uploadProfilePhotos(profilePhotos, user);
     }
 
+    @Transactional(readOnly = true)
+    public List<BlockedUserResponse> getBlockedUsers(long userId) {
+
+        User user = userQuery.findById(userId);
+
+        List<Block> blocks = blockQuery.findBlocksByUser(user);
+
+        return blocks.stream()
+            .map(block -> new BlockedUserResponse(
+                block.getBlockedUser())
+            )
+            .toList();
+    }
+
+    @Transactional
+    public void unblockUser(long userId, long blockedUserId) {
+
+        User user = userQuery.findById(userId);
+        User blockedUser = userQuery.findById(blockedUserId);
+
+        Block block = blockQuery.findByUsers(user, blockedUser);
+        blockCommand.delete(block);
+    }
+
+    @Transactional
+    public void changeDormantStatus(long userId, UserDormantRequest request) {
+
+        User user = userQuery.findById(userId);
+        user.changeInactiveStatus(request.isStatus());
+    }
+
+    @Transactional
+    public void deleteUser(long userId) {
+
+        User user = userQuery.findById(userId);
+
+        // 탈퇴 취소 가능 기간
+        int recovableDays = 1;
+        LocalDateTime willDeleteTime = LocalDateTime.now().plusDays(recovableDays);
+        user.delete(willDeleteTime);
+    }
+
     /**
      * 사용자마다 정해진 profile photo url에 파일을 업로드한다.
      */
@@ -132,5 +183,16 @@ public class MyPageService {
         if (!StringUtils.equals(request.getNewPassword(), request.getNewPasswordConfirmation())) {
             throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인 값이 일치하지 않습니다.");
         }
+    }
+
+    /**
+     * 매일 자정에 삭제된 사용자를 숨김 처리한다.
+     */
+    @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    public void hideDeletedUser() {
+
+        userQuery.findWillDeleteUsers()
+            .forEach(User::hideUserInfo);
     }
 }
