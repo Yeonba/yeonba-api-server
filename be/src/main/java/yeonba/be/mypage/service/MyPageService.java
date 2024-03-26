@@ -95,9 +95,8 @@ public class MyPageService {
 
         userQuery.findById(userId);
 
-        List<Acquaintance> acquaintances = acquaintanceQuery.findAllById(userId);
-
-        List<UnwantedAcquaintanceResponse> response = acquaintances.stream()
+        List<UnwantedAcquaintanceResponse> response = acquaintanceQuery.findAllById(userId)
+            .stream()
             .map(acquaintance -> new UnwantedAcquaintanceResponse(
                 acquaintance.getId(),
                 acquaintance.getPhoneNumber(),
