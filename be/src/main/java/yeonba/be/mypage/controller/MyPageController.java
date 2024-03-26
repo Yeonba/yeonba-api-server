@@ -131,18 +131,17 @@ public class MyPageController {
     }
 
     @Operation(summary = "만나고 싶지 않은 지인 목록 조회", description = "만나고 싶지 않은 지인 목록을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "만나고 싶지 않은 지인 목록 조회 성공")
     @GetMapping("/users/unwanted-acquaintances")
-    public ResponseEntity<CustomResponse<UnwantedAcquaintancesResponse>> getUnwantedAcquaintances() {
+    public ResponseEntity<CustomResponse<UnwantedAcquaintancesResponse>> getUnwantedAcquaintances(
+        @RequestAttribute("userId") long userId) {
 
-        List<UnwantedAcquaintanceResponse> sampleUnwantedAcquaintances = Arrays.asList(
-            new UnwantedAcquaintanceResponse("01012345678", "안민재"),
-            new UnwantedAcquaintanceResponse("01087654321", "김민재")
-        );
+        UnwantedAcquaintancesResponse response = myPageService.getUnwantedAcquaintances(
+            userId);
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(
-                new UnwantedAcquaintancesResponse(sampleUnwantedAcquaintances)));
+            .body(new CustomResponse<>(response));
     }
 
     @Operation(

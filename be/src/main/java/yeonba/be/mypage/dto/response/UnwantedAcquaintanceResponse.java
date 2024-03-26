@@ -8,6 +8,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UnwantedAcquaintanceResponse {
 
+    @Schema(description = "만나고 싶지 않은 지인 ID", example = "1")
+    private long id;
+
     @Schema(description = "휴대폰 번호", example = "01012345678")
     private String phoneNumber;
 
