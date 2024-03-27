@@ -21,12 +21,12 @@ public class JoinService {
 	private final JwtUtil jwtUtil;
 
 	/*
-	  회원 가입 비즈니스 로직 과정
-	  1. 사용자 엔티티 저장
-	  2. 프로필 사진 엔티티 저장
-	  3. 사용자 선호조건 저장
-	  4. access token 및 refresh token 발급
-	  5. 사용자 refresh token 업데이트
+	회원 가입 비즈니스 로직 과정
+	1. 사용자 엔티티 저장
+	2. 프로필 사진 엔티티 저장
+	3. 사용자 선호조건 저장
+	4. access token 및 refresh token 발급
+	5. 사용자 refresh token 업데이트
  	*/
 	@Transactional
 	public UserJoinResponse join(UserJoinRequest request) {
