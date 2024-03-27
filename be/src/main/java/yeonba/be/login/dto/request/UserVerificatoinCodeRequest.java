@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UserPhoneNumberVerifyRequest {
+public class UserVerificatoinCodeRequest {
 
 	@Schema(
 		type = "string",

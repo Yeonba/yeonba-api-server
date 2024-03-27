@@ -13,8 +13,8 @@ import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
-import yeonba.be.login.dto.request.UserPhoneNumberVerifyRequest;
 import yeonba.be.login.dto.request.UserRefreshTokenRequest;
+import yeonba.be.login.dto.request.UserVerificatoinCodeRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
@@ -45,7 +45,7 @@ public class LoginController {
 	@ApiResponse(responseCode = "202", description = "전화번호 인증 코드 전송 성공")
 	@PostMapping("/users/help/email-inquiry/verification-code")
 	public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
-		@Valid @RequestBody UserPhoneNumberVerifyRequest request) {
+		@Valid @RequestBody UserVerificatoinCodeRequest request) {
 
 		loginService.sendVerificationCodeMessage(request);
 

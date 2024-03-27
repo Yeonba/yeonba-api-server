@@ -11,7 +11,7 @@ import yeonba.be.exception.LoginException;
 import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
-import yeonba.be.login.dto.request.UserPhoneNumberVerifyRequest;
+import yeonba.be.login.dto.request.UserVerificatoinCodeRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.entity.VerificationCode;
 import yeonba.be.login.repository.VerificationCodeCommand;
@@ -66,7 +66,7 @@ public class LoginService {
 	}
 
 	@Transactional
-	public void sendVerificationCodeMessage(UserPhoneNumberVerifyRequest request) {
+	public void sendVerificationCodeMessage(UserVerificatoinCodeRequest request) {
 
 		// 전화 번호로 사용자 조회
 		String phoneNumber = request.getPhoneNumber();
