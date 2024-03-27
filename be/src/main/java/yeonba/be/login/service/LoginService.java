@@ -11,7 +11,7 @@ import yeonba.be.exception.LoginException;
 import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
-import yeonba.be.login.dto.request.UserPhoneNumberVerifyRequest;
+import yeonba.be.login.dto.request.UserVerificationCodeRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.entity.VerificationCode;
 import yeonba.be.login.repository.VerificationCodeCommand;
@@ -66,7 +66,7 @@ public class LoginService {
 	}
 
 	@Transactional
-	public void sendVerificationCodeMessage(UserPhoneNumberVerifyRequest request) {
+	public void sendVerificationCodeMessage(UserVerificationCodeRequest request) {
 
 		// 전화 번호로 사용자 조회
 		String phoneNumber = request.getPhoneNumber();
@@ -75,14 +75,10 @@ public class LoginService {
 		}
 
 		// 인증 코드 생성 및 저장
-		String code = VerificationCodeGenerator.generateVerificationCode();
-		LocalDateTime expiredAt = LocalDateTime.now()
-			.plus(VERIFICATION_CODE_TTL, ChronoUnit.MINUTES);
-		VerificationCode verificationCode = new VerificationCode(phoneNumber, code, expiredAt);
-		verificationCodeCommand.save(verificationCode);
+		VerificationCode verificationCode = saveVerificationCode(request);
 
 		// 인증 코드 sms 발송
-		String message = String.format(VERIFICATION_CODE_MESSAGE, code);
+		String message = String.format(VERIFICATION_CODE_MESSAGE, verificationCode);
 		smsService.sendMessage(phoneNumber, message);
 	}
 
@@ -110,5 +106,25 @@ public class LoginService {
 		verificationCodeCommand.delete(verificationCode);
 
 		return new UserEmailInquiryResponse(user.getEmail());
+	}
+
+	@Transactional
+	public void sendJoinVerificationCodeMessage(UserVerificationCodeRequest request) {
+
+		VerificationCode verificationCode = saveVerificationCode(request);
+
+		String message = String.format(VERIFICATION_CODE_MESSAGE, verificationCode.getCode());
+		smsService.sendMessage(request.getPhoneNumber(), message);
+	}
+
+	private VerificationCode saveVerificationCode(UserVerificationCodeRequest request) {
+
+		String phoneNumber = request.getPhoneNumber();
+		String code = VerificationCodeGenerator.generateVerificationCode();
+		LocalDateTime expiredAt = LocalDateTime.now()
+			.plus(VERIFICATION_CODE_TTL, ChronoUnit.MINUTES);
+		VerificationCode verificationCode = new VerificationCode(phoneNumber, code, expiredAt);
+
+		return verificationCodeCommand.save(verificationCode);
 	}
 }
