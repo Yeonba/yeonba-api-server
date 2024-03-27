@@ -30,6 +30,7 @@ public class JoinService {
  	*/
 	@Transactional
 	public UserJoinResponse join(UserJoinRequest request) {
+
 		User user = userService.saveUser(request);
 		userService.saveProfilePhotos(user, request);
 
