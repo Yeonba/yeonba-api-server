@@ -95,7 +95,7 @@ public class UserService {
 		}
 
 		// 성별 판별
-		Gender gender = Gender.fromGenderString(request.getGender());
+		Gender gender = Gender.from(request.getGender());
 
 		// 나이 계산
 		LocalDate birth = request.getBirth();
@@ -136,6 +136,7 @@ public class UserService {
 
 	@Transactional
 	public void saveProfilePhotos(User user, UserJoinRequest request) {
+
 		List<MultipartFile> photoFiles = request.getProfilePhotos();
 
 		List<String> profilePhotoUrls = s3Service.uploadProfilePhotos(photoFiles, user);
