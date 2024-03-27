@@ -57,7 +57,7 @@ public class LoginController {
 	@Operation(summary = "이메일 찾기", description = "인증 코드를 바탕으로 아이디를 찾을 수 있습니다.")
 	@ApiResponse(responseCode = "200", description = "아이디 찾기 정상 처리")
 	@PostMapping("/users/help/email-inquiry")
-	public ResponseEntity<CustomResponse<UserEmailInquiryResponse>> idInquiry(
+	public ResponseEntity<CustomResponse<UserEmailInquiryResponse>> emailInquiry(
 		@Valid @RequestBody UserEmailInquiryRequest request) {
 
 		UserEmailInquiryResponse response = loginService.findEmail(request);
