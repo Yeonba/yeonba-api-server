@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SmsService {
 
-  @Value("${spring.sms.sender}")
+  @Value("${SMS_SENDER}")
   private String sender;
   private final DefaultMessageService messageService;
 

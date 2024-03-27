@@ -8,13 +8,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SmsConfig {
 
-  @Value("${spring.sms.api_key}")
+  @Value("${SMS_API_KEY}")
   private String apiKey;
 
-  @Value("${spring.sms.api_secret}")
+	@Value("${SMS_API_SECRET}")
   private String apiSecret;
 
-  @Value("${spring.sms.provider}")
+	@Value("${SMS_PROVIDER}")
   private String provider;
 
   @Bean

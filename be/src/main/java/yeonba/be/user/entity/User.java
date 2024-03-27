@@ -72,6 +72,8 @@ public class User {
 	@Column(nullable = false)
 	private String mbti;
 
+	private String refreshToken;
+
 	@ManyToOne
 	@JoinColumn(name = "vocal_range_id")
 	private VocalRange vocalRange;
@@ -115,8 +117,7 @@ public class User {
 		String mbti,
 		VocalRange vocalRange,
 		Animal animal,
-		Area area,
-		List<ProfilePhoto> profilePhotos) {
+		Area area) {
 		this.gender = gender;
 		this.name = name;
 		this.nickname = nickname;
@@ -136,7 +137,6 @@ public class User {
 		this.vocalRange = vocalRange;
 		this.animal = animal;
 		this.area = area;
-		this.profilePhotos = profilePhotos;
 	}
 
 	public void validateSameUser(User user) {
@@ -213,5 +213,15 @@ public class User {
 		return this.profilePhotos.stream()
 			.map(ProfilePhoto::getPhotoUrl)
 			.toList();
+	}
+
+	public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
+
+		this.profilePhotos = profilePhotos;
+	}
+
+	public void updateRefreshToken(String refreshToken) {
+
+		this.refreshToken = refreshToken;
 	}
 }
