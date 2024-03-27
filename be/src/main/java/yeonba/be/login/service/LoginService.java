@@ -14,6 +14,7 @@ import yeonba.be.login.dto.response.UserIdInquiryResponse;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 import yeonba.be.util.EmailService;
+import yeonba.be.util.PasswordEncryptor;
 import yeonba.be.util.RedisUtil;
 import yeonba.be.util.SmsService;
 import yeonba.be.util.TemporaryPasswordGenerator;
@@ -34,18 +35,16 @@ public class LoginService {
 	private final EmailService emailService;
 	private final SmsService smsService;
 
+	private final PasswordEncryptor passwordEncryptor;
 	private final RedisUtil redisUtil;
 
-  /*
-  임시 비밀번호는 다음 과정을 거친다.
-    1. 요청 이메일 기반 사용자 조회
-    2. 임시 비밀번호 생성
-    3. 사용자 비밀번호, 임시 비밀번호로 변경
-    4. 임시 비밀번호 발급 메일 전송
-   */
-
-	// TODO : 비밀번호 암호화 로직 추가
-
+	/*
+	임시 비밀번호는 다음 과정을 거친다.
+	  1. 요청 이메일 기반 사용자 조회
+	  2. 임시 비밀번호 생성
+	  3. 사용자 비밀번호, 임시 비밀번호로 변경
+	  4. 임시 비밀번호 발급 메일 전송
+	 */
 	@Transactional
 	public void sendTemporaryPasswordMail(UserPasswordInquiryRequest request) {
 
@@ -54,7 +53,7 @@ public class LoginService {
 
 		String temporaryPassword = TemporaryPasswordGenerator.generatePassword();
 
-		String encryptedPassword = temporaryPassword;
+		String encryptedPassword = passwordEncryptor.encrypt(temporaryPassword, user.getSalt());
 		user.changePassword(encryptedPassword);
 
 		String text = String.format(TEMPORARY_PASSWORD_EMAIL_TEXT, temporaryPassword);
