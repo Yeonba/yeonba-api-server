@@ -1,5 +1,6 @@
 package yeonba.be.login.service;
 
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -8,12 +9,15 @@ import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.LoginException;
 import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserIdInquiryRequest;
+import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserPhoneNumberVerifyRequest;
 import yeonba.be.login.dto.response.UserIdInquiryResponse;
+import yeonba.be.login.dto.response.UserLoginResponse;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 import yeonba.be.util.EmailService;
+import yeonba.be.util.JwtUtil;
 import yeonba.be.util.PasswordEncryptor;
 import yeonba.be.util.RedisUtil;
 import yeonba.be.util.SmsService;
@@ -37,6 +41,7 @@ public class LoginService {
 
 	private final PasswordEncryptor passwordEncryptor;
 	private final RedisUtil redisUtil;
+	private final JwtUtil jwtUtil;
 
 	/*
 	임시 비밀번호는 다음 과정을 거친다.
@@ -62,6 +67,7 @@ public class LoginService {
 
 	@Transactional(readOnly = true)
 	public void sendVerificationCodeMessage(UserPhoneNumberVerifyRequest request) {
+
 		String phoneNumber = request.getPhoneNumber();
 		if (!userQuery.isUserExist(phoneNumber)) {
 			throw new GeneralException(UserException.USER_NOT_FOUND);
@@ -79,6 +85,7 @@ public class LoginService {
 
 	@Transactional(readOnly = true)
 	public UserIdInquiryResponse findEmail(UserIdInquiryRequest request) {
+
 		String phoneNumber = request.getPhoneNumber();
 		String verificationCode = request.getVerificationCode();
 
@@ -96,5 +103,30 @@ public class LoginService {
 		redisUtil.deleteData(phoneNumber);
 
 		return new UserIdInquiryResponse(user.getEmail());
+	}
+
+	@Transactional
+	public UserLoginResponse login(UserLoginRequest request) {
+
+		// 이메일로 사용자 조회
+		String email = request.getEmail();
+		User user = userQuery.findByEmail(email);
+
+		// 비밀번호 요청값 암호화 및 저장된 비밀번호와 일치 확인
+		String requestedPassword = passwordEncryptor
+			.encrypt(request.getPassword(), user.getSalt());
+		if (!StringUtils.equals(requestedPassword, user.getEncryptedPassword())) {
+			throw new GeneralException(LoginException.PASSWORD_NOT_MATCH);
+		}
+
+		// access token, refresh token 발급
+		Date issuedAt = new Date();
+		String accessToken = jwtUtil.generateAccessToken(user, issuedAt);
+		String refreshToken = jwtUtil.generateRefreshToken(user, issuedAt);
+
+		// 사용자 refresh token 업데이트
+		user.updateRefreshToken(refreshToken);
+
+		return new UserLoginResponse(accessToken, refreshToken);
 	}
 }
