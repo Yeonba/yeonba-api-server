@@ -48,6 +48,7 @@ public class LoginService {
 
 	@Transactional
 	public void sendTemporaryPasswordMail(UserPasswordInquiryRequest request) {
+
 		String email = request.getEmail();
 		User user = userQuery.findByEmail(email);
 

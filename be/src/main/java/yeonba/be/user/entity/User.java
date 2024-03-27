@@ -13,7 +13,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -73,8 +72,6 @@ public class User {
 	@Column(nullable = false)
 	private String mbti;
 
-	private String refreshToken;
-
 	@ManyToOne
 	@JoinColumn(name = "vocal_range_id")
 	private VocalRange vocalRange;
@@ -88,7 +85,7 @@ public class User {
 	private Area area;
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-	List<ProfilePhoto> profilePhotos = new ArrayList<>();
+	List<ProfilePhoto> profilePhotos;
 
 	private LocalDateTime lastAccessedAt;
 
@@ -118,7 +115,8 @@ public class User {
 		String mbti,
 		VocalRange vocalRange,
 		Animal animal,
-		Area area) {
+		Area area,
+		List<ProfilePhoto> profilePhotos) {
 		this.gender = gender;
 		this.name = name;
 		this.nickname = nickname;
@@ -138,9 +136,11 @@ public class User {
 		this.vocalRange = vocalRange;
 		this.animal = animal;
 		this.area = area;
+		this.profilePhotos = profilePhotos;
 	}
 
 	public void validateSameUser(User user) {
+
 		if (!this.equals(user)) {
 			throw new IllegalArgumentException("동일한 사용자가 아닙니다.");
 		}
@@ -201,6 +201,7 @@ public class User {
 
 	public String getGender() {
 		if (this.gender) {
+
 			return "남";
 		}
 
@@ -212,13 +213,5 @@ public class User {
 		return this.profilePhotos.stream()
 			.map(ProfilePhoto::getPhotoUrl)
 			.toList();
-	}
-
-	public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
-		this.profilePhotos = profilePhotos;
-	}
-
-	public void updateRefreshToken(String refreshToken) {
-		this.refreshToken = refreshToken;
 	}
 }
