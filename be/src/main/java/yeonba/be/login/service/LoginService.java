@@ -3,7 +3,6 @@ package yeonba.be.login.service;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.exception.GeneralException;
@@ -98,11 +97,6 @@ public class LoginService {
 		// 인증 코드 만료 여부 확인
 		if (verificationCode.isExpired(LocalDateTime.now())) {
 			throw new GeneralException(LoginException.EXPIRED_VERIFICATION_CODE);
-		}
-
-		// 인증 코드 일치 확인
-		if (!StringUtils.equals(code, verificationCode.getCode())) {
-			throw new GeneralException(LoginException.VERIFICATION_CODE_NOT_MATCH);
 		}
 
 		// 핸드폰 번호 기반 사용자 조회 및 인증 코드 내역 삭제
