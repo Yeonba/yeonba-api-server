@@ -45,7 +45,7 @@ public class LoginController {
 	@ApiResponse(responseCode = "202", description = "전화번호 인증 코드 전송 성공")
 	@PostMapping("/users/help/email-inquiry/verification-code")
 	public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
-		@RequestBody @Valid UserPhoneNumberVerifyRequest request) {
+		@Valid @RequestBody UserPhoneNumberVerifyRequest request) {
 
 		loginService.sendVerificationCodeMessage(request);
 
@@ -58,7 +58,7 @@ public class LoginController {
 	@ApiResponse(responseCode = "200", description = "아이디 찾기 정상 처리")
 	@PostMapping("/users/help/email-inquiry")
 	public ResponseEntity<CustomResponse<UserEmailInquiryResponse>> idInquiry(
-		@RequestBody UserEmailInquiryRequest request) {
+		@Valid @RequestBody UserEmailInquiryRequest request) {
 
 		UserEmailInquiryResponse response = loginService.findEmail(request);
 
