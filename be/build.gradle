@@ -43,9 +43,6 @@ dependencies {
 
     // coolsms java sdk
     implementation 'net.nurigo:sdk:4.3.0'
-
-    // spring data redis
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('bootBuildImage') {
