@@ -12,6 +12,7 @@ import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
+import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.entity.VerificationCode;
 import yeonba.be.login.repository.VerificationCodeCommand;
@@ -126,5 +127,18 @@ public class LoginService {
 		VerificationCode verificationCode = new VerificationCode(phoneNumber, code, expiredAt);
 
 		return verificationCodeCommand.save(verificationCode);
+	}
+
+	@Transactional
+	public void verifyPhoneNumber(UserVerifyPhoneNumberRequest request) {
+
+		VerificationCode verificationCode = verificationCodeQuery
+			.findBy(request.getPhoneNumber(), request.getVerificationCode());
+
+		if (verificationCode.isExpired(LocalDateTime.now())) {
+			throw new GeneralException(LoginException.EXPIRED_VERIFICATION_CODE);
+		}
+
+		verificationCodeCommand.delete(verificationCode);
 	}
 }
