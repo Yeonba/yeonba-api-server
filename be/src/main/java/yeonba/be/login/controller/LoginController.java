@@ -13,8 +13,8 @@ import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
-import yeonba.be.login.dto.request.UserPhoneNumberVerifyRequest;
 import yeonba.be.login.dto.request.UserRefreshTokenRequest;
+import yeonba.be.login.dto.request.UserVerificationCodeRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
@@ -45,7 +45,7 @@ public class LoginController {
 	@ApiResponse(responseCode = "202", description = "전화번호 인증 코드 전송 성공")
 	@PostMapping("/users/help/email-inquiry/verification-code")
 	public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
-		@Valid @RequestBody UserPhoneNumberVerifyRequest request) {
+		@Valid @RequestBody UserVerificationCodeRequest request) {
 
 		loginService.sendVerificationCodeMessage(request);
 
@@ -113,5 +113,18 @@ public class LoginController {
 		return ResponseEntity
 			.ok()
 			.body(new CustomResponse<>(new UserRefreshTokenResponse(createdJwt)));
+	}
+
+	@Operation(summary = "핸드폰 번호 인증 코드 sms 전송", description = "핸드 번호 인증 코드 sms 전송")
+	@ApiResponse(responseCode = "202", description = "인증 코드 전송 정상 처리")
+	@PostMapping("/users/join/phone-number/verification-code")
+	public ResponseEntity<CustomResponse<Void>> verifyJoinPhoneNumber(
+		@Valid @RequestBody UserVerificationCodeRequest request) {
+
+		loginService.sendJoinVerificationCodeMessage(request);
+
+		return ResponseEntity
+			.accepted()
+			.body(new CustomResponse<>());
 	}
 }
