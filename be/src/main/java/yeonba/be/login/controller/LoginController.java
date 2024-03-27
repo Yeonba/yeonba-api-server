@@ -15,6 +15,7 @@ import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserRefreshTokenRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
+import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
@@ -122,6 +123,19 @@ public class LoginController {
 		@Valid @RequestBody UserVerificationCodeRequest request) {
 
 		loginService.sendJoinVerificationCodeMessage(request);
+
+		return ResponseEntity
+			.accepted()
+			.body(new CustomResponse<>());
+	}
+
+	@Operation(summary = "핸드폰 번호 인증", description = "회원가입 과정서 핸드폰 번호 인증")
+	@ApiResponse(responseCode = "202", description = "핸드폰 번호 인증 정상 처리")
+	@PostMapping("/users/join/phone-number")
+	public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
+		@Valid @RequestBody UserVerifyPhoneNumberRequest request) {
+
+		loginService.verifyPhoneNumber(request);
 
 		return ResponseEntity
 			.accepted()
