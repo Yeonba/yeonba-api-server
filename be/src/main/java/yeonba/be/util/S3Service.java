@@ -17,78 +17,78 @@ import yeonba.be.user.entity.User;
 @RequiredArgsConstructor
 public class S3Service {
 
-	private final String ALLOWED_PROFILE_PHOTO_EXTENSION_REGEX = "^(.+)\\.(jpg|jpeg|png)$";
+    private final String ALLOWED_PROFILE_PHOTO_EXTENSION_REGEX = "^(.+)\\.(jpg|jpeg|png)$";
 
-	private final S3Client s3Client;
+    private final S3Client s3Client;
 
-	@Value("${S3_BUCKET_NAME}")
-	private String bucketName;
+    @Value("${S3_BUCKET_NAME}")
+    private String bucketName;
 
-	/*
-		프로필 사진 업로드는 다음 과정을 거쳐 이뤄진다.
-		1. 사진 파일들 확장자 검증
-		2. 파일 식별을 위한 키 생성, profilephoto/{userId}-{photo idx} 형식
-		3. 사진 파일 업로드 요청 생성 및 업로드 수행
-	 */
-	public List<String> uploadProfilePhotos(List<MultipartFile> profilePhotos, User user) {
+    /*
+        프로필 사진 업로드는 다음 과정을 거쳐 이뤄진다.
+        1. 사진 파일들 확장자 검증
+        2. 파일 식별을 위한 키 생성, profilephoto/{userId}-{photo idx} 형식
+        3. 사진 파일 업로드 요청 생성 및 업로드 수행
+     */
+    public List<String> uploadProfilePhotos(List<MultipartFile> profilePhotos, User user) {
 
-		if (!validateProfilePhotosExtensions(profilePhotos)) {
-			throw new IllegalArgumentException("jpg, jpeg, png 확장자 형식의 파일만 허용됩니다.");
-		}
+        if (!validateProfilePhotosExtensions(profilePhotos)) {
+            throw new IllegalArgumentException("jpg, jpeg, png 확장자 형식의 파일만 허용됩니다.");
+        }
 
-		List<String> uploadedProfilePhotosUrls = new ArrayList<>();
-		long userId = user.getId();
+        List<String> uploadedProfilePhotosUrls = new ArrayList<>();
+        long userId = user.getId();
 
-		for (int profilePhotoIdx = 0; profilePhotoIdx < profilePhotos.size(); profilePhotoIdx++) {
+        for (int profilePhotoIdx = 0; profilePhotoIdx < profilePhotos.size(); profilePhotoIdx++) {
 
-			MultipartFile profilePhoto = profilePhotos.get(profilePhotoIdx);
-			String key = String.format("profilephoto/%d-%d", userId, profilePhotoIdx);
+            MultipartFile profilePhoto = profilePhotos.get(profilePhotoIdx);
+            String key = String.format("profilephoto/%d-%d", userId, profilePhotoIdx);
 
-			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-				.bucket(bucketName)
-				.key(key)
-				.contentDisposition("inline")
-				.contentType(profilePhoto.getContentType())
-				.build();
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentDisposition("inline")
+                .contentType(profilePhoto.getContentType())
+                .build();
 
-			try {
-				s3Client.putObject(putObjectRequest,
-					RequestBody.fromInputStream(profilePhoto.getInputStream(),
-						profilePhoto.getSize()));
-				uploadedProfilePhotosUrls.add(key);
-			} catch (Exception e) {
-				throw new IllegalStateException(
-					String.format("Failed to upload file : %s", profilePhoto.getOriginalFilename())
-					, e);
-			}
-		}
+            try {
+                s3Client.putObject(putObjectRequest,
+                    RequestBody.fromInputStream(profilePhoto.getInputStream(),
+                        profilePhoto.getSize()));
+                uploadedProfilePhotosUrls.add(key);
+            } catch (Exception e) {
+                throw new IllegalStateException(
+                    String.format("Failed to upload file : %s", profilePhoto.getOriginalFilename())
+                    , e);
+            }
+        }
 
-		return uploadedProfilePhotosUrls;
-	}
+        return uploadedProfilePhotosUrls;
+    }
 
-	public void deleteProfilePhotos(List<ProfilePhoto> profilePhotos) {
+    public void deleteProfilePhotos(List<ProfilePhoto> profilePhotos) {
 
-		for (ProfilePhoto profilePhoto : profilePhotos) {
-			String photoUrl = profilePhoto.getPhotoUrl();
+        for (ProfilePhoto profilePhoto : profilePhotos) {
+            String photoUrl = profilePhoto.getPhotoUrl();
 
-			DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-				.bucket(bucketName)
-				.key(photoUrl)
-				.build();
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(photoUrl)
+                .build();
 
-			try {
-				s3Client.deleteObject(deleteObjectRequest);
-			} catch (Exception e) {
-				throw new IllegalStateException(
-					String.format("Failed to delete file, key : %s", photoUrl), e);
-			}
-		}
-	}
+            try {
+                s3Client.deleteObject(deleteObjectRequest);
+            } catch (Exception e) {
+                throw new IllegalStateException(
+                    String.format("Failed to delete file, key : %s", photoUrl), e);
+            }
+        }
+    }
 
-	private boolean validateProfilePhotosExtensions(List<MultipartFile> profilePhotos) {
+    private boolean validateProfilePhotosExtensions(List<MultipartFile> profilePhotos) {
 
-		return profilePhotos.stream()
-			.allMatch(profilePhoto -> profilePhoto.getOriginalFilename()
-				.matches(ALLOWED_PROFILE_PHOTO_EXTENSION_REGEX));
-	}
+        return profilePhotos.stream()
+            .allMatch(profilePhoto -> profilePhoto.getOriginalFilename()
+                .matches(ALLOWED_PROFILE_PHOTO_EXTENSION_REGEX));
+    }
 }

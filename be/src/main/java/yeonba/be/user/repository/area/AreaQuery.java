@@ -10,11 +10,11 @@ import yeonba.be.user.entity.Area;
 @RequiredArgsConstructor
 public class AreaQuery {
 
-	private final AreaRepository areaRepository;
+    private final AreaRepository areaRepository;
 
-	public Area findByName(String name) {
+    public Area findByName(String name) {
 
-		return areaRepository.findByName(name)
-			.orElseThrow(() -> new GeneralException(JoinException.AREA_NOT_FOUND));
-	}
+        return areaRepository.findByName(name)
+            .orElseThrow(() -> new GeneralException(JoinException.AREA_NOT_FOUND));
+    }
 }

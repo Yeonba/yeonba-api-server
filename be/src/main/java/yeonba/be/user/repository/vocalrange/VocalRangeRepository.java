@@ -8,5 +8,5 @@ import yeonba.be.user.entity.VocalRange;
 @Repository
 public interface VocalRangeRepository extends JpaRepository<VocalRange, Long> {
 
-  Optional<VocalRange> findByClassification(String classification);
+    Optional<VocalRange> findByClassification(String classification);
 }

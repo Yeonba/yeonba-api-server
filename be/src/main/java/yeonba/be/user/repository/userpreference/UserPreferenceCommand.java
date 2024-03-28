@@ -8,10 +8,10 @@ import yeonba.be.user.entity.UserPreference;
 @RequiredArgsConstructor
 public class UserPreferenceCommand {
 
-	private final UserPreferenceRepository userPreferenceRepository;
+    private final UserPreferenceRepository userPreferenceRepository;
 
-	public UserPreference save(UserPreference userPreference) {
+    public UserPreference save(UserPreference userPreference) {
 
-		return userPreferenceRepository.save(userPreference);
-	}
+        return userPreferenceRepository.save(userPreference);
+    }
 }

@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import yeonba.be.user.entity.ProfilePhoto;
 import yeonba.be.user.entity.User;
 
 @Getter
@@ -87,9 +86,7 @@ public class UserProfileDetailResponse {
 
     public UserProfileDetailResponse(User user) {
 
-        this.profilePhotoUrls = user.getProfilePhotos().stream()
-            .map(ProfilePhoto::getPhotoUrl)
-            .toList();
+        this.profilePhotoUrls = user.getProfilePhotoUrls();
         this.gender = user.getGender();
         this.name = user.getName();
         this.birth = user.getBirth();

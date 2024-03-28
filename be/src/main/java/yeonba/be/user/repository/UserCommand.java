@@ -8,10 +8,10 @@ import yeonba.be.user.entity.User;
 @RequiredArgsConstructor
 public class UserCommand {
 
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-  public User save(User user) {
+    public User save(User user) {
 
-    return userRepository.save(user);
-  }
+        return userRepository.save(user);
+    }
 }

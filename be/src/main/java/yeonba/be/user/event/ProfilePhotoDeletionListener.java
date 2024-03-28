@@ -10,11 +10,11 @@ import yeonba.be.util.S3Service;
 @RequiredArgsConstructor
 public class ProfilePhotoDeletionListener {
 
-	private final S3Service s3Service;
+    private final S3Service s3Service;
 
-	@TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
-	public void onProfilePhotoDeletion(ProfilePhotoDeletionEvent event) {
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+    public void onProfilePhotoDeletion(ProfilePhotoDeletionEvent event) {
 
-		s3Service.deleteProfilePhotos(event.getProfilePhotos());
-	}
+        s3Service.deleteProfilePhotos(event.getProfilePhotos());
+    }
 }

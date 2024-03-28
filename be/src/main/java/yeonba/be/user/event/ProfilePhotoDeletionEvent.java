@@ -9,5 +9,5 @@ import yeonba.be.user.entity.ProfilePhoto;
 @RequiredArgsConstructor
 public class ProfilePhotoDeletionEvent {
 
-	private final List<ProfilePhoto> profilePhotos;
+    private final List<ProfilePhoto> profilePhotos;
 }

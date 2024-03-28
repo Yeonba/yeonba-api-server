@@ -15,59 +15,59 @@ import yeonba.be.user.entity.User;
 @Component
 public class JwtUtil {
 
-	private final Duration ACCESS_TOKEN_DURATION = Duration.of(8, ChronoUnit.HOURS);
-	private final Duration REFRESH_TOKEN_DURATION = Duration.of(10, ChronoUnit.DAYS);
+    private final Duration ACCESS_TOKEN_DURATION = Duration.of(8, ChronoUnit.HOURS);
+    private final Duration REFRESH_TOKEN_DURATION = Duration.of(10, ChronoUnit.DAYS);
 
-	@Value("${JWT_SECRET}")
-	private String jwtSecret;
+    @Value("${JWT_SECRET}")
+    private String jwtSecret;
 
-	public String generateAccessToken(User user, Date issuedAt) {
+    public String generateAccessToken(User user, Date issuedAt) {
 
-		Date expiredAt = getExpiredAt(issuedAt, ACCESS_TOKEN_DURATION);
+        Date expiredAt = getExpiredAt(issuedAt, ACCESS_TOKEN_DURATION);
 
-		return generateUserJwt(user, issuedAt, expiredAt);
-	}
+        return generateUserJwt(user, issuedAt, expiredAt);
+    }
 
-	public String generateRefreshToken(User user, Date issuedAt) {
+    public String generateRefreshToken(User user, Date issuedAt) {
 
-		Date expiredAt = getExpiredAt(issuedAt, REFRESH_TOKEN_DURATION);
+        Date expiredAt = getExpiredAt(issuedAt, REFRESH_TOKEN_DURATION);
 
-		return generateUserJwt(user, issuedAt, expiredAt);
-	}
+        return generateUserJwt(user, issuedAt, expiredAt);
+    }
 
-	private Date getExpiredAt(Date issuedAt, Duration duration) {
+    private Date getExpiredAt(Date issuedAt, Duration duration) {
 
-		Instant instant = issuedAt.toInstant()
-			.plusMillis(duration.toMillis());
+        Instant instant = issuedAt.toInstant()
+            .plusMillis(duration.toMillis());
 
-		return Date.from(instant);
-	}
+        return Date.from(instant);
+    }
 
-	private String generateUserJwt(
-		User user,
-		Date issuedAt,
-		Date expiredAt) {
+    private String generateUserJwt(
+        User user,
+        Date issuedAt,
+        Date expiredAt) {
 
-		return Jwts.builder()
-			.setSubject(user.getEmail())
-			.setIssuedAt(issuedAt)
-			.setExpiration(expiredAt)
-			.claim("userId", user.getId())
-			.signWith(SignatureAlgorithm.HS256, jwtSecret)
-			.compact();
-	}
+        return Jwts.builder()
+            .setSubject(user.getEmail())
+            .setIssuedAt(issuedAt)
+            .setExpiration(expiredAt)
+            .claim("userId", user.getId())
+            .signWith(SignatureAlgorithm.HS256, jwtSecret)
+            .compact();
+    }
 
-	public void validateJwt(String jwt) {
+    public void validateJwt(String jwt) {
 
-		try {
-			Jwts.parser()
-				.setSigningKey(jwtSecret)
-				.parseClaimsJws(jwt);
+        try {
+            Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(jwt);
 
-		} catch (SignatureException e) {
-			throw new IllegalStateException("유효하지 않은 JWT 시그니처입니다.", e);
-		} catch (ExpiredJwtException e) {
-			throw new IllegalStateException("만료된 JWT입니다.", e);
-		}
-	}
+        } catch (SignatureException e) {
+            throw new IllegalStateException("유효하지 않은 JWT 시그니처입니다.", e);
+        } catch (ExpiredJwtException e) {
+            throw new IllegalStateException("만료된 JWT입니다.", e);
+        }
+    }
 }
