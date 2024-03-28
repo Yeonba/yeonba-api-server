@@ -18,7 +18,15 @@ public enum LoginException implements BaseException {
 
     REFRESH_TOKEN_NOT_MATCH(
         HttpStatus.BAD_REQUEST,
-        "refresh token이 일치하지 않습니다.");
+        "refresh token이 일치하지 않습니다."),
+
+    ACCESS_TOKEN_NOT_EXIST(
+        HttpStatus.UNAUTHORIZED,
+        "access token이 존재하지 않습니다."),
+
+    INVALID_BEARER_TOKEN_FORMAT(
+        HttpStatus.BAD_REQUEST,
+        "유효하지 않은 Bearer token 형식입니다.");
 
     private final HttpStatus httpStatus;
     private final String reason;
@@ -31,11 +39,13 @@ public enum LoginException implements BaseException {
 
     @Override
     public HttpStatus getHttpStatus() {
+
         return httpStatus;
     }
 
     @Override
     public String getReason() {
+
         return reason;
     }
 }
