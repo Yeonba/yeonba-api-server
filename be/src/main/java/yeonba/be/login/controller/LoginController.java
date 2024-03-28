@@ -29,85 +29,83 @@ import yeonba.be.util.CustomResponse;
 @RequiredArgsConstructor
 public class LoginController {
 
-	private final LoginService loginService;
-	private final JoinService joinService;
+    private final LoginService loginService;
+    private final JoinService joinService;
 
-	@Operation(summary = "회원가입", description = "회원가입을 할 수 있습니다.")
-	@PostMapping(path = "/users/join", consumes = "multipart/form-data")
-	public ResponseEntity<CustomResponse<UserJoinResponse>> join(
-		@Valid @ModelAttribute UserJoinRequest request) {
+    @Operation(summary = "회원가입", description = "회원가입을 할 수 있습니다.")
+    @PostMapping(path = "/users/join", consumes = "multipart/form-data")
+    public ResponseEntity<CustomResponse<UserJoinResponse>> join(
+        @Valid @ModelAttribute UserJoinRequest request) {
 
-		UserJoinResponse response = joinService.join(request);
+        UserJoinResponse response = joinService.join(request);
 
-		return ResponseEntity
-			.ok()
-			.body(new CustomResponse<>(response));
-	}
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(response));
+    }
 
-	@Operation(summary = "전화번호 인증 코드 전송", description = "전화번호 인증을 위해 해당 번호로 인증 코드를 발송합니다.")
-	@ApiResponse(responseCode = "202", description = "전화번호 인증 코드 전송 성공")
-	@PostMapping("/users/help/id-inquiry/verification-code")
-	public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
-		@RequestBody UserPhoneNumberVerifyRequest request) {
+    @Operation(summary = "전화번호 인증 코드 전송", description = "전화번호 인증을 위해 해당 번호로 인증 코드를 발송합니다.")
+    @ApiResponse(responseCode = "202", description = "전화번호 인증 코드 전송 성공")
+    @PostMapping("/users/help/id-inquiry/verification-code")
+    public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
+        @RequestBody UserPhoneNumberVerifyRequest request) {
 
-		loginService.sendVerificationCodeMessage(request);
+        loginService.sendVerificationCodeMessage(request);
 
-		return ResponseEntity
-			.accepted()
-			.body(new CustomResponse<>());
-	}
+        return ResponseEntity
+            .accepted()
+            .body(new CustomResponse<>());
+    }
 
-	@Operation(summary = "아이디 찾기", description = "인증 코드를 바탕으로 아이디를 찾을 수 있습니다.")
-	@ApiResponse(responseCode = "200", description = "아이디 찾기 정상 처리")
-	@PostMapping("/users/help/id-inquiry")
-	public ResponseEntity<CustomResponse<UserIdInquiryResponse>> idInquiry(
-		@RequestBody UserIdInquiryRequest request) {
+    @Operation(summary = "아이디 찾기", description = "인증 코드를 바탕으로 아이디를 찾을 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "아이디 찾기 정상 처리")
+    @PostMapping("/users/help/id-inquiry")
+    public ResponseEntity<CustomResponse<UserIdInquiryResponse>> idInquiry(
+        @RequestBody UserIdInquiryRequest request) {
 
-		UserIdInquiryResponse response = loginService.findEmail(request);
+        UserIdInquiryResponse response = loginService.findEmail(request);
 
-		return ResponseEntity
-			.ok()
-			.body(new CustomResponse<>(response));
-	}
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(response));
+    }
 
-	@Operation(summary = "비밀번호 찾기", description = "이메일로 임시 비밀번호를 발급받을 수 있습니다.")
-	@ApiResponse(responseCode = "202", description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리")
-	@PostMapping("/users/help/pw-inquiry")
-	public ResponseEntity<CustomResponse<Void>> passwordInquiry(
-		@Valid @RequestBody UserPasswordInquiryRequest request) {
+    @Operation(summary = "비밀번호 찾기", description = "이메일로 임시 비밀번호를 발급받을 수 있습니다.")
+    @ApiResponse(responseCode = "202", description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리")
+    @PostMapping("/users/help/pw-inquiry")
+    public ResponseEntity<CustomResponse<Void>> passwordInquiry(
+        @Valid @RequestBody UserPasswordInquiryRequest request) {
 
-		loginService.sendTemporaryPasswordMail(request);
+        loginService.sendTemporaryPasswordMail(request);
 
-		return ResponseEntity
-			.accepted()
-			.body(new CustomResponse<>());
-	}
+        return ResponseEntity
+            .accepted()
+            .body(new CustomResponse<>());
+    }
 
-	@Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
-	@ApiResponse(responseCode = "200", description = "로그인 성공")
-	@PostMapping("/users/login")
-	public ResponseEntity<CustomResponse<UserLoginResponse>> login(
-		@Valid @RequestBody UserLoginRequest request) {
+    @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "로그인 성공")
+    @PostMapping("/users/login")
+    public ResponseEntity<CustomResponse<UserLoginResponse>> login(
+        @Valid @RequestBody UserLoginRequest request) {
 
-		UserLoginResponse response = loginService.login(request);
+        UserLoginResponse response = loginService.login(request);
 
-		return ResponseEntity
-			.ok()
-			.body(new CustomResponse<>(response));
-	}
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(response));
+    }
 
-	@Operation(
-		summary = "access token 재발급",
-		description = "refresh token을 통해 access token을 재발급받을 수 있습니다."
-	)
-	@PostMapping("/users/refresh")
-	public ResponseEntity<CustomResponse<UserRefreshTokenResponse>> refresh(
-		@RequestBody UserRefreshTokenRequest request) {
+    @Operation(summary = "access token 재발급", description = "refresh token 통해 access token 재발급")
+    @ApiResponse(responseCode = "200", description = "access token 재발급 성공")
+    @PostMapping("/users/refresh")
+    public ResponseEntity<CustomResponse<UserRefreshTokenResponse>> refresh(
+        @Valid @RequestBody UserRefreshTokenRequest request) {
 
-		String createdJwt = "created";
+        UserRefreshTokenResponse response = loginService.refreshAccessToken(request);
 
-		return ResponseEntity
-			.ok()
-			.body(new CustomResponse<>(new UserRefreshTokenResponse(createdJwt)));
-	}
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(response));
+    }
 }
