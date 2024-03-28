@@ -12,8 +12,10 @@ import yeonba.be.login.dto.request.UserIdInquiryRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserPhoneNumberVerifyRequest;
+import yeonba.be.login.dto.request.UserRefreshTokenRequest;
 import yeonba.be.login.dto.response.UserIdInquiryResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
+import yeonba.be.login.dto.response.UserRefreshTokenResponse;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 import yeonba.be.util.EmailService;
@@ -128,5 +130,24 @@ public class LoginService {
 		user.updateRefreshToken(refreshToken);
 
 		return new UserLoginResponse(accessToken, refreshToken);
+	}
+
+	@Transactional(readOnly = true)
+	public UserRefreshTokenResponse refreshAccessToken(UserRefreshTokenRequest request) {
+
+		// refresh token에서 userId 파싱
+		String refreshToken = request.getRefreshToken();
+		long userId = jwtUtil.parseUserIdFromJwt(refreshToken);
+
+		// 사용자 조회 및 refresh token 입력값과 사용자 refresh token 일치 확인
+		User user = userQuery.findById(userId);
+		if (!StringUtils.equals(refreshToken, user.getRefreshToken())) {
+			throw new GeneralException(LoginException.REFRESH_TOKEN_NOT_MATCH);
+		}
+
+		// access token 재발급
+		String accessToken = jwtUtil.generateAccessToken(user, new Date());
+
+		return new UserRefreshTokenResponse(accessToken);
 	}
 }
