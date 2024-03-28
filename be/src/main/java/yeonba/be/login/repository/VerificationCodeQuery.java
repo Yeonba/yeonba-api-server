@@ -10,11 +10,11 @@ import yeonba.be.login.entity.VerificationCode;
 @RequiredArgsConstructor
 public class VerificationCodeQuery {
 
-	private final VerificationCodeRepository verificationCodeRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
 
-	public VerificationCode findBy(String phoneNumber, String code) {
+    public VerificationCode findBy(String phoneNumber, String code) {
 
-		return verificationCodeRepository.findByPhoneNumberAndCode(phoneNumber, code)
-			.orElseThrow(() -> new GeneralException(LoginException.VERIFICATION_CODE_NOT_FOUND));
-	}
+        return verificationCodeRepository.findByPhoneNumberAndCode(phoneNumber, code)
+            .orElseThrow(() -> new GeneralException(LoginException.VERIFICATION_CODE_NOT_FOUND));
+    }
 }
