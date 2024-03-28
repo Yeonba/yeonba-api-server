@@ -17,31 +17,31 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class VerificationCode {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(nullable = false)
-	private String phoneNumber;
+    @Column(nullable = false)
+    private String phoneNumber;
 
-	@Column(nullable = false)
-	private String code;
+    @Column(nullable = false)
+    private String code;
 
-	@Column(nullable = false)
-	private LocalDateTime expiredAt;
+    @Column(nullable = false)
+    private LocalDateTime expiredAt;
 
-	public VerificationCode(
-		String phoneNumber,
-		String code,
-		LocalDateTime expiredAt) {
+    public VerificationCode(
+        String phoneNumber,
+        String code,
+        LocalDateTime expiredAt) {
 
-		this.phoneNumber = phoneNumber;
-		this.code = code;
-		this.expiredAt = expiredAt;
-	}
+        this.phoneNumber = phoneNumber;
+        this.code = code;
+        this.expiredAt = expiredAt;
+    }
 
-	public boolean isExpired(LocalDateTime now) {
+    public boolean isExpired(LocalDateTime now) {
 
-		return this.expiredAt.isBefore(now);
-	}
+        return this.expiredAt.isBefore(now);
+    }
 }

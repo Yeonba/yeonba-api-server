@@ -11,16 +11,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SmsService {
 
-	@Value("${SMS_SENDER}")
-	private String sender;
-	private final DefaultMessageService messageService;
+    @Value("${SMS_SENDER}")
+    private String sender;
+    private final DefaultMessageService messageService;
 
-	public void sendMessage(String to, String text) {
-		Message message = new Message();
-		message.setFrom(sender);
-		message.setTo(to);
-		message.setText(text);
+    public void sendMessage(String to, String text) {
 
-		messageService.sendOne(new SingleMessageSendingRequest(message));
-	}
+        Message message = new Message();
+        message.setFrom(sender);
+        message.setTo(to);
+        message.setText(text);
+
+        messageService.sendOne(new SingleMessageSendingRequest(message));
+    }
 }

@@ -8,15 +8,15 @@ import yeonba.be.login.entity.VerificationCode;
 @RequiredArgsConstructor
 public class VerificationCodeCommand {
 
-	private final VerificationCodeRepository verificationCodeRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
 
-	public VerificationCode save(VerificationCode verificationCode) {
+    public VerificationCode save(VerificationCode verificationCode) {
 
-		return verificationCodeRepository.save(verificationCode);
-	}
+        return verificationCodeRepository.save(verificationCode);
+    }
 
-	public void delete(VerificationCode verificationCode) {
+    public void delete(VerificationCode verificationCode) {
 
-		verificationCodeRepository.delete(verificationCode);
-	}
+        verificationCodeRepository.delete(verificationCode);
+    }
 }
