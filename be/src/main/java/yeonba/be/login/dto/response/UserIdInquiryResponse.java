@@ -11,7 +11,6 @@ public class UserIdInquiryResponse {
   @Schema(
       type = "string",
       description = "이메일",
-      example = "mj3242@naver.com"
-  )
+      example = "mj3242@naver.com")
   private String email;
 }

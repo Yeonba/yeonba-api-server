@@ -14,9 +14,9 @@ import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
-import yeonba.be.mypage.util.PasswordEncryptor;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
+import yeonba.be.util.PasswordEncryptor;
 
 @Service
 @RequiredArgsConstructor
