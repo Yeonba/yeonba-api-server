@@ -20,8 +20,8 @@ public class UserQueryRequest {
             조회 기준
             - 추천 이성(선호 조건 바탕) : RECOMMEND
             - 즐겨찾는 이성 : BOOKMARKED
-            - 나에게 관심 있는 이성(나에게 화살을 보낸 이성) : RECEIVED_ARROWS
-            - 나에게 화살을 보낸 이성 : SENT_ARROWS""",
+            - 나에게 관심 있는 이성(나에게 화살을 보낸 이성) : ARROW_SENDERS
+            - 나에게 화살을 보낸 이성 : ARROW_RECEIVERS""",
         example = "RECOMMEND",
         in = ParameterIn.QUERY)
     @NotNull(message = "조회 기준은 반드시 입력되어야 합니다.")
