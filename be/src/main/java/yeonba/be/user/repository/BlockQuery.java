@@ -18,7 +18,7 @@ public class BlockQuery {
 
         return blockRepository.findByUserAndBlockedUser(user, blockedUser)
             .orElseThrow(
-                () -> new GeneralException(BlockException.ALREADY_BLOCKED_USER)
+                () -> new GeneralException(BlockException.NOT_BLOCKED_USER)
             );
     }
 
