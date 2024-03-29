@@ -1,9 +1,13 @@
 package yeonba.be.user.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UserException;
+import yeonba.be.user.dto.response.UserQueryPageResponse;
+import yeonba.be.user.dto.response.UserQueryResponse;
 import yeonba.be.user.entity.User;
 
 @Component
@@ -43,5 +47,17 @@ public class UserQuery {
     public boolean isAlreadyUsedEmail(String email) {
 
         return userRepository.existsByEmail(email);
+    }
+
+    public UserQueryPageResponse findAllFavorites(long userId, PageRequest pageRequest) {
+
+        Page<UserQueryResponse> page = userRepository.findAllFavorites(userId, pageRequest);
+
+        return new UserQueryPageResponse(
+            page.getContent(),
+            page.getTotalPages(),
+            page.getTotalElements(),
+            page.isFirst(),
+            page.isLast());
     }
 }
