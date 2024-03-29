@@ -168,11 +168,11 @@ public class MyPageController {
     public ResponseEntity<CustomResponse<BlockedUsersResponse>> getBlockedUsers(
         @RequestAttribute("userId") long userId) {
 
-        List<BlockedUserResponse> blockedUsers = myPageService.getBlockedUsers(userId);
+        BlockedUsersResponse response = myPageService.getBlockedUsers(userId);
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(new BlockedUsersResponse(blockedUsers)));
+            .body(new CustomResponse<>(response));
     }
 
     @Operation(summary = "차단 해제", description = "차단한 사용자를 해제할 수 있습니다.")

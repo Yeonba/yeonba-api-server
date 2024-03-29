@@ -16,6 +16,7 @@ import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.BlockedUserResponse;
+import yeonba.be.mypage.dto.response.BlockedUsersResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.mypage.util.PasswordEncryptor;
@@ -95,17 +96,19 @@ public class MyPageService {
     }
 
     @Transactional(readOnly = true)
-    public List<BlockedUserResponse> getBlockedUsers(long userId) {
+    public BlockedUsersResponse getBlockedUsers(long userId) {
 
         User user = userQuery.findById(userId);
 
         List<Block> blocks = blockQuery.findBlocksByUser(user);
 
-        return blocks.stream()
+        List<BlockedUserResponse> blockedUsers = blocks.stream()
             .map(block -> new BlockedUserResponse(
                 block.getBlockedUser())
             )
             .toList();
+
+        return new BlockedUsersResponse(blockedUsers);
     }
 
     @Transactional
