@@ -70,7 +70,7 @@ public class ArrowController {
     }
 
     @Operation(summary = "화살 충전", description = "광고 시청시 화살 5개를 충전할 수 있습니다.")
-    @ApiResponse(responseCode = "204", description = "화살 충전 정상 처리")
+    @ApiResponse(responseCode = "202", description = "화살 충전 정상 처리")
     @PostMapping("/users/arrows")
     public ResponseEntity<CustomResponse<Void>> chargeArrows(
         @RequestAttribute("userId") long userId) {
