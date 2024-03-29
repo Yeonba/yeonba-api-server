@@ -185,12 +185,12 @@ public class MyPageController {
         myPageService.unblockUser(userId, blockedUserId);
 
         return ResponseEntity
-            .ok()
+            .accepted()
             .body(new CustomResponse<>());
     }
 
     @Operation(summary = "휴면 계정 전환", description = "계정의 휴면 상태를 전환할 수 있습니다.")
-    @ApiResponse(responseCode = "204", description = "휴면 상태 전환 요청 정상 처리")
+    @ApiResponse(responseCode = "202", description = "휴면 상태 전환 요청 정상 처리")
     @PatchMapping("/users/dormant")
     public ResponseEntity<CustomResponse<Void>> dormantUser(
         @RequestAttribute("userId") long userId,
@@ -199,12 +199,12 @@ public class MyPageController {
         myPageService.changeDormantStatus(userId, request);
 
         return ResponseEntity
-            .ok()
+            .accepted()
             .body(new CustomResponse<>());
     }
 
     @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 할 수 있습니다.")
-    @ApiResponse(responseCode = "204", description = "계정 탈퇴 요청 정상 처리")
+    @ApiResponse(responseCode = "202", description = "계정 탈퇴 요청 정상 처리")
     @DeleteMapping("/users")
     public ResponseEntity<CustomResponse<Void>> deleteUser(
         @RequestAttribute("userId") long userId) {
@@ -212,7 +212,7 @@ public class MyPageController {
         myPageService.deleteUser(userId);
 
         return ResponseEntity
-            .ok()
+            .accepted()
             .body(new CustomResponse<>());
     }
 }
