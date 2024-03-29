@@ -13,6 +13,6 @@ public class ArrowQuery {
   public boolean isArrowTransactionExist(User sentUser, User receivedUser) {
 
     return arrowTransactionRepository
-        .existsBySentUserAndReceivedUser(sentUser, receivedUser);
+        .existsBySenderAndReceiver(sentUser, receivedUser);
   }
 }

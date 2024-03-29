@@ -67,11 +67,11 @@ public class ArrowService {
   @Transactional
   public void sendArrow(
       long senderId,
-      long recipientId,
+      long receiverId,
       ArrowSendRequest request) {
 
     User sender = userQuery.findById(senderId);
-    User receiver = userQuery.findById(recipientId);
+    User receiver = userQuery.findById(receiverId);
 
     sender.validateNotSameUser(receiver);
 

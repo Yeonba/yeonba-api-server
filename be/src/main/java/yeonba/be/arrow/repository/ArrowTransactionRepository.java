@@ -8,5 +8,5 @@ import yeonba.be.user.entity.User;
 @Repository
 public interface ArrowTransactionRepository extends JpaRepository<ArrowTransaction, Long> {
 
-  boolean existsBySentUserAndReceivedUser(User sentUser, User receivedUser);
+  boolean existsBySenderAndReceiver(User sender, User receiver);
 }
