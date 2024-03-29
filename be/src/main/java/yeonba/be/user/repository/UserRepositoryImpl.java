@@ -30,7 +30,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         int limit = pageRequest.getPageSize();
         int offset = pageRequest.getPageNumber() * limit;
 
-        List<UserQueryResponse> content = favoriteQuery(userId)
+        List<UserQueryResponse> content = findAllFavoritesQuery(userId)
             .select(Projections.constructor(UserQueryResponse.class,
                 user.id,
                 profilePhoto.photoUrl,
@@ -47,7 +47,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .offset(offset)
             .fetch();
 
-        JPAQuery<Long> countQuery = favoriteQuery(userId)
+        JPAQuery<Long> countQuery = findAllFavoritesQuery(userId)
             .select(user.count());
 
         return PageableExecutionUtils.getPage(
@@ -61,7 +61,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     - 삭제되지 않은 사용자(deleteAt이 null)
     - 휴면 상태가 아닌 사용자(inactive가 false)
      */
-    private JPAQuery<?> favoriteQuery(long userId) {
+    private JPAQuery<?> findAllFavoritesQuery(long userId) {
 
         return queryFactory.from(user)
             .innerJoin(user.animal, animal)
