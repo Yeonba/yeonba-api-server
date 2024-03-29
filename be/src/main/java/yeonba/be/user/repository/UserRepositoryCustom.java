@@ -7,4 +7,6 @@ import yeonba.be.user.dto.response.UserQueryResponse;
 public interface UserRepositoryCustom {
 
     Page<UserQueryResponse> findAllFavorites(long userId, PageRequest pageRequest);
+
+    Page<UserQueryResponse> findAllArrowReceivers(long senderId, PageRequest pageRequest);
 }
