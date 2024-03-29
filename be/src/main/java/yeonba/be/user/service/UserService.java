@@ -5,6 +5,7 @@ import java.time.Period;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,7 +13,9 @@ import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.JoinException;
 import yeonba.be.login.dto.request.UserJoinRequest;
+import yeonba.be.user.dto.request.UserQueryRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
+import yeonba.be.user.dto.response.UserQueryPageResponse;
 import yeonba.be.user.entity.Animal;
 import yeonba.be.user.entity.Area;
 import yeonba.be.user.entity.ProfilePhoto;
@@ -48,7 +51,6 @@ public class UserService {
     private final VocalRangeQuery vocalRangeQuery;
 
     private final PasswordEncryptor passwordEncryptor;
-
     private final S3Service s3Service;
 
 
@@ -168,5 +170,13 @@ public class UserService {
             preferredArea,
             preferredAnimal);
         userPreferenceCommand.save(userPreference);
+    }
+
+    @Transactional(readOnly = true)
+    public UserQueryPageResponse findAllFavorites(long userId, UserQueryRequest request) {
+
+        PageRequest pageRequest = PageRequest.of(request.getPage(), 6);
+
+        return userQuery.findAllFavorites(userId, pageRequest);
     }
 }
