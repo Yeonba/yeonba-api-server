@@ -2,11 +2,13 @@ package yeonba.be.user.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserQueryPageResponse {
 
     @Schema(
@@ -37,4 +39,14 @@ public class UserQueryPageResponse {
         description = "마지막 페이지 여부",
         example = "false")
     private Boolean isLastPage;
+
+    public static UserQueryPageResponse from(Page<UserQueryResponse> page) {
+
+        return new UserQueryPageResponse(
+            page.getContent(),
+            page.getTotalPages(),
+            page.getTotalElements(),
+            page.isFirst(),
+            page.isLast());
+    }
 }
