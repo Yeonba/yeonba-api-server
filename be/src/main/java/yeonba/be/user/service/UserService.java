@@ -179,4 +179,12 @@ public class UserService {
 
         return userQuery.findAllFavorites(userId, pageRequest);
     }
+
+    @Transactional(readOnly = true)
+    public UserQueryPageResponse findAllArrowReceivers(long senderId, UserQueryRequest request) {
+
+        PageRequest pageRequest = PageRequest.of(request.getPage(), 6);
+
+        return userQuery.findAllArrowReceivers(senderId, pageRequest);
+    }
 }
