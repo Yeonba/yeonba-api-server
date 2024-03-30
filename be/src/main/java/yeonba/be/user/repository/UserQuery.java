@@ -14,7 +14,7 @@ public class UserQuery {
 
 	public User findById(long userId) {
 
-		return userRepository.findById(userId)
+		return userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
 	}
 

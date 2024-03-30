@@ -8,5 +8,7 @@ import yeonba.be.user.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
+	Optional<User> findByIdAndDeletedAtIsNull(long userId);
+
 	Optional<User> findByEmail(String email);
 }
