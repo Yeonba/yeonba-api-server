@@ -54,6 +54,10 @@ public class UserController {
             response = userService.findAllArrowReceivers(userId, request);
         }
 
+        if (StringUtils.equals(type, "ARROW_SENDERS")) {
+            response = userService.findAllArrowSenders(userId, request);
+        }
+
         return ResponseEntity
             .ok()
             .body(new CustomResponse<>(response));
