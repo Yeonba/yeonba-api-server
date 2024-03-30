@@ -50,6 +50,10 @@ public class UserController {
             response = userService.findAllFavorites(userId, request);
         }
 
+        if (StringUtils.equals(type, "ARROW_RECEIVERS")) {
+            response = userService.findAllArrowReceivers(userId, request);
+        }
+
         return ResponseEntity
             .ok()
             .body(new CustomResponse<>(response));
