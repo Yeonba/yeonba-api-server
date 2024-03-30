@@ -69,7 +69,7 @@ public class LoginService {
 
         // 전화 번호로 사용자 조회
         String phoneNumber = request.getPhoneNumber();
-        if (!userQuery.isUserExist(phoneNumber)) {
+        if (!userQuery.existByPhoneNumber(phoneNumber)) {
             throw new GeneralException(UserException.USER_NOT_FOUND);
         }
 
