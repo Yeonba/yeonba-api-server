@@ -53,11 +53,13 @@ public class UserQuery {
 
         Page<UserQueryResponse> page = userRepository.findAllFavorites(userId, pageRequest);
 
-        return new UserQueryPageResponse(
-            page.getContent(),
-            page.getTotalPages(),
-            page.getTotalElements(),
-            page.isFirst(),
-            page.isLast());
+        return UserQueryPageResponse.from(page);
+    }
+
+    public UserQueryPageResponse findAllArrowReceivers(long senderId, PageRequest pageRequest) {
+
+        Page<UserQueryResponse> page = userRepository.findAllArrowReceivers(senderId, pageRequest);
+
+        return UserQueryPageResponse.from(page);
     }
 }
