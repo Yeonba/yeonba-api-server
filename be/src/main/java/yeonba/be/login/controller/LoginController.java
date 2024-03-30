@@ -30,6 +30,7 @@ public class LoginController {
     private final LoginService loginService;
 
     @Operation(summary = "회원가입", description = "회원가입을 할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "회원가입 성공")
     @PostMapping("/users/join")
     public ResponseEntity<CustomResponse<UserJoinResponse>> join(
         @RequestBody UserJoinRequest request) {
@@ -81,6 +82,7 @@ public class LoginController {
     }
 
     @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "로그인 성공")
     @PostMapping("/users/login")
     public ResponseEntity<CustomResponse<UserLoginResponse>> login(
         @RequestBody UserLoginRequest request) {
