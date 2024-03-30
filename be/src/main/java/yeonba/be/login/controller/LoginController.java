@@ -43,7 +43,7 @@ public class LoginController {
 
     @Operation(summary = "이메일 찾기 인증 코드 sms 전송", description = "이메일 찾기를 위한 인증번호 sms 전송을 요청합니다.")
     @ApiResponse(responseCode = "202", description = "전화번호 인증 코드 전송 성공")
-    @PostMapping("/users/help/email-inquiry/verification-code")
+    @PostMapping("/users/email-inquiry/verification-code")
     public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
         @Valid @RequestBody UserVerificationCodeRequest request) {
 
@@ -56,7 +56,7 @@ public class LoginController {
 
     @Operation(summary = "이메일 찾기", description = "인증 코드를 바탕으로 아이디를 찾을 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "아이디 찾기 정상 처리")
-    @PostMapping("/users/help/email-inquiry")
+    @PostMapping("/users/email-inquiry")
     public ResponseEntity<CustomResponse<UserEmailInquiryResponse>> emailInquiry(
         @Valid @RequestBody UserEmailInquiryRequest request) {
 
@@ -69,7 +69,7 @@ public class LoginController {
 
     @Operation(summary = "비밀번호 찾기", description = "이메일로 임시 비밀번호를 발급받을 수 있습니다.")
     @ApiResponse(responseCode = "202", description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리")
-    @PostMapping("/users/help/pw-inquiry")
+    @PostMapping("/users/pw-inquiry")
     public ResponseEntity<CustomResponse<Void>> passwordInquiry(
         @RequestBody UserPasswordInquiryRequest request) {
 
