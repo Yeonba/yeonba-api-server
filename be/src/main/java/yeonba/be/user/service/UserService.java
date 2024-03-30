@@ -39,6 +39,7 @@ import yeonba.be.util.SaltGenerator;
 public class UserService {
 
     private final int JOIN_REWARD_ARROWS = 30;
+    private final int PAGE_SIZE = 6;
 
     private final ProfilePhotoCommand profilePhotoCommand;
     private final UserCommand userCommand;
@@ -175,7 +176,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserQueryPageResponse findAllFavorites(long userId, UserQueryRequest request) {
 
-        PageRequest pageRequest = PageRequest.of(request.getPage(), 6);
+        PageRequest pageRequest = PageRequest.of(request.getPage(), PAGE_SIZE);
 
         return userQuery.findAllFavorites(userId, pageRequest);
     }
@@ -183,8 +184,16 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserQueryPageResponse findAllArrowReceivers(long senderId, UserQueryRequest request) {
 
-        PageRequest pageRequest = PageRequest.of(request.getPage(), 6);
+        PageRequest pageRequest = PageRequest.of(request.getPage(), PAGE_SIZE);
 
         return userQuery.findAllArrowReceivers(senderId, pageRequest);
+    }
+
+    @Transactional(readOnly = true)
+    public UserQueryPageResponse findAllArrowSenders(long receiverId, UserQueryRequest request) {
+
+        PageRequest pageRequest = PageRequest.of(request.getPage(), PAGE_SIZE);
+
+        return userQuery.findAllArrowSenders(receiverId, pageRequest);
     }
 }
