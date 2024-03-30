@@ -73,6 +73,4 @@ public class UserQueryResponse {
         description = "즐겨찾기 여부",
         example = "false")
     private Boolean isFavorite;
-
-    // TODO : 채팅 가능 여부 추가
 }

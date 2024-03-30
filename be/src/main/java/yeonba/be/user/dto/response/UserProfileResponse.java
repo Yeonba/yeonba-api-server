@@ -73,4 +73,6 @@ public class UserProfileResponse {
         description = "이전 화살 전송 여부",
         example = "false")
     private boolean isAlreadySentArrow;
+
+    // TODO : 채팅 가능 여부 추가
 }
