@@ -62,4 +62,11 @@ public class UserQuery {
 
         return UserQueryPageResponse.from(page);
     }
+
+    public UserQueryPageResponse findAllArrowSenders(long receiverId, PageRequest pageRequest) {
+
+        Page<UserQueryResponse> page = userRepository.findAllArrowSenders(receiverId, pageRequest);
+
+        return UserQueryPageResponse.from(page);
+    }
 }
