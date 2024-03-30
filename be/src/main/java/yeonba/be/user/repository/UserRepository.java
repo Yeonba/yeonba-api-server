@@ -10,9 +10,13 @@ import yeonba.be.user.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-	Optional<User> findByIdAndDeletedAtIsNull(long userId);
+    Optional<User> findByIdAndDeletedAtIsNull(long userId);
 
-	Optional<User> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
-	List<User> findAllByDeletedAtIsBeforeAndDeletedIsFalse(LocalDateTime now);
+    boolean existsByPhoneNumber(String phoneNumber);
+
+    Optional<User> findByPhoneNumber(String phoneNumber);
+
+    List<User> findAllByDeletedAtIsBeforeAndDeletedIsFalse(LocalDateTime now);
 }
