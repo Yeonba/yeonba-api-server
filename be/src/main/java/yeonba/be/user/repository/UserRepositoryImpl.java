@@ -27,7 +27,8 @@ import yeonba.be.user.dto.response.UserQueryResponse;
 사용자 조회 로직에선 기본적으로 다음 사용자를 배제한다.
 - 휴면 상태인 사용자
 - 삭제된 사용자
-- 지인
+추천 이성을 조회하는 경우에만 부가적으로 지인을 배제한다.
+지인은 애초에 즐겨찾기 등록, 화살 보내기가 불가능하므로 연관 조회 로직에서 따로 제외하지 않는다.
 
 카운트 쿼리에서는 데이터를 가져오기 위한 불필요한 조인을 수행하지 않는다.
  */
@@ -37,7 +38,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
-    // 지인은 애초에 즐겨찾기 등록이 불가하므로, 조회 쿼리에서 지인을 배제하는 과정을 따로 거치지 않는다.
     @Override
     public Page<UserQueryResponse> findAllFavorites(long userId, PageRequest pageRequest) {
 
@@ -64,8 +64,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .innerJoin(user.profilePhotos, profilePhoto)
             .where(
                 isRepresentativeProfilePhotoCondition(),
-                user.deletedAt.isNull(),
-                user.inactive.isFalse(),
+                isActiveAndNotDeletedUserCondition(),
                 isFavoriteExistCondition(userId))
             .limit(limit)
             .offset(offset)
@@ -112,8 +111,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .where(
                 isRepresentativeProfilePhotoCondition(),
                 isActiveAndNotDeletedUserCondition(),
-                isNotAcquaintanceCondition(senderId),
-                isArrowTransactionExistCondition(senderId))
+                isArrowReceiverExistCondition(senderId))
             .limit(limit)
             .offset(offset)
             .fetch();
@@ -123,8 +121,52 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .from(user)
             .where(
                 isActiveAndNotDeletedUserCondition(),
-                isArrowTransactionExistCondition(senderId),
-                isArrowTransactionExistCondition(senderId));
+                isArrowReceiverExistCondition(senderId));
+
+        return PageableExecutionUtils.getPage(
+            content,
+            pageRequest,
+            countQuery::fetchOne);
+    }
+
+    @Override
+    public Page<UserQueryResponse> findAllArrowSenders(long receiverId, PageRequest pageRequest) {
+
+        int limit = pageRequest.getPageSize();
+        int offset = pageRequest.getPageNumber() * limit;
+
+        List<UserQueryResponse> content = queryFactory
+            .select(Projections.constructor(UserQueryResponse.class,
+                user.id,
+                profilePhoto.photoUrl,
+                user.nickname,
+                user.age,
+                user.arrow,
+                animal.name,
+                user.photoSyncRate,
+                area.name,
+                user.height,
+                vocalRange.classification,
+                ExpressionUtils.as(
+                    isFavoriteExistCondition(receiverId), "isFavorite")))
+            .from(user)
+            .innerJoin(user.animal, animal)
+            .innerJoin(user.area, area)
+            .innerJoin(user.vocalRange, vocalRange)
+            .innerJoin(user.profilePhotos, profilePhoto)
+            .where(
+                isRepresentativeProfilePhotoCondition(),
+                isActiveAndNotDeletedUserCondition(),
+                isArrowSenderExistCondition(receiverId))
+            .limit(limit)
+            .offset(offset)
+            .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory.select(user.count())
+            .from(user)
+            .where(
+                isActiveAndNotDeletedUserCondition(),
+                isArrowSenderExistCondition(receiverId));
 
         return PageableExecutionUtils.getPage(
             content,
@@ -138,13 +180,23 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .and(user.inactive.isFalse());
     }
 
-    private BooleanExpression isArrowTransactionExistCondition(long senderId) {
+    private BooleanExpression isArrowReceiverExistCondition(long senderId) {
 
         return JPAExpressions.selectOne()
             .from(arrowTransaction)
             .where(
                 arrowTransaction.sender.id.eq(senderId),
                 arrowTransaction.receiver.id.eq(user.id))
+            .exists();
+    }
+
+    private BooleanExpression isArrowSenderExistCondition(long receiverId) {
+
+        return JPAExpressions.selectOne()
+            .from(arrowTransaction)
+            .where(
+                arrowTransaction.receiver.id.eq(receiverId),
+                arrowTransaction.sender.id.eq(user.id))
             .exists();
     }
 
