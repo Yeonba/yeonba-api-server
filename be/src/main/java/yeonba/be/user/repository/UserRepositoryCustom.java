@@ -9,4 +9,6 @@ public interface UserRepositoryCustom {
     Page<UserQueryResponse> findAllFavorites(long userId, PageRequest pageRequest);
 
     Page<UserQueryResponse> findAllArrowReceivers(long senderId, PageRequest pageRequest);
+
+    Page<UserQueryResponse> findAllArrowSenders(long receiverId, PageRequest pageRequest);
 }
