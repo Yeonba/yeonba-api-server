@@ -7,27 +7,34 @@ import static yeonba.be.user.entity.QArea.area;
 import static yeonba.be.user.entity.QFavorite.favorite;
 import static yeonba.be.user.entity.QProfilePhoto.profilePhoto;
 import static yeonba.be.user.entity.QUser.user;
+import static yeonba.be.user.entity.QUserPreference.userPreference;
+import static yeonba.be.user.entity.QUserRecommendation.userRecommendation;
+import static yeonba.be.user.entity.QUserSearchLog.userSearchLog;
 import static yeonba.be.user.entity.QVocalRange.vocalRange;
 
-import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.support.PageableExecutionUtils;
 import yeonba.be.user.dto.response.UserQueryResponse;
+import yeonba.be.user.entity.UserPreference;
 
 /*
 사용자 조회 로직에선 기본적으로 다음 사용자를 배제한다.
 - 휴면 상태인 사용자
 - 삭제된 사용자
-추천 이성을 조회하는 경우에만 부가적으로 지인을 배제한다.
 지인은 애초에 즐겨찾기 등록, 화살 보내기가 불가능하므로 연관 조회 로직에서 따로 제외하지 않는다.
 
 카운트 쿼리에서는 데이터를 가져오기 위한 불필요한 조인을 수행하지 않는다.
@@ -44,28 +51,11 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         int limit = pageRequest.getPageSize();
         int offset = pageRequest.getPageNumber() * limit;
 
-        List<UserQueryResponse> content = queryFactory
-            .select(Projections.constructor(UserQueryResponse.class,
-                user.id,
-                profilePhoto.photoUrl,
-                user.nickname,
-                user.age,
-                user.arrow,
-                animal.name,
-                user.photoSyncRate,
-                area.name,
-                user.height,
-                vocalRange.classification,
-                Expressions.constant(true)))
-            .from(user)
-            .innerJoin(user.animal, animal)
-            .innerJoin(user.area, area)
-            .innerJoin(user.vocalRange, vocalRange)
-            .innerJoin(user.profilePhotos, profilePhoto)
+        List<UserQueryResponse> content = selectUserQueryResponse(
+            Expressions.constant(true))
             .where(
-                isRepresentativeProfilePhotoCondition(),
                 isActiveAndNotDeletedUserCondition(),
-                isFavoriteExistCondition(userId))
+                findOneFavorite(userId).exists())
             .limit(limit)
             .offset(offset)
             .fetch();
@@ -75,7 +65,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .from(user)
             .where(
                 isActiveAndNotDeletedUserCondition(),
-                isFavoriteExistCondition(userId));
+                findOneFavorite(userId).exists());
 
         return PageableExecutionUtils.getPage(
             content,
@@ -89,29 +79,13 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         int limit = pageRequest.getPageSize();
         int offset = pageRequest.getPageNumber() * limit;
 
-        List<UserQueryResponse> content = queryFactory
-            .select(Projections.constructor(UserQueryResponse.class,
-                user.id,
-                profilePhoto.photoUrl,
-                user.nickname,
-                user.age,
-                user.arrow,
-                animal.name,
-                user.photoSyncRate,
-                area.name,
-                user.height,
-                vocalRange.classification,
-                ExpressionUtils.as(
-                    isFavoriteExistCondition(senderId), "isFavorite")))
-            .from(user)
-            .innerJoin(user.animal, animal)
-            .innerJoin(user.area, area)
-            .innerJoin(user.vocalRange, vocalRange)
-            .innerJoin(user.profilePhotos, profilePhoto)
+        List<UserQueryResponse> content = selectUserQueryResponse(
+            Expressions.as(
+                findOneFavorite(senderId).exists(),
+                "isFavorite"))
             .where(
-                isRepresentativeProfilePhotoCondition(),
                 isActiveAndNotDeletedUserCondition(),
-                isArrowReceiverExistCondition(senderId))
+                findOneArrowReceiver(senderId).exists())
             .limit(limit)
             .offset(offset)
             .fetch();
@@ -121,7 +95,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .from(user)
             .where(
                 isActiveAndNotDeletedUserCondition(),
-                isArrowReceiverExistCondition(senderId));
+                findOneArrowReceiver(senderId).exists());
 
         return PageableExecutionUtils.getPage(
             content,
@@ -135,7 +109,172 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         int limit = pageRequest.getPageSize();
         int offset = pageRequest.getPageNumber() * limit;
 
-        List<UserQueryResponse> content = queryFactory
+        List<UserQueryResponse> content = selectUserQueryResponse(
+            Expressions.as(
+                findOneFavorite(receiverId).exists(),
+                "isFavorite"))
+            .where(
+                isActiveAndNotDeletedUserCondition(),
+                findOneArrowSender(receiverId).exists())
+            .limit(limit)
+            .offset(offset)
+            .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory.select(user.count())
+            .from(user)
+            .where(
+                isActiveAndNotDeletedUserCondition(),
+                findOneArrowSender(receiverId).exists());
+
+        return PageableExecutionUtils.getPage(
+            content,
+            pageRequest,
+            countQuery::fetchOne);
+    }
+
+    @Override
+    public Page<UserQueryResponse> findRecommendUsers(
+        long userId,
+        PageRequest pageRequest,
+        LocalDate recommendDate) {
+
+        int limit = pageRequest.getPageSize();
+        int offset = pageRequest.getPageNumber() * limit;
+
+        // 추천 대상 사용자의 선호조건 조회
+        UserPreference preference = queryFactory.selectFrom(userPreference)
+            .where(userPreference.user.id.eq(userId))
+            .fetchFirst();
+
+        List<UserQueryResponse> content = selectUserQueryResponse(
+            Expressions.constant(false))
+            .where(recommendUserCondition(userId, preference, recommendDate))
+            .limit(limit)
+            .offset(offset)
+            .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory.select(user.count())
+            .from(user)
+            .where(recommendUserCondition(userId, preference, recommendDate));
+
+        return PageableExecutionUtils.getPage(
+            content,
+            pageRequest,
+            countQuery::fetchOne);
+    }
+
+    /*
+    이성 추천시 배제되는 사용자
+    - 자기 자신(조회하는 사용자)
+    - 추천(선호) 조건을 만족하지 않는 사용자
+    - 화살을 주고 받은 적이 있는 사용자
+    - 즐겨찾기한 사용자
+    - 삭제, 휴면 상태인 사용자
+    - 지인(전화번호로 구분)
+    - 추천 일자에 이미 추천된 사용자
+    - 추천 일자에 검색된 적 있는 사용자
+     */
+    private BooleanExpression recommendUserCondition(
+        long userId,
+        UserPreference preference,
+        LocalDate recommendDate) {
+
+        return Expressions.allOf(
+            user.id.ne(userId),
+            findOneArrowSender(userId).notExists(),
+            findOneArrowReceiver(userId).notExists(),
+            findOneFavorite(userId).notExists(),
+            isUserSatisfiedPreferenceCondition(preference),
+            isActiveAndNotDeletedUserCondition(),
+            isNotAcquaintanceCondition(userId),
+            isNotUserRecommendedInDateCondition(userId, recommendDate),
+            isNotUserSearchedInDateCondition(userId, recommendDate));
+    }
+
+    private JPQLQuery<Integer> findOneArrowSender(long receiverId) {
+
+        return JPAExpressions.selectOne()
+            .from(arrowTransaction)
+            .where(
+                arrowTransaction.receiver.id.eq(receiverId),
+                arrowTransaction.sender.id.eq(user.id));
+    }
+
+    private JPQLQuery<Integer> findOneFavorite(long userId) {
+
+        return JPAExpressions.selectOne()
+            .from(favorite)
+            .where(
+                favorite.user.id.eq(userId),
+                favorite.favoriteUser.id.eq(user.id));
+    }
+
+    private JPQLQuery<Integer> findOneArrowReceiver(long senderId) {
+
+        return JPAExpressions.selectOne()
+            .from(arrowTransaction)
+            .where(
+                arrowTransaction.sender.id.eq(senderId),
+                arrowTransaction.receiver.id.eq(user.id));
+    }
+
+    private BooleanExpression isUserSatisfiedPreferenceCondition(UserPreference preference) {
+
+        return Expressions.allOf(
+            user.age.between(
+                preference.getAgeLowerBound(),
+                preference.getAgeUpperBound()),
+            user.height.between(
+                preference.getHeightLowerBound(),
+                preference.getHeightUpperBound()),
+            user.mbti.eq(preference.getMbti()),
+            user.bodyType.eq(preference.getBodyType()),
+            user.vocalRange.id.eq(preference.getVocalRange().getId()),
+            user.area.id.eq(preference.getArea().getId()),
+            user.animal.id.eq(preference.getAnimal().getId()));
+    }
+
+    private BooleanExpression isNotUserRecommendedInDateCondition(
+        long userId,
+        LocalDate recommendDate) {
+
+        LocalDateTime from = recommendDate.atStartOfDay();
+        LocalDateTime to = recommendDate.atTime(LocalTime.MAX);
+
+        return JPAExpressions.selectOne()
+            .from(userRecommendation)
+            .where(
+                userRecommendation.user.id.eq(userId),
+                userRecommendation.recommendedUser.id.eq(user.id),
+                userRecommendation.createdAt.between(from, to))
+            .notExists();
+    }
+
+    private BooleanExpression isNotUserSearchedInDateCondition(
+        long userId,
+        LocalDate searchDate) {
+
+        LocalDateTime from = searchDate.atStartOfDay();
+        LocalDateTime to = searchDate.atTime(LocalTime.MAX);
+
+        return JPAExpressions.selectOne()
+            .from(userSearchLog)
+            .where(
+                userSearchLog.user.id.eq(userId),
+                userSearchLog.searchedUser.id.eq(user.id),
+                userSearchLog.createdAt.between(from, to))
+            .notExists();
+    }
+
+    /*
+    응답 dto에 필요한 필드를 select하는 공통 사용 쿼리, 별도 분리
+    경우에 따라 즐겨찾기 등록 여부(isFavorite)을 상수로 주입하기에
+    해당 부분만 파라미터로 받도록 구성
+     */
+    private JPAQuery<UserQueryResponse> selectUserQueryResponse(
+        Expression<Boolean> checkFavoriteExistsNestedQuery) {
+
+        return queryFactory
             .select(Projections.constructor(UserQueryResponse.class,
                 user.id,
                 profilePhoto.photoUrl,
@@ -147,67 +286,27 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 area.name,
                 user.height,
                 vocalRange.classification,
-                ExpressionUtils.as(
-                    isFavoriteExistCondition(receiverId), "isFavorite")))
+                checkFavoriteExistsNestedQuery))
             .from(user)
             .innerJoin(user.animal, animal)
             .innerJoin(user.area, area)
             .innerJoin(user.vocalRange, vocalRange)
             .innerJoin(user.profilePhotos, profilePhoto)
-            .where(
-                isRepresentativeProfilePhotoCondition(),
-                isActiveAndNotDeletedUserCondition(),
-                isArrowSenderExistCondition(receiverId))
-            .limit(limit)
-            .offset(offset)
-            .fetch();
+            .where(isRepresentativeProfilePhotoCondition());
+    }
 
-        JPAQuery<Long> countQuery = queryFactory.select(user.count())
-            .from(user)
-            .where(
-                isActiveAndNotDeletedUserCondition(),
-                isArrowSenderExistCondition(receiverId));
+    private BooleanExpression isRepresentativeProfilePhotoCondition() {
 
-        return PageableExecutionUtils.getPage(
-            content,
-            pageRequest,
-            countQuery::fetchOne);
+        return profilePhoto.id.eq(
+            JPAExpressions.select(profilePhoto.id.min())
+                .from(profilePhoto)
+                .where(profilePhoto.user.id.eq(user.id)));
     }
 
     private BooleanExpression isActiveAndNotDeletedUserCondition() {
 
         return user.deletedAt.isNull()
             .and(user.inactive.isFalse());
-    }
-
-    private BooleanExpression isArrowReceiverExistCondition(long senderId) {
-
-        return JPAExpressions.selectOne()
-            .from(arrowTransaction)
-            .where(
-                arrowTransaction.sender.id.eq(senderId),
-                arrowTransaction.receiver.id.eq(user.id))
-            .exists();
-    }
-
-    private BooleanExpression isArrowSenderExistCondition(long receiverId) {
-
-        return JPAExpressions.selectOne()
-            .from(arrowTransaction)
-            .where(
-                arrowTransaction.receiver.id.eq(receiverId),
-                arrowTransaction.sender.id.eq(user.id))
-            .exists();
-    }
-
-    private BooleanExpression isFavoriteExistCondition(long userId) {
-
-        return JPAExpressions.selectOne()
-            .from(favorite)
-            .where(
-                favorite.user.id.eq(userId),
-                favorite.favoriteUser.id.eq(user.id))
-            .exists();
     }
 
     private BooleanExpression isNotAcquaintanceCondition(long userId) {
@@ -218,13 +317,5 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 acquaintance.user.id.eq(userId),
                 acquaintance.phoneNumber.eq(user.phoneNumber))
             .notExists();
-    }
-
-    private BooleanExpression isRepresentativeProfilePhotoCondition() {
-
-        return profilePhoto.id.eq(
-            JPAExpressions.select(profilePhoto.id.min())
-                .from(profilePhoto)
-                .where(profilePhoto.user.id.eq(user.id)));
     }
 }
