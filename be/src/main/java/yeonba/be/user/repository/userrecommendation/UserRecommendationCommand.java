@@ -1,5 +1,6 @@
 package yeonba.be.user.repository.userrecommendation;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import yeonba.be.user.entity.UserRecommendation;
@@ -10,8 +11,8 @@ public class UserRecommendationCommand {
 
     private final UserRecommendationRepository userRecommendationRepository;
 
-    public UserRecommendation save(UserRecommendation userRecommendation) {
+    public List<UserRecommendation> saveAll(List<UserRecommendation> userRecommendations) {
 
-        return userRecommendationRepository.save(userRecommendation);
+        return userRecommendationRepository.saveAll(userRecommendations);
     }
 }
