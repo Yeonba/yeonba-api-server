@@ -1,5 +1,7 @@
 package yeonba.be.user.repository;
 
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -66,6 +68,22 @@ public class UserQuery {
     public UserQueryPageResponse findAllArrowSenders(long receiverId, PageRequest pageRequest) {
 
         Page<UserQueryResponse> page = userRepository.findAllArrowSenders(receiverId, pageRequest);
+
+        return UserQueryPageResponse.from(page);
+    }
+
+    public List<User> findByIds(List<Long> userIds) {
+
+        return userRepository.findAllById(userIds);
+    }
+
+    public UserQueryPageResponse findRecommendUsers(
+        long userId,
+        PageRequest pageRequest,
+        LocalDate recommendedAt) {
+
+        Page<UserQueryResponse> page = userRepository
+            .findRecommendUsers(userId, pageRequest, recommendedAt);
 
         return UserQueryPageResponse.from(page);
     }
