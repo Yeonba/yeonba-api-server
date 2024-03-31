@@ -44,18 +44,14 @@ public class UserController {
         @Valid @ParameterObject UserQueryRequest request) {
 
         String type = request.getType();
-        UserQueryPageResponse response = null;
+        UserQueryPageResponse response;
 
-        if (StringUtils.equals(type, "BOOKMARKED")) {
-            response = userService.findAllFavorites(userId, request);
-        }
+        if (StringUtils.equals(type, "RECOMMEND")) {
 
-        if (StringUtils.equals(type, "ARROW_RECEIVERS")) {
-            response = userService.findAllArrowReceivers(userId, request);
-        }
+            response = userService.findRecommendUsers(userId, request);
+        } else {
 
-        if (StringUtils.equals(type, "ARROW_SENDERS")) {
-            response = userService.findAllArrowSenders(userId, request);
+            response = userService.findByQueryCondition(userId, request);
         }
 
         return ResponseEntity
