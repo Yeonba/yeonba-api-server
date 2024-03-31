@@ -1,9 +1,16 @@
 package yeonba.be.user.repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UserException;
+import yeonba.be.user.dto.response.UserQueryPageResponse;
+import yeonba.be.user.dto.response.UserQueryResponse;
 import yeonba.be.user.entity.User;
 
 @Component

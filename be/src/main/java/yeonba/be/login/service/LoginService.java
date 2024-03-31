@@ -1,13 +1,27 @@
 package yeonba.be.login.service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.LoginException;
+import yeonba.be.exception.UserException;
+import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
+import yeonba.be.login.dto.request.UserVerificationCodeRequest;
+import yeonba.be.login.dto.response.UserEmailInquiryResponse;
+import yeonba.be.login.entity.VerificationCode;
+import yeonba.be.login.repository.VerificationCodeCommand;
+import yeonba.be.login.repository.VerificationCodeQuery;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 import yeonba.be.util.EmailService;
+import yeonba.be.util.PasswordEncryptor;
+import yeonba.be.util.SmsService;
 import yeonba.be.util.TemporaryPasswordGenerator;
+import yeonba.be.util.VerificationCodeGenerator;
 
 @Service
 @RequiredArgsConstructor

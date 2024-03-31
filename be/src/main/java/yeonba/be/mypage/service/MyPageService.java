@@ -19,12 +19,12 @@ import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
-import yeonba.be.mypage.util.PasswordEncryptor;
 import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.BlockCommand;
 import yeonba.be.user.repository.BlockQuery;
 import yeonba.be.user.repository.UserQuery;
+import yeonba.be.util.PasswordEncryptor;
 
 @Service
 @RequiredArgsConstructor
