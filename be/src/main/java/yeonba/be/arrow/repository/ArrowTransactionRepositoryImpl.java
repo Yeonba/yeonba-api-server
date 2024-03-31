@@ -21,10 +21,10 @@ public class ArrowTransactionRepositoryImpl implements ArrowTransactionRepositor
                 queryFactory
                     .select(arrowTransaction.count())
                     .from(arrowTransaction)
-                    .innerJoin(arrowTransaction.receivedUser, user)
+                    .innerJoin(arrowTransaction.receiver, user)
                     .where(
-                        arrowTransaction.sentUser.isNull(),
-                        arrowTransaction.receivedUser.id.eq(userId),
+                        arrowTransaction.sender.isNull(),
+                        arrowTransaction.receiver.id.eq(userId),
                         arrowTransaction.createdAt.after(today)
                     )
                     .fetchOne())
