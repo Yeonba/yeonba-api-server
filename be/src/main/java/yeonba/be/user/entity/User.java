@@ -32,196 +32,223 @@ import yeonba.be.exception.GeneralException;
 @EqualsAndHashCode(of = "id")
 public class User {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private boolean gender;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private boolean gender;
 
-	@Column(nullable = false)
-	private String name;
+    @Column(nullable = false)
+    private String name;
 
-	@Column(nullable = false)
-	private String nickname;
+    @Column(nullable = false)
+    private String nickname;
 
-	@Column(nullable = false)
-	private LocalDate birth;
-	private int age;
-	private int height;
+    @Column(nullable = false)
+    private LocalDate birth;
+    private int age;
+    private int height;
 
-	@Column(nullable = false)
-	private String email;
+    @Column(nullable = false)
+    private String email;
 
-	@Column(nullable = false)
-	private String encryptedPassword;
+    @Column(nullable = false)
+    private String encryptedPassword;
 
-	@Column(nullable = false)
-	private String salt;
+    @Column(nullable = false)
+    private String salt;
 
-	@Column(nullable = false)
-	private String phoneNumber;
-	private int arrow;
-	private int photoSyncRate;
-	private boolean inactive;
+    @Column(nullable = false)
+    private String phoneNumber;
+    private int arrow;
+    private int photoSyncRate;
+    private boolean inactive;
 
-	@Column(nullable = false)
-	private String bodyType;
+    @Column(nullable = false)
+    private String bodyType;
 
-	@Column(nullable = false)
-	private String job;
+    @Column(nullable = false)
+    private String job;
 
-	@Column(nullable = false)
-	private String mbti;
+    @Column(nullable = false)
+    private String mbti;
 
-	private String refreshToken;
+    private String refreshToken;
 
-	@ManyToOne
-	@JoinColumn(name = "vocal_range_id")
-	private VocalRange vocalRange;
+    @ManyToOne
+    @JoinColumn(name = "vocal_range_id")
+    private VocalRange vocalRange;
 
-	@ManyToOne
-	@JoinColumn(name = "animal_id")
-	private Animal animal;
+    @ManyToOne
+    @JoinColumn(name = "animal_id")
+    private Animal animal;
 
-	@ManyToOne
-	@JoinColumn(name = "area_id")
-	private Area area;
+    @ManyToOne
+    @JoinColumn(name = "area_id")
+    private Area area;
 
-	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-	List<ProfilePhoto> profilePhotos;
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    List<ProfilePhoto> profilePhotos;
 
-	private LocalDateTime lastAccessedAt;
+    private LocalDateTime lastAccessedAt;
 
-	@CreatedDate
-	private LocalDateTime createdAt;
+    @CreatedDate
+    private LocalDateTime createdAt;
 
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
-	private LocalDateTime deletedAt;
+    private LocalDateTime deletedAt;
 
-	public User(
-		boolean gender,
-		String name,
-		String nickname,
-		LocalDate birth,
-		int age,
-		int height,
-		String email,
-		String encryptedPassword,
-		String salt,
-		String phoneNumber,
-		int arrow,
-		int photoSyncRate,
-		String bodyType,
-		String job,
-		String mbti,
-		VocalRange vocalRange,
-		Animal animal,
-		Area area) {
-		this.gender = gender;
-		this.name = name;
-		this.nickname = nickname;
-		this.birth = birth;
-		this.age = age;
-		this.height = height;
-		this.email = email;
-		this.encryptedPassword = encryptedPassword;
-		this.salt = salt;
-		this.phoneNumber = phoneNumber;
-		this.arrow = arrow;
-		this.photoSyncRate = photoSyncRate;
-		this.inactive = true;
-		this.bodyType = bodyType;
-		this.job = job;
-		this.mbti = mbti;
-		this.vocalRange = vocalRange;
-		this.animal = animal;
-		this.area = area;
-	}
+    @Column(name = "is_deleted")
+    private boolean deleted;
 
-	public void validateSameUser(User user) {
+    @OneToMany(mappedBy = "blockedUser", fetch = FetchType.LAZY)
+    private List<Block> blocks;
 
-		if (!this.equals(user)) {
-			throw new IllegalArgumentException("동일한 사용자가 아닙니다.");
-		}
-	}
+    public User(
+        boolean gender,
+        String name,
+        String nickname,
+        LocalDate birth,
+        int age,
+        int height,
+        String email,
+        String encryptedPassword,
+        String salt,
+        String phoneNumber,
+        int arrow,
+        int photoSyncRate,
+        String bodyType,
+        String job,
+        String mbti,
+        VocalRange vocalRange,
+        Animal animal,
+        Area area) {
+        this.gender = gender;
+        this.name = name;
+        this.nickname = nickname;
+        this.birth = birth;
+        this.age = age;
+        this.height = height;
+        this.email = email;
+        this.encryptedPassword = encryptedPassword;
+        this.salt = salt;
+        this.phoneNumber = phoneNumber;
+        this.arrow = arrow;
+        this.photoSyncRate = photoSyncRate;
+        this.inactive = true;
+        this.bodyType = bodyType;
+        this.job = job;
+        this.mbti = mbti;
+        this.vocalRange = vocalRange;
+        this.animal = animal;
+        this.area = area;
+    }
 
-	public void validateNotSameUser(User user) {
+    public void validateSameUser(User user) {
 
-		if (this.equals(user)) {
-			throw new IllegalArgumentException("동일한 사용자입니다.");
-		}
-	}
+        if (!this.equals(user)) {
+            throw new IllegalArgumentException("동일한 사용자가 아닙니다.");
+        }
+    }
 
-	public void changePassword(String encryptedNewPassword) {
+    public void validateNotSameUser(User user) {
 
-		this.encryptedPassword = encryptedNewPassword;
-	}
+        if (this.equals(user)) {
+            throw new IllegalArgumentException("동일한 사용자입니다.");
+        }
+    }
 
-	/**
-	 * 삭제된 사용자인지 검증
-	 */
-	public void validateDeletedUser(LocalDateTime now) {
+    public void changePassword(String encryptedNewPassword) {
 
-		if (this.deletedAt.isAfter(now)) {
-			throw new IllegalArgumentException("삭제된 사용자입니다.");
-		}
-	}
+        this.encryptedPassword = encryptedNewPassword;
+    }
 
-	public void validateDailyCheck(LocalDate dailyCheckDay) {
+    public void delete(LocalDateTime willDeleteTime) {
 
-		if (this.lastAccessedAt.isAfter(dailyCheckDay.atStartOfDay())) {
-			throw new GeneralException(ArrowException.ALREADY_CHECKED_USER);
-		}
-	}
+        this.deletedAt = willDeleteTime;
+    }
 
-	public String getRepresentativeProfilePhoto() {
+    /**
+     * 삭제된 사용자인지 검증
+     */
+    public void validateDeletedUser(LocalDateTime now) {
 
-		return this.profilePhotos.get(0).getPhotoUrl();
-	}
+        if (this.deletedAt.isAfter(now)) {
+            throw new IllegalArgumentException("삭제된 사용자입니다.");
+        }
+    }
 
-	public void updateLastAccessedAt(LocalDateTime accessedAt) {
+    public void validateDailyCheck(LocalDate dailyCheckDay) {
 
-		this.lastAccessedAt = accessedAt;
-	}
+        if (this.lastAccessedAt.isAfter(dailyCheckDay.atStartOfDay())) {
+            throw new GeneralException(ArrowException.ALREADY_CHECKED_USER);
+        }
+    }
 
-	public void plusArrow(int arrow) {
+    public String getRepresentativeProfilePhoto() {
 
-		this.arrow += arrow;
-	}
+        return this.profilePhotos.get(0).getPhotoUrl();
+    }
 
-	public void minusArrow(int arrow) {
+    public void updateLastAccessedAt(LocalDateTime accessedAt) {
 
-		if (this.arrow < arrow) {
-			throw new GeneralException(ArrowException.NOT_ENOUGH_ARROW_TO_SEND);
-		}
+        this.lastAccessedAt = accessedAt;
+    }
 
-		this.arrow -= arrow;
-	}
+    public void plusArrow(int arrow) {
 
-	public String getGender() {
-		if (this.gender) {
+        this.arrow += arrow;
+    }
 
-			return "남";
-		}
+    public void minusArrow(int arrow) {
 
-		return "여";
-	}
+        if (this.arrow < arrow) {
+            throw new GeneralException(ArrowException.NOT_ENOUGH_ARROW_TO_SEND);
+        }
 
-	public List<String> getProfilePhotoUrls() {
+        this.arrow -= arrow;
+    }
 
-		return this.profilePhotos.stream()
-			.map(ProfilePhoto::getPhotoUrl)
-			.toList();
-	}
+    public String getGender() {
+        if (this.gender) {
 
-	public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
+            return "남";
+        }
 
-		this.profilePhotos = profilePhotos;
-	}
+        return "여";
+    }
 
-	public void updateRefreshToken(String refreshToken) {
+    public List<String> getProfilePhotoUrls() {
 
-		this.refreshToken = refreshToken;
-	}
+        return this.profilePhotos.stream()
+            .map(ProfilePhoto::getPhotoUrl)
+            .toList();
+    }
+
+    public void changeInactiveStatus(boolean inactiveStatus) {
+
+        this.inactive = inactiveStatus;
+    }
+
+    public void hideUserInfo() {
+
+        this.name = "deleted";
+        this.nickname = "deleted";
+        this.age = 0;
+        this.height = 0;
+        this.email = "deleted";
+        this.phoneNumber = "deleted";
+        this.deleted = true;
+    }
+
+    public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
+
+        this.profilePhotos = profilePhotos;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+
+        this.refreshToken = refreshToken;
+    }
 }

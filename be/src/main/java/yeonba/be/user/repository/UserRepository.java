@@ -6,14 +6,17 @@ import org.springframework.stereotype.Repository;
 import yeonba.be.user.entity.User;
 
 @Repository
-public interface UserRepository
-    extends JpaRepository<User, Long>, UserRepositoryCustom {
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    Optional<User> findByIdAndDeletedAtIsNull(long userId);
 
     Optional<User> findByEmail(String email);
 
     boolean existsByPhoneNumber(String phoneNumber);
 
     Optional<User> findByPhoneNumber(String phoneNumber);
+
+    List<User> findAllByDeletedAtIsBeforeAndDeletedIsFalse(LocalDateTime now);
 
     boolean existsByNickname(String nickname);
 
