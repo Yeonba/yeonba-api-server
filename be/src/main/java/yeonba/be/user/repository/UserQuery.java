@@ -1,5 +1,7 @@
 package yeonba.be.user.repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
@@ -24,7 +26,7 @@ public class UserQuery {
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
     }
 
-    public boolean isUserExist(String phoneNumber) {
+    public boolean existByPhoneNumber(String phoneNumber) {
 
         return userRepository.existsByPhoneNumber(phoneNumber);
     }
@@ -33,5 +35,12 @@ public class UserQuery {
 
         return userRepository.findByPhoneNumber(phoneNumber)
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
+    }
+
+    public List<User> findWillDeleteUsers() {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        return userRepository.findAllByDeletedAtIsBeforeAndDeletedIsFalse(now);
     }
 }

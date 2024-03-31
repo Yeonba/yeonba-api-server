@@ -10,6 +10,7 @@ public enum ServiceRegex {
     private final String pattern;
 
     ServiceRegex(String pattern) {
+
         this.pattern = pattern;
     }
 

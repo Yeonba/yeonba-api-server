@@ -18,7 +18,7 @@ public class SmsConfig {
     private String provider;
 
     @Bean
-    public DefaultMessageService defaultMessageService() {
+    public DefaultMessageService messageService() {
 
         return new DefaultMessageService(apiKey, apiSecret, provider);
     }
