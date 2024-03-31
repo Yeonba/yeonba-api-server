@@ -10,7 +10,7 @@ public enum LoginException implements BaseException {
 
     VERIFICATION_CODE_NOT_MATCH(
         HttpStatus.BAD_REQUEST,
-        "인증 코드가 일치하지 않습니다.");
+        "인증 코드가 일치하지 않습니다."),
 
     EXPIRED_VERIFICATION_CODE(
         HttpStatus.BAD_REQUEST,

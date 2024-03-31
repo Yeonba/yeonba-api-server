@@ -1,22 +1,46 @@
 package yeonba.be.login.service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.LoginException;
+import yeonba.be.exception.UserException;
+import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
+import yeonba.be.login.dto.request.UserVerificationCodeRequest;
+import yeonba.be.login.dto.response.UserEmailInquiryResponse;
+import yeonba.be.login.entity.VerificationCode;
+import yeonba.be.login.repository.VerificationCodeCommand;
+import yeonba.be.login.repository.VerificationCodeQuery;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 import yeonba.be.util.EmailService;
+import yeonba.be.util.PasswordEncryptor;
+import yeonba.be.util.SmsService;
 import yeonba.be.util.TemporaryPasswordGenerator;
+import yeonba.be.util.VerificationCodeGenerator;
 
 @Service
 @RequiredArgsConstructor
 public class LoginService {
 
+    private final long VERIFICATION_CODE_TTL = 5;
+
     private final String TEMPORARY_PASSWORD_EMAIL_SUBJECT = "연바(연애는 바로 지금) 임시비밀번호 발급";
     private final String TEMPORARY_PASSWORD_EMAIL_TEXT = "임시비밀번호 : %s";
+    private final String VERIFICATION_CODE_MESSAGE = "연바(연애는 바로 지금) 인증 코드 : %s";
+
     private final UserQuery userQuery;
+    private final VerificationCodeCommand verificationCodeCommand;
+    private final VerificationCodeQuery verificationCodeQuery;
+
     private final EmailService emailService;
+    private final SmsService smsService;
+
+    private final PasswordEncryptor passwordEncryptor;
 
     /*
     임시 비밀번호는 다음 과정을 거친다.

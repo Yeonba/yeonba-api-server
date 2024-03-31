@@ -71,6 +71,7 @@ public class User {
 
     @Column(nullable = false)
     private String mbti;
+    private String refreshToken;
 
     @ManyToOne
     @JoinColumn(name = "vocal_range_id")
@@ -121,8 +122,7 @@ public class User {
         String mbti,
         VocalRange vocalRange,
         Animal animal,
-        Area area,
-        List<ProfilePhoto> profilePhotos) {
+        Area area) {
 
         this.gender = gender;
         this.name = name;
@@ -143,7 +143,6 @@ public class User {
         this.vocalRange = vocalRange;
         this.animal = animal;
         this.area = area;
-        this.profilePhotos = profilePhotos;
     }
 
     public void validateSameUser(User user) {
@@ -163,6 +162,11 @@ public class User {
     public void changePassword(String encryptedNewPassword) {
 
         this.encryptedPassword = encryptedNewPassword;
+    }
+
+    public void delete(LocalDateTime willDeleteTime) {
+
+        this.deletedAt = willDeleteTime;
     }
 
     /**

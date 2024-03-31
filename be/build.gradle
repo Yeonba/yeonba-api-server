@@ -41,6 +41,9 @@ dependencies {
     // spring mail
     implementation 'org.springframework.boot:spring-boot-starter-mail:3.2.2'
 
+    // coolsms java sdk
+    implementation 'net.nurigo:sdk:4.3.0'
+
     //Querydsl 추가
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
