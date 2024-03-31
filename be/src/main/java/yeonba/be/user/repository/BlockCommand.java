@@ -8,11 +8,15 @@ import yeonba.be.user.entity.Block;
 @RequiredArgsConstructor
 public class BlockCommand {
 
-  private final BlockRepository blockRepository;
+    private final BlockRepository blockRepository;
 
-  public Block save(Block block) {
+    public Block save(Block block) {
 
-    return blockRepository.save(block);
-  }
+        return blockRepository.save(block);
+    }
 
+    public void delete(Block block) {
+
+        blockRepository.delete(block);
+    }
 }

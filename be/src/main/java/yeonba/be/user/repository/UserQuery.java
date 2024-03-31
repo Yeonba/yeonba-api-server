@@ -24,7 +24,7 @@ public class UserQuery {
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
     }
 
-    public boolean isUserExist(String phoneNumber) {
+    public boolean existByPhoneNumber(String phoneNumber) {
 
         return userRepository.existsByPhoneNumber(phoneNumber);
     }
@@ -33,6 +33,13 @@ public class UserQuery {
 
         return userRepository.findByPhoneNumber(phoneNumber)
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
+    }
+
+    public List<User> findWillDeleteUsers() {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        return userRepository.findAllByDeletedAtIsBeforeAndDeletedIsFalse(now);
     }
 
     public boolean isAlreadyUsedNickname(String nickname) {
