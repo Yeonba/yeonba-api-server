@@ -1,5 +1,7 @@
 package yeonba.be.user.repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
