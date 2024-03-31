@@ -1,12 +1,10 @@
 package yeonba.be.user.dto.request;
 
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.Explode;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -25,6 +23,9 @@ public class UserQueryRequest {
         example = "RECOMMEND",
         in = ParameterIn.QUERY)
     @NotNull(message = "조회 기준은 반드시 입력되어야 합니다.")
+    @Pattern(
+        regexp = "\\b(RECOMMEND|BOOKMARKED|ARROW_SENDERS|ARROW_RECEIVERS)\\b",
+        message = "검색 기준은 RECOMMEND, BOOKMARKED, ARROW_SENDERS, ARROW_RECEIVERS만 허용됩니다.")
     private String type;
 
     @Parameter(
@@ -35,49 +36,4 @@ public class UserQueryRequest {
     @NotNull(message = "조회할 페이지 번호는 반드시 입력되어야 합니다.")
     @PositiveOrZero(message = "페이지 번호는 0이상이어야 합니다.")
     private int page;
-
-    @Parameter(
-        name = "size",
-        description = "조회할 데이터 수(페이지 사이즈)",
-        example = "5",
-        in = ParameterIn.QUERY)
-    @Positive
-    private Integer size;
-
-    @Parameter(
-        name = "area",
-        description = "활동 지역, 사용자 검색시 사용",
-        example = "서울",
-        in = ParameterIn.QUERY)
-    private String area;
-
-    @Parameter(
-        name = "vocalRange",
-        description = "음역대, 사용자 검색시 사용",
-        example = "저음",
-        in = ParameterIn.QUERY)
-    private String vocalRange;
-
-    @Parameter(
-        name = "age",
-        description = "나이 범위(하한,상한), 사용자 검색시 사용",
-        example = "20,25",
-        in = ParameterIn.QUERY,
-        explode = Explode.FALSE)
-    private List<Integer> ages;
-
-    @Parameter(
-        name = "height",
-        description = "키 범위(하한,상한), 사용자 검색시 사용",
-        example = "160,180",
-        in = ParameterIn.QUERY,
-        explode = Explode.FALSE)
-    private List<Integer> heights;
-
-    @Parameter(
-        name = "includePreferredAnimal",
-        description = "선호하는 동물상 포함 검색 여부, 사용자 검색시 사용",
-        example = "true",
-        in = ParameterIn.QUERY)
-    private Boolean includePreferredAnimal;
 }
