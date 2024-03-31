@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,10 +26,7 @@ import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.request.UserUpdateUnwantedAcquaintancesRequest;
-import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
-import yeonba.be.mypage.dto.response.UnwantedAcquaintanceResponse;
-import yeonba.be.mypage.dto.response.UnwantedAcquaintancesResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.mypage.service.MyPageService;
@@ -130,29 +127,9 @@ public class MyPageController {
             .body(new CustomResponse<>());
     }
 
-    @Operation(summary = "만나고 싶지 않은 지인 목록 조회", description = "만나고 싶지 않은 지인 목록을 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "만나고 싶지 않은 지인 목록 조회 성공")
-    @GetMapping("/users/unwanted-acquaintances")
-    public ResponseEntity<CustomResponse<UnwantedAcquaintancesResponse>> getUnwantedAcquaintances(
-        @RequestAttribute("userId") long userId) {
-
-        UnwantedAcquaintancesResponse response = myPageService.getUnwantedAcquaintances(
-            userId);
-
-        return ResponseEntity
-            .ok()
-            .body(new CustomResponse<>(response));
-    }
-
-    @Operation(
-        summary = "만나고 싶지 않은 지인 목록 수정",
-        description = "만나고 싶지 않은 지인 목록을 수정합니다."
-    )
-    @ApiResponse(
-        responseCode = "202",
-        description = "지인 목록 수정 정상 처리"
-    )
-    @PutMapping("/users/unwanted-acquaintances")
+    @Operation(summary = "만나고 싶지 않은 지인 목록 추가", description = "만나고 싶지 않은 지인을 추가합니다.")
+    @ApiResponse(responseCode = "202", description = "지인 목록 추가 정상 처리")
+    @PostMapping("/users/unwanted-acquaintances")
     public ResponseEntity<CustomResponse<Void>> updateUnwantedAcquaintances(
         @RequestBody UserUpdateUnwantedAcquaintancesRequest request) {
 

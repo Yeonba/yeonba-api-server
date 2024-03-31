@@ -9,9 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserUpdateUnwantedAcquaintancesRequest {
 
-  @Schema(
-      type = "array",
-      description = "새로운 만나고 싶지 않은 지인 목록"
-  )
+  @Schema(type = "array", description = "새로운 만나고 싶지 않은 지인 목록")
   private List<UserUpdateUnwantedAcquaintanceRequest> newAcquaintances;
 }
