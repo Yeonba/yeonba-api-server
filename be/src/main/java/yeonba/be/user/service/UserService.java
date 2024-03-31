@@ -16,11 +16,13 @@ import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.request.UserQueryRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
+import yeonba.be.user.dto.response.UserQueryResponse;
 import yeonba.be.user.entity.Animal;
 import yeonba.be.user.entity.Area;
 import yeonba.be.user.entity.ProfilePhoto;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.entity.UserPreference;
+import yeonba.be.user.entity.UserRecommendation;
 import yeonba.be.user.entity.VocalRange;
 import yeonba.be.user.enums.Gender;
 import yeonba.be.user.repository.UserCommand;
@@ -29,6 +31,7 @@ import yeonba.be.user.repository.animal.AnimalQuery;
 import yeonba.be.user.repository.area.AreaQuery;
 import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
+import yeonba.be.user.repository.userrecommendation.UserRecommendationCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
 import yeonba.be.util.PasswordEncryptor;
 import yeonba.be.util.S3Service;
@@ -39,11 +42,13 @@ import yeonba.be.util.SaltGenerator;
 public class UserService {
 
     private final int JOIN_REWARD_ARROWS = 30;
-    private final int PAGE_SIZE = 6;
+    private final int DEFAULT_PAGE_SIZE = 6;
+    private final int RECOMMEND_USERS_PAGE_SIZE = 2;
 
     private final ProfilePhotoCommand profilePhotoCommand;
     private final UserCommand userCommand;
     private final UserPreferenceCommand userPreferenceCommand;
+    private final UserRecommendationCommand userRecommendationCommand;
 
     private final AnimalQuery animalQuery;
     private final AreaQuery areaQuery;
@@ -53,7 +58,6 @@ public class UserService {
 
     private final PasswordEncryptor passwordEncryptor;
     private final S3Service s3Service;
-
 
     @Transactional(readOnly = true)
     public UserProfileResponse getTargetUserProfile(long userId, long targetUserId) {
@@ -173,27 +177,66 @@ public class UserService {
         userPreferenceCommand.save(userPreference);
     }
 
+    // controller에서 type에 대해 검증, 페이지 사이즈가 6으로 같은 경우 조회 로직
     @Transactional(readOnly = true)
-    public UserQueryPageResponse findAllFavorites(long userId, UserQueryRequest request) {
+    public UserQueryPageResponse findByQueryCondition(long userId, UserQueryRequest request) {
 
-        PageRequest pageRequest = PageRequest.of(request.getPage(), PAGE_SIZE);
+        String type = request.getType();
+        int page = request.getPage();
+        PageRequest pageRequest = PageRequest.of(page, DEFAULT_PAGE_SIZE);
+
+        if (StringUtils.equals(type, "BOOKMARKED")) {
+
+            return findAllFavorites(userId, pageRequest);
+        }
+
+        if (StringUtils.equals(type, "ARROW_RECEIVERS")) {
+
+            return findAllArrowReceivers(userId, pageRequest);
+        }
+
+        return findAllArrowSenders(userId, pageRequest);
+    }
+
+    private UserQueryPageResponse findAllFavorites(long userId, PageRequest pageRequest) {
 
         return userQuery.findAllFavorites(userId, pageRequest);
     }
 
-    @Transactional(readOnly = true)
-    public UserQueryPageResponse findAllArrowReceivers(long senderId, UserQueryRequest request) {
-
-        PageRequest pageRequest = PageRequest.of(request.getPage(), PAGE_SIZE);
+    private UserQueryPageResponse findAllArrowReceivers(long senderId, PageRequest pageRequest) {
 
         return userQuery.findAllArrowReceivers(senderId, pageRequest);
     }
 
-    @Transactional(readOnly = true)
-    public UserQueryPageResponse findAllArrowSenders(long receiverId, UserQueryRequest request) {
-
-        PageRequest pageRequest = PageRequest.of(request.getPage(), PAGE_SIZE);
+    private UserQueryPageResponse findAllArrowSenders(long receiverId, PageRequest pageRequest) {
 
         return userQuery.findAllArrowSenders(receiverId, pageRequest);
+    }
+
+    @Transactional
+    public UserQueryPageResponse findRecommendUsers(long userId, UserQueryRequest request) {
+
+        int page = request.getPage();
+        PageRequest pageRequest = PageRequest.of(page, RECOMMEND_USERS_PAGE_SIZE);
+        LocalDate recommendAt = LocalDate.now();
+
+        // 추천 사용자 응답 조회
+        UserQueryPageResponse response = userQuery
+            .findRecommendUsers(userId, pageRequest, recommendAt);
+
+        // 추천 사용자 조회
+        User user = userQuery.findById(userId);
+        List<Long> userIds = response.getUsers().stream()
+            .map(UserQueryResponse::getId)
+            .toList();
+        List<User> recommendUsers = userQuery.findByIds(userIds);
+
+        // 추천 내역 저장
+        List<UserRecommendation> userRecommendations = recommendUsers.stream()
+            .map(recommendUser -> new UserRecommendation(user, recommendUser))
+            .toList();
+        userRecommendationCommand.saveAll(userRecommendations);
+
+        return response;
     }
 }
