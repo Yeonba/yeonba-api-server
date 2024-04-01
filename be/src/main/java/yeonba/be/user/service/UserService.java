@@ -74,7 +74,6 @@ public class UserService {
             isAlreadySentArrow);
     }
 
-    @Transactional
     public User saveUser(UserJoinRequest request) {
 
         // 이미 사용 중인 이메일인지 확인
@@ -134,7 +133,6 @@ public class UserService {
         return userCommand.save(user);
     }
 
-    @Transactional
     public void saveProfilePhotos(User user, UserJoinRequest request) {
 
         List<MultipartFile> photoFiles = request.getProfilePhotos();
@@ -148,7 +146,6 @@ public class UserService {
         user.updateProfilePhotos(profilePhotos);
     }
 
-    @Transactional
     public void saveUserPreference(User user, UserJoinRequest request) {
 
         // 선호 음역대, 동물상, 지역 조회
