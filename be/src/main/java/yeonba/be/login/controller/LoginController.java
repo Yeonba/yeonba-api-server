@@ -70,7 +70,7 @@ public class LoginController {
 
     @Operation(summary = "비밀번호 찾기", description = "이메일로 임시 비밀번호를 발급받을 수 있습니다.")
     @ApiResponse(responseCode = "202", description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리")
-    @PostMapping("/users/help/pw-inquiry")
+    @PostMapping("/users/pw-inquiry")
     public ResponseEntity<CustomResponse<Void>> passwordInquiry(
         @Valid @RequestBody UserPasswordInquiryRequest request) {
 
