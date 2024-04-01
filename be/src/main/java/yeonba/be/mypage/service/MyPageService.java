@@ -19,7 +19,7 @@ import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
-import yeonba.be.mypage.repository.AcquaintanceQuery;
+import yeonba.be.mypage.repository.AcquaintanceCommand;
 import yeonba.be.mypage.util.PasswordEncryptor;
 import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
@@ -36,7 +36,6 @@ public class MyPageService {
     private final BlockQuery blockQuery;
     private final BlockCommand blockCommand;
     private final PasswordEncryptor passwordEncryptor;
-    private final AcquaintanceQuery acquaintanceQuery;
 
     @Value("${S3_BUCKET_NAME}")
     private String bucketName;

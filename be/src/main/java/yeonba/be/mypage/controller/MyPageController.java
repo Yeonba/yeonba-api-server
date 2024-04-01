@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +28,7 @@ import yeonba.be.mypage.dto.request.UserUpdateUnwantedAcquaintancesRequest;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
+import yeonba.be.mypage.service.AcquaintanceService;
 import yeonba.be.mypage.service.MyPageService;
 import yeonba.be.util.CustomResponse;
 
@@ -38,6 +38,7 @@ import yeonba.be.util.CustomResponse;
 public class MyPageController {
 
     private final MyPageService myPageService;
+    private final AcquaintanceService acquaintanceService;
 
     @Operation(summary = "자신의 프로필 조회", description = "사용자 자신의 프로필 정보를 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "자신의 프로필 조회 성공")
@@ -127,11 +128,14 @@ public class MyPageController {
             .body(new CustomResponse<>());
     }
 
-    @Operation(summary = "만나고 싶지 않은 지인 목록 추가", description = "만나고 싶지 않은 지인을 추가합니다.")
+    @Operation(summary = "만나고 싶지 않은 지인 목록 수정", description = "만나고 싶지 않은 지인을 추가합니다.")
     @ApiResponse(responseCode = "202", description = "지인 목록 추가 정상 처리")
-    @PostMapping("/users/unwanted-acquaintances")
+    @PutMapping("/users/unwanted-acquaintances")
     public ResponseEntity<CustomResponse<Void>> updateUnwantedAcquaintances(
+        @RequestAttribute("userId") long userId,
         @RequestBody UserUpdateUnwantedAcquaintancesRequest request) {
+
+        acquaintanceService.updateOrSaveUnwantedAcquaintances(userId, request);
 
         return ResponseEntity
             .accepted()
