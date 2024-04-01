@@ -1,5 +1,6 @@
 package yeonba.be.login.repository;
 
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
@@ -12,9 +13,13 @@ public class VerificationCodeQuery {
 
     private final VerificationCodeRepository verificationCodeRepository;
 
-    public VerificationCode findBy(String phoneNumber, String code) {
+    public VerificationCode findNotExpiredVerificationCodeBy(
+        String phoneNumber,
+        String code,
+        LocalDateTime verifyAt) {
 
-        return verificationCodeRepository.findByPhoneNumberAndCode(phoneNumber, code)
+        return verificationCodeRepository
+            .findFirstByPhoneNumberAndCodeAndExpiredAtIsAfter(phoneNumber, code, verifyAt)
             .orElseThrow(() -> new GeneralException(LoginException.VERIFICATION_CODE_NOT_FOUND));
     }
 }
