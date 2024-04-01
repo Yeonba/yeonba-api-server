@@ -35,23 +35,19 @@ public class JwtUtil {
         return generateUserJwt(user, issuedAt, expiredAt);
     }
 
-    private Date getExpiredAt(Date issuedAt, Duration duration) {
+    private Date getExpiredAt(Date generatedAt, Duration duration) {
 
-        Instant instant = issuedAt.toInstant()
+        Instant instant = generatedAt.toInstant()
             .plusMillis(duration.toMillis());
 
         return Date.from(instant);
     }
 
-    private String generateUserJwt(
-        User user,
-        Date issuedAt,
-        Date expiredAt) {
+    private String generateUserJwt(User user, Date issuedAt, Date generatedAt) {
 
         return Jwts.builder()
-            .setSubject(user.getEmail())
             .setIssuedAt(issuedAt)
-            .setExpiration(expiredAt)
+            .setExpiration(generatedAt)
             .claim("userId", user.getId())
             .signWith(SignatureAlgorithm.HS256, jwtSecret)
             .compact();
