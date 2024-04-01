@@ -96,7 +96,7 @@ public class LoginService {
 
         // 인증 코드 조회
         VerificationCode verificationCode = verificationCodeQuery
-            .findNotExpiredVerificationCodeBy(phoneNumber, code, verifyAt);
+            .findBy(phoneNumber, code, verifyAt);
 
         // 핸드폰 번호 기반 사용자 조회 및 인증 코드 내역 삭제
         User user = userQuery.findByPhoneNumber(phoneNumber);
@@ -140,12 +140,12 @@ public class LoginService {
         LocalDateTime verifyAt = LocalDateTime.now();
 
         VerificationCode verificationCode = verificationCodeQuery
-            .findNotExpiredVerificationCodeBy(request.getPhoneNumber(), code, verifyAt);
+            .findBy(request.getPhoneNumber(), code, verifyAt);
 
         verificationCodeCommand.delete(verificationCode);
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 1 * *")
     @Transactional
     public void deleteExpiredVerificationCodes() {
 
