@@ -13,7 +13,7 @@ public class VerificationCodeQuery {
 
     private final VerificationCodeRepository verificationCodeRepository;
 
-    public VerificationCode findNotExpiredVerificationCodeBy(
+    public VerificationCode findBy(
         String phoneNumber,
         String code,
         LocalDateTime verifyAt) {
