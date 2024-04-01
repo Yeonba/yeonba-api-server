@@ -3,6 +3,7 @@ package yeonba.be.login.service;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.exception.GeneralException;
@@ -142,5 +143,13 @@ public class LoginService {
             .findNotExpiredVerificationCodeBy(request.getPhoneNumber(), code, verifyAt);
 
         verificationCodeCommand.delete(verificationCode);
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    public void deleteExpiredVerificationCodes() {
+
+        LocalDateTime deletedAt = LocalDateTime.now();
+        verificationCodeCommand.deleteAllExpiredAtBefore(deletedAt);
     }
 }
