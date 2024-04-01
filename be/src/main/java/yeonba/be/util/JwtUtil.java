@@ -1,9 +1,7 @@
 package yeonba.be.util;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -60,10 +58,9 @@ public class JwtUtil {
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(jwt);
 
-        } catch (SignatureException e) {
-            throw new IllegalStateException("유효하지 않은 JWT 시그니처입니다.", e);
-        } catch (ExpiredJwtException e) {
-            throw new IllegalStateException("만료된 JWT입니다.", e);
+        } catch (Exception e) {
+
+            throw new IllegalStateException("유효하지 않은 JWT입니다. 다시 로그인 해주세요", e);
         }
     }
 }
