@@ -8,6 +8,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.UtilException;
 import yeonba.be.user.entity.User;
 
 @Component
@@ -60,7 +62,7 @@ public class JwtUtil {
 
         } catch (Exception e) {
 
-            throw new IllegalStateException("유효하지 않은 JWT입니다. 다시 로그인 해주세요", e);
+            throw new GeneralException(UtilException.INVALID_JWT);
         }
     }
 }
