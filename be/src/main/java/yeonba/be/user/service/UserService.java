@@ -78,18 +78,27 @@ public class UserService {
 
         // 이미 사용 중인 이메일인지 확인
         if (userQuery.isAlreadyUsedEmail(request.getEmail())) {
+
             throw new GeneralException(JoinException.ALREADY_USED_EMAIL);
         }
 
         // 이미 사용 중인 닉네임인지 확인
         if (userQuery.isAlreadyUsedNickname(request.getNickname())) {
+
             throw new GeneralException(JoinException.ALREADY_USED_NICKNAME);
+        }
+
+        // 이미 사용 중인 핸드폰 번호인지 확인
+        if (userQuery.isAlreadyUsedPhoneNumber(request.getPhoneNumber())) {
+
+            throw new GeneralException(JoinException.ALREADY_USED_PHONE_NUMBER);
         }
 
         // 비밀빈호, 비밀번호 확인 값 일치 확인
         String password = request.getPassword();
         String passwordConfirmation = request.getPasswordConfirmation();
         if (!StringUtils.equals(password, passwordConfirmation)) {
+
             throw new GeneralException(JoinException.PASSWORD_CONFIRMATION_NOT_MATCH);
         }
 
