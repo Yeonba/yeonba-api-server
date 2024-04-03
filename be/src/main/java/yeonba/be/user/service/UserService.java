@@ -14,6 +14,7 @@ import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.JoinException;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.request.UserQueryRequest;
+import yeonba.be.user.dto.request.UserSearchRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
 import yeonba.be.user.dto.response.UserQueryResponse;
@@ -23,6 +24,7 @@ import yeonba.be.user.entity.ProfilePhoto;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.entity.UserPreference;
 import yeonba.be.user.entity.UserRecommendation;
+import yeonba.be.user.entity.UserSearchLog;
 import yeonba.be.user.entity.VocalRange;
 import yeonba.be.user.enums.Gender;
 import yeonba.be.user.repository.UserCommand;
@@ -32,6 +34,7 @@ import yeonba.be.user.repository.area.AreaQuery;
 import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.userrecommendation.UserRecommendationCommand;
+import yeonba.be.user.repository.usersearchlog.UserSearchLogCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
 import yeonba.be.util.PasswordEncryptor;
 import yeonba.be.util.S3Service;
@@ -44,11 +47,13 @@ public class UserService {
     private final int JOIN_REWARD_ARROWS = 30;
     private final int DEFAULT_PAGE_SIZE = 6;
     private final int RECOMMEND_USERS_PAGE_SIZE = 2;
+    private final int SEARCH_USERS_PAGE_SIZE = 4;
 
     private final ProfilePhotoCommand profilePhotoCommand;
     private final UserCommand userCommand;
     private final UserPreferenceCommand userPreferenceCommand;
     private final UserRecommendationCommand userRecommendationCommand;
+    private final UserSearchLogCommand userSearchLogCommand;
 
     private final AnimalQuery animalQuery;
     private final AreaQuery areaQuery;
@@ -218,18 +223,17 @@ public class UserService {
 
         int page = request.getPage();
         PageRequest pageRequest = PageRequest.of(page, RECOMMEND_USERS_PAGE_SIZE);
-        LocalDate recommendAt = LocalDate.now();
+        LocalDate recommendDate = LocalDate.now();
 
-        // 추천 사용자 응답 조회
+        // 응답 조회
         UserQueryPageResponse response = userQuery
-            .findRecommendUsers(userId, pageRequest, recommendAt);
+            .findRecommendUsers(userId, pageRequest, recommendDate);
 
-        // 추천 사용자 조회
+        // 추천 받을 사용자 조회
         User user = userQuery.findById(userId);
-        List<Long> userIds = response.getUsers().stream()
-            .map(UserQueryResponse::getId)
-            .toList();
-        List<User> recommendUsers = userQuery.findByIds(userIds);
+
+        // 추천될 사용자 조회
+        List<User> recommendUsers = findAllUsersInResponse(response);
 
         // 추천 내역 저장
         List<UserRecommendation> userRecommendations = recommendUsers.stream()
@@ -238,5 +242,42 @@ public class UserService {
         userRecommendationCommand.saveAll(userRecommendations);
 
         return response;
+    }
+
+    @Transactional
+    public UserQueryPageResponse findBySearchCondition(
+        long userId,
+        UserSearchRequest request) {
+
+        int page = request.getPage();
+        PageRequest pageRequest = PageRequest.of(page, SEARCH_USERS_PAGE_SIZE);
+        LocalDate searchDate = LocalDate.now();
+
+        // 응답 조회
+        UserQueryPageResponse response = userQuery
+            .findAllBySearchCondition(userId, pageRequest, searchDate, request);
+
+        // 검색한 사용자 조회
+        User user = userQuery.findById(userId);
+
+        // 검색될 사용자 조회
+        List<User> searchingUsers = findAllUsersInResponse(response);
+
+        // 검색 내역 저장
+        List<UserSearchLog> userSearchLogs = searchingUsers.stream()
+            .map(searchingUser -> new UserSearchLog(user, searchingUser))
+            .toList();
+        userSearchLogCommand.saveAll(userSearchLogs);
+
+        return response;
+    }
+
+    private List<User> findAllUsersInResponse(UserQueryPageResponse response) {
+
+        List<Long> userIds = response.getUsers().stream()
+            .map(UserQueryResponse::getId)
+            .toList();
+
+        return userQuery.findByIds(userIds);
     }
 }
