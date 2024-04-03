@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.mypage.service.ReportService;
 import yeonba.be.user.dto.request.UserQueryRequest;
 import yeonba.be.user.dto.request.UserReportRequest;
+import yeonba.be.user.dto.request.UserSearchRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
 import yeonba.be.user.service.BlockService;
@@ -136,5 +137,20 @@ public class UserController {
         return ResponseEntity
             .accepted()
             .body(new CustomResponse<>());
+    }
+
+    @Operation(summary = "이성 검색", description = "이성을 검색할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "이성 검색 성공")
+    @GetMapping("/users/search")
+    public ResponseEntity<CustomResponse<UserQueryPageResponse>> search(
+        @RequestAttribute("userId") long userId,
+        @Valid @ParameterObject UserSearchRequest request) {
+
+        UserQueryPageResponse response = userService
+            .findBySearchCondition(userId, request);
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(response));
     }
 }
