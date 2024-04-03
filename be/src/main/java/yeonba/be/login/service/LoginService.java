@@ -17,6 +17,7 @@ import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserRefreshTokenRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
+import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
 import yeonba.be.login.dto.response.UserRefreshTokenResponse;
@@ -52,13 +53,13 @@ public class LoginService {
     private final PasswordEncryptor passwordEncryptor;
     private final JwtUtil jwtUtil;
 
-  	/*
-	임시 비밀번호는 다음 과정을 거친다.
-	1. 요청 이메일 기반 사용자 조회
-	2. 임시 비밀번호 생성
-	3. 사용자 비밀번호, 임시 비밀번호로 변경
-	4. 임시 비밀번호 발급 메일 전송
-   	*/
+    /*
+    임시 비밀번호는 다음 과정을 거친다.
+    1. 요청 이메일 기반 사용자 조회
+    2. 임시 비밀번호 생성
+    3. 사용자 비밀번호, 임시 비밀번호로 변경
+    4. 임시 비밀번호 발급 메일 전송
+    */
     @Transactional
     public void sendTemporaryPasswordMail(UserPasswordInquiryRequest request) {
 

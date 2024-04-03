@@ -16,6 +16,7 @@ import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserRefreshTokenRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
+import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
