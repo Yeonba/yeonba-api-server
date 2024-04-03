@@ -35,9 +35,7 @@ import yeonba.be.user.entity.UserPreference;
 사용자 조회 로직에선 기본적으로 다음 사용자를 배제한다.
 - 휴면 상태인 사용자
 - 삭제된 사용자
-지인은 애초에 즐겨찾기 등록, 화살 보내기가 불가능하므로 연관 조회 로직에서 따로 제외하지 않는다.
-
-카운트 쿼리에서는 데이터를 가져오기 위한 불필요한 조인을 수행하지 않는다.
+동성, 지인은 애초에 즐겨찾기 등록, 화살 보내기가 불가능하므로 연관 조회 로직에서 따로 제외하지 않는다.
  */
 
 @RequiredArgsConstructor
@@ -141,6 +139,12 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         int limit = pageRequest.getPageSize();
         int offset = pageRequest.getPageNumber() * limit;
 
+        // 추천 대상 사용자의 성별 조회
+        Boolean gender = queryFactory.select(user.gender)
+            .from(user)
+            .where(user.id.eq(userId))
+            .fetchFirst();
+
         // 추천 대상 사용자의 선호조건 조회
         UserPreference preference = queryFactory.selectFrom(userPreference)
             .where(userPreference.user.id.eq(userId))
@@ -148,14 +152,14 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         List<UserQueryResponse> content = selectUserQueryResponse(
             Expressions.constant(false))
-            .where(recommendUserCondition(userId, preference, recommendDate))
+            .where(recommendUserCondition(userId, gender, preference, recommendDate))
             .limit(limit)
             .offset(offset)
             .fetch();
 
         JPAQuery<Long> countQuery = queryFactory.select(user.count())
             .from(user)
-            .where(recommendUserCondition(userId, preference, recommendDate));
+            .where(recommendUserCondition(userId, gender, preference, recommendDate));
 
         return PageableExecutionUtils.getPage(
             content,
@@ -166,6 +170,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     /*
     이성 추천시 배제되는 사용자
     - 자기 자신(조회하는 사용자)
+    - 동성
     - 추천(선호) 조건을 만족하지 않는 사용자
     - 화살을 주고 받은 적이 있는 사용자
     - 즐겨찾기한 사용자
@@ -176,11 +181,13 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
      */
     private BooleanExpression recommendUserCondition(
         long userId,
+        Boolean gender,
         UserPreference preference,
         LocalDate recommendDate) {
 
         return Expressions.allOf(
             user.id.ne(userId),
+            user.gender.ne(gender),
             findOneArrowSender(userId).notExists(),
             findOneArrowReceiver(userId).notExists(),
             findOneFavorite(userId).notExists(),
