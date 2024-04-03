@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UserException;
+import yeonba.be.user.dto.request.UserSearchRequest;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
 import yeonba.be.user.dto.response.UserQueryResponse;
 import yeonba.be.user.entity.User;
@@ -92,6 +93,18 @@ public class UserQuery {
 
         Page<UserQueryResponse> page = userRepository
             .findRecommendUsers(userId, pageRequest, recommendedAt);
+
+        return UserQueryPageResponse.from(page);
+    }
+
+    public UserQueryPageResponse findAllBySearchCondition(
+        long userId,
+        PageRequest pageRequest,
+        LocalDate searchDate,
+        UserSearchRequest request) {
+
+        Page<UserQueryResponse> page = userRepository
+            .findAllBySearchCondition(userId, pageRequest, searchDate, request);
 
         return UserQueryPageResponse.from(page);
     }
