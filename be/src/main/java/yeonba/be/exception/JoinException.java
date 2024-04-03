@@ -26,8 +26,11 @@ public enum JoinException implements BaseException {
 
     ALREADY_USED_NICKNAME(
         HttpStatus.BAD_REQUEST,
-        "이미 사용 중인 닉네임입니다.");
+        "이미 사용 중인 닉네임입니다."),
 
+    ALREADY_USED_PHONE_NUMBER(
+        HttpStatus.BAD_REQUEST,
+        "이미 사용 중인 핸드폰 번호입니다.");
 
     private final HttpStatus httpStatus;
     private final String reason;
