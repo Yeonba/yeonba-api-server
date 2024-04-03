@@ -3,6 +3,7 @@ package yeonba.be.user.repository;
 import java.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import yeonba.be.user.dto.request.UserSearchRequest;
 import yeonba.be.user.dto.response.UserQueryResponse;
 
 public interface UserRepositoryCustom {
@@ -17,4 +18,10 @@ public interface UserRepositoryCustom {
         long userId,
         PageRequest pageRequest,
         LocalDate recommendDate);
+
+    Page<UserQueryResponse> findAllBySearchCondition(
+        long userId,
+        PageRequest pageRequest,
+        LocalDate searchDate,
+        UserSearchRequest request);
 }
