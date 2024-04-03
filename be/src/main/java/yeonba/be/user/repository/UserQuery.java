@@ -26,7 +26,7 @@ public class UserQuery {
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
     }
 
-    public boolean existByPhoneNumber(String phoneNumber) {
+    public boolean isAlreadyUsedPhoneNumber(String phoneNumber) {
 
         return userRepository.existsByPhoneNumber(phoneNumber);
     }
