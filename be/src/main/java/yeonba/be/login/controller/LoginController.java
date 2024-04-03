@@ -15,6 +15,7 @@ import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserRefreshTokenRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
+import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
@@ -30,7 +31,6 @@ public class LoginController {
     private final LoginService loginService;
 
     @Operation(summary = "회원가입", description = "회원가입을 할 수 있습니다.")
-    @ApiResponse(responseCode = "200", description = "회원가입 성공")
     @PostMapping("/users/join")
     public ResponseEntity<CustomResponse<UserJoinResponse>> join(
         @RequestBody UserJoinRequest request) {
@@ -72,7 +72,7 @@ public class LoginController {
     @ApiResponse(responseCode = "202", description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리")
     @PostMapping("/users/pw-inquiry")
     public ResponseEntity<CustomResponse<Void>> passwordInquiry(
-        @RequestBody UserPasswordInquiryRequest request) {
+        @Valid @RequestBody UserPasswordInquiryRequest request) {
 
         loginService.sendTemporaryPasswordMail(request);
 
@@ -82,7 +82,6 @@ public class LoginController {
     }
 
     @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
-    @ApiResponse(responseCode = "200", description = "로그인 성공")
     @PostMapping("/users/login")
     public ResponseEntity<CustomResponse<UserLoginResponse>> login(
         @RequestBody UserLoginRequest request) {
@@ -115,5 +114,31 @@ public class LoginController {
         return ResponseEntity
             .ok()
             .body(new CustomResponse<>(new UserRefreshTokenResponse(createdJwt)));
+    }
+
+    @Operation(summary = "핸드폰 번호 인증 코드 sms 전송", description = "핸드 번호 인증 코드 sms 전송")
+    @ApiResponse(responseCode = "202", description = "인증 코드 전송 정상 처리")
+    @PostMapping("/users/join/phone-number/verification-code")
+    public ResponseEntity<CustomResponse<Void>> verifyJoinPhoneNumber(
+        @Valid @RequestBody UserVerificationCodeRequest request) {
+
+        loginService.sendJoinVerificationCodeMessage(request);
+
+        return ResponseEntity
+            .accepted()
+            .body(new CustomResponse<>());
+    }
+
+    @Operation(summary = "핸드폰 번호 인증", description = "회원가입 과정서 핸드폰 번호 인증")
+    @ApiResponse(responseCode = "202", description = "핸드폰 번호 인증 정상 처리")
+    @PostMapping("/users/join/phone-number")
+    public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
+        @Valid @RequestBody UserVerifyPhoneNumberRequest request) {
+
+        loginService.verifyPhoneNumber(request);
+
+        return ResponseEntity
+            .accepted()
+            .body(new CustomResponse<>());
     }
 }
