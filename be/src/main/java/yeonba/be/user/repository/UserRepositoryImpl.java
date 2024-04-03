@@ -4,6 +4,7 @@ import static yeonba.be.arrow.entity.QArrowTransaction.arrowTransaction;
 import static yeonba.be.mypage.entity.QAcquaintance.acquaintance;
 import static yeonba.be.user.entity.QAnimal.animal;
 import static yeonba.be.user.entity.QArea.area;
+import static yeonba.be.user.entity.QBlock.block;
 import static yeonba.be.user.entity.QFavorite.favorite;
 import static yeonba.be.user.entity.QProfilePhoto.profilePhoto;
 import static yeonba.be.user.entity.QUser.user;
@@ -12,6 +13,7 @@ import static yeonba.be.user.entity.QUserRecommendation.userRecommendation;
 import static yeonba.be.user.entity.QUserSearchLog.userSearchLog;
 import static yeonba.be.user.entity.QVocalRange.vocalRange;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -24,10 +26,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.util.StringUtils;
+import yeonba.be.user.dto.request.UserSearchRequest;
 import yeonba.be.user.dto.response.UserQueryResponse;
 import yeonba.be.user.entity.UserPreference;
 
@@ -35,11 +40,7 @@ import yeonba.be.user.entity.UserPreference;
 사용자 조회 로직에선 기본적으로 다음 사용자를 배제한다.
 - 휴면 상태인 사용자
 - 삭제된 사용자
-지인은 애초에 즐겨찾기 등록, 화살 보내기가 불가능하므로 연관 조회 로직에서 따로 제외하지 않는다.
-
-카운트 쿼리에서는 데이터를 가져오기 위한 불필요한 조인을 수행하지 않는다.
  */
-
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepositoryCustom {
 
@@ -167,6 +168,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     이성 추천시 배제되는 사용자
     - 자기 자신(조회하는 사용자)
     - 추천(선호) 조건을 만족하지 않는 사용자
+    - 차단한 사용자
     - 화살을 주고 받은 적이 있는 사용자
     - 즐겨찾기한 사용자
     - 삭제, 휴면 상태인 사용자
@@ -174,6 +176,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     - 추천 일자에 이미 추천된 사용자
     - 추천 일자에 검색된 적 있는 사용자
      */
+
+    // TODO : 채팅 이력 있는 사용자 제외 조건 추가
     private BooleanExpression recommendUserCondition(
         long userId,
         UserPreference preference,
@@ -187,8 +191,123 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             isUserSatisfiedPreferenceCondition(preference),
             isActiveAndNotDeletedUserCondition(),
             isNotAcquaintanceCondition(userId),
+            isNotBlockedUserCondition(userId),
             isNotUserRecommendedInDateCondition(userId, recommendDate),
-            isNotUserSearchedInDateCondition(userId, recommendDate));
+            isNotUserSearchedInSameDateCondition(userId, recommendDate));
+    }
+
+    public Page<UserQueryResponse> findAllBySearchCondition(
+        long userId,
+        PageRequest pageRequest,
+        LocalDate searchDate,
+        UserSearchRequest request) {
+
+        int limit = pageRequest.getPageSize();
+        int offset = pageRequest.getPageNumber() * limit;
+
+        BooleanExpression searchUserCondition = searchUserCondition(userId, request, searchDate);
+
+        List<UserQueryResponse> content = selectUserQueryResponse(
+            Expressions.as(
+                findOneFavorite(userId).exists(),
+                "isFavorite"))
+            .from(user)
+            .where(searchUserCondition)
+            .limit(limit)
+            .offset(offset)
+            .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory.select(user.count())
+            .from(user)
+            .where(searchUserCondition);
+
+        return PageableExecutionUtils.getPage(
+            content,
+            pageRequest,
+            countQuery::fetchOne);
+    }
+
+    /*
+    이성 검색시 제외되는 사용자
+    - 자기 자신(조회하는 사용자)
+    - 지인
+    - 차단한 사용자
+    - 휴면, 삭제 상태 사용자
+    - 화실을 주고 받은 적 있는 사용자
+    - 검색일에 이미 검색된 적 있는 사용자
+     */
+
+    // TODO : 채팅 이력 있는 사용자 제외 조건 추가
+    private BooleanExpression searchUserCondition(
+        long userId,
+        UserSearchRequest request,
+        LocalDate searchDate) {
+
+        BooleanBuilder searchCondition = generateSearchCondition(userId, request);
+
+        return Expressions.allOf(
+                user.id.ne(userId),
+                isNotAcquaintanceCondition(userId),
+                isNotBlockedUserCondition(userId),
+                isActiveAndNotDeletedUserCondition(),
+                findOneArrowReceiver(userId).notExists(),
+                findOneArrowSender(userId).notExists(),
+                isNotUserSearchedInSameDateCondition(userId, searchDate))
+            .and(searchCondition);
+    }
+
+    private BooleanBuilder generateSearchCondition(long userId, UserSearchRequest request) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        String area = request.getArea();
+        if (StringUtils.hasText(area)) {
+
+            builder.and(user.area.name.eq(area));
+        }
+
+        String vocalRange = request.getVocalRange();
+        if (StringUtils.hasText(vocalRange)) {
+
+            builder.and(user.vocalRange.classification.eq(vocalRange));
+        }
+
+        Integer ageLowerBound = request.getAgeLowerBound();
+        if (!Objects.isNull(ageLowerBound)) {
+
+            builder.and(user.age.goe(ageLowerBound));
+        }
+
+        Integer ageUpperBound = request.getAgeUpperBound();
+        if (!Objects.isNull(ageUpperBound)) {
+
+            builder.and(user.age.loe(ageUpperBound));
+        }
+
+        Integer heightLowerBound = request.getHeightLowerBound();
+        if (!Objects.isNull(heightLowerBound)) {
+
+            builder.and(user.height.goe(heightLowerBound));
+        }
+
+        Integer heightUpperBound = request.getHeightUpperBound();
+        if (!Objects.isNull(heightUpperBound)) {
+
+            builder.and(user.height.loe(heightUpperBound));
+        }
+
+        Boolean includePreferredAnimal = request.getIncludePreferredAnimal();
+        if (!Objects.isNull(includePreferredAnimal) && includePreferredAnimal) {
+
+            Long preferredAnimalId = queryFactory.select(userPreference.animal.id)
+                .from(userPreference)
+                .where(userPreference.user.id.eq(userId))
+                .fetchFirst();
+
+            builder.and(user.animal.id.eq(preferredAnimalId));
+        }
+
+        return builder;
     }
 
     private JPQLQuery<Integer> findOneArrowSender(long receiverId) {
@@ -250,7 +369,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .notExists();
     }
 
-    private BooleanExpression isNotUserSearchedInDateCondition(
+    private BooleanExpression isNotUserSearchedInSameDateCondition(
         long userId,
         LocalDate searchDate) {
 
@@ -316,6 +435,16 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .where(
                 acquaintance.user.id.eq(userId),
                 acquaintance.phoneNumber.eq(user.phoneNumber))
+            .notExists();
+    }
+
+    private BooleanExpression isNotBlockedUserCondition(long userId) {
+
+        return JPAExpressions.selectOne()
+            .from(block)
+            .where(
+                block.user.id.eq(userId),
+                block.blockedUser.id.eq(user.id))
             .notExists();
     }
 }
