@@ -12,6 +12,7 @@ import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
+import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.entity.VerificationCode;
 import yeonba.be.login.repository.VerificationCodeCommand;
@@ -44,11 +45,11 @@ public class LoginService {
     private final PasswordEncryptor passwordEncryptor;
 
     /*
-  임시 비밀번호는 다음 과정을 거친다.
-  1. 요청 이메일 기반 사용자 조회
-  2. 임시 비밀번호 생성
-  3. 사용자 비밀번호, 임시 비밀번호로 변경
-  4. 임시 비밀번호 발급 메일 전송
+    임시 비밀번호는 다음 과정을 거친다.
+    1. 요청 이메일 기반 사용자 조회
+    2. 임시 비밀번호 생성
+    3. 사용자 비밀번호, 임시 비밀번호로 변경
+    4. 임시 비밀번호 발급 메일 전송
      */
     @Transactional
     public void sendTemporaryPasswordMail(UserPasswordInquiryRequest request) {
@@ -68,9 +69,10 @@ public class LoginService {
     @Transactional
     public void sendVerificationCodeMessage(UserVerificationCodeRequest request) {
 
-        // 전화 번호로 사용자 조회
+        // 해당 번호를 가진 사용자가 존재하는 지 확인
         String phoneNumber = request.getPhoneNumber();
-        if (!userQuery.existByPhoneNumber(phoneNumber)) {
+        if (!userQuery.isAlreadyUsedPhoneNumber(phoneNumber)) {
+
             throw new GeneralException(UserException.USER_NOT_FOUND);
         }
 
@@ -108,7 +110,7 @@ public class LoginService {
     public void sendJoinVerificationCodeMessage(UserVerificationCodeRequest request) {
 
         // 이미 사용 중인 번호인 지 검증
-        if (userQuery.existByPhoneNumber(request.getPhoneNumber())) {
+        if (userQuery.isAlreadyUsedPhoneNumber(request.getPhoneNumber())) {
 
             throw new GeneralException(JoinException.ALREADY_USED_PHONE_NUMBER);
         }
