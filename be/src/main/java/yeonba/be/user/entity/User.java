@@ -136,7 +136,7 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.arrow = arrow;
         this.photoSyncRate = photoSyncRate;
-        this.inactive = true;
+        this.inactive = false;
         this.bodyType = bodyType;
         this.job = job;
         this.mbti = mbti;
@@ -204,7 +204,8 @@ public class User {
     public void minusArrow(int arrow) {
 
         if (this.arrow < arrow) {
-            throw new GeneralException(ArrowException.NOT_ENOUGH_ARROW_TO_SEND);
+
+            throw new GeneralException(ArrowException.NOT_ENOUGH_ARROW);
         }
 
         this.arrow -= arrow;
