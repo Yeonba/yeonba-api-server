@@ -1,4 +1,4 @@
-package yeonba.be.mypage.util;
+package yeonba.be.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -9,7 +9,7 @@ public class PasswordEncryptor {
 
     public String encrypt(String password, String salt) {
 
-        String encryptedPassword = "";
+        String encryptedPassword;
 
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");

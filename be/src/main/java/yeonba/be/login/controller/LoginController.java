@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
 import yeonba.be.login.dto.response.UserRefreshTokenResponse;
 import yeonba.be.login.service.LoginService;
+import yeonba.be.user.service.JoinService;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "Login", description = "로그인 관련 API")
@@ -29,17 +31,18 @@ import yeonba.be.util.CustomResponse;
 public class LoginController {
 
     private final LoginService loginService;
+    private final JoinService joinService;
 
     @Operation(summary = "회원가입", description = "회원가입을 할 수 있습니다.")
-    @PostMapping("/users/join")
+    @PostMapping(path = "/users/join", consumes = "multipart/form-data")
     public ResponseEntity<CustomResponse<UserJoinResponse>> join(
-        @RequestBody UserJoinRequest request) {
+        @Valid @ModelAttribute UserJoinRequest request) {
 
-        String createdJwt = "created";
+        UserJoinResponse response = joinService.join(request);
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(new UserJoinResponse(createdJwt)));
+            .body(new CustomResponse<>(response));
     }
 
     @Operation(summary = "이메일 찾기 인증 코드 sms 전송", description = "이메일 찾기를 위한 인증번호 sms 전송을 요청합니다.")
@@ -82,6 +85,7 @@ public class LoginController {
     }
 
     @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "로그인 성공")
     @PostMapping("/users/login")
     public ResponseEntity<CustomResponse<UserLoginResponse>> login(
         @RequestBody UserLoginRequest request) {
