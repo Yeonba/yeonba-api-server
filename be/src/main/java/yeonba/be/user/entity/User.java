@@ -71,6 +71,7 @@ public class User {
 
     @Column(nullable = false)
     private String mbti;
+    private String refreshToken;
 
     private String refreshToken;
 

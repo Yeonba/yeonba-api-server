@@ -10,11 +10,11 @@ import yeonba.be.user.entity.VocalRange;
 @RequiredArgsConstructor
 public class VocalRangeQuery {
 
-	private final VocalRangeRepository vocalRangeRepository;
+    private final VocalRangeRepository vocalRangeRepository;
 
-	public VocalRange find(String classification) {
+    public VocalRange findBy(String classification) {
 
-		return vocalRangeRepository.findByClassification(classification)
-			.orElseThrow(() -> new GeneralException(JoinException.VOCAL_RANGE_NOT_FOUND));
-	}
+        return vocalRangeRepository.findByClassification(classification)
+            .orElseThrow(() -> new GeneralException(JoinException.VOCAL_RANGE_NOT_FOUND));
+    }
 }

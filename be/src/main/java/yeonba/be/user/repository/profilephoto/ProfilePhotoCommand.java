@@ -9,10 +9,10 @@ import yeonba.be.user.entity.ProfilePhoto;
 @RequiredArgsConstructor
 public class ProfilePhotoCommand {
 
-	private final ProfilePhotoRepository profilePhotoRepository;
+    private final ProfilePhotoRepository profilePhotoRepository;
 
-	public List<ProfilePhoto> save(List<ProfilePhoto> profilePhotos) {
+    public List<ProfilePhoto> save(List<ProfilePhoto> profilePhotos) {
 
-		return profilePhotoRepository.saveAll(profilePhotos);
-	}
+        return profilePhotoRepository.saveAll(profilePhotos);
+    }
 }

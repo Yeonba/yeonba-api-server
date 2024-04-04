@@ -21,21 +21,22 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 public class ProfilePhoto {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@ManyToOne
-	@JoinColumn(name = "user_id")
-	private User user;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-	private String photoUrl;
+    private String photoUrl;
 
-	@CreatedDate
-	private LocalDateTime createdAt;
+    @CreatedDate
+    private LocalDateTime createdAt;
 
-	public ProfilePhoto(User user, String photoUrl) {
-		this.user = user;
-		this.photoUrl = photoUrl;
-	}
+    public ProfilePhoto(User user, String photoUrl) {
+
+        this.user = user;
+        this.photoUrl = photoUrl;
+    }
 }

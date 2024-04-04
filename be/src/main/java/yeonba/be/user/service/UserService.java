@@ -35,138 +35,143 @@ import yeonba.be.util.SaltGenerator;
 @RequiredArgsConstructor
 public class UserService {
 
-	private final int JOIN_REWARD_ARROWS = 30;
+    private final int JOIN_REWARD_ARROWS = 30;
 
-	private final ProfilePhotoCommand profilePhotoCommand;
-	private final UserCommand userCommand;
-	private final UserPreferenceCommand userPreferenceCommand;
+    private final ProfilePhotoCommand profilePhotoCommand;
+    private final UserCommand userCommand;
+    private final UserPreferenceCommand userPreferenceCommand;
 
-	private final AnimalQuery animalQuery;
-	private final AreaQuery areaQuery;
-	private final ArrowQuery arrowQuery;
-	private final UserQuery userQuery;
-	private final VocalRangeQuery vocalRangeQuery;
+    private final AnimalQuery animalQuery;
+    private final AreaQuery areaQuery;
+    private final ArrowQuery arrowQuery;
+    private final UserQuery userQuery;
+    private final VocalRangeQuery vocalRangeQuery;
 
-	private final PasswordEncryptor passwordEncryptor;
+    private final PasswordEncryptor passwordEncryptor;
 
-	private final S3Service s3Service;
+    private final S3Service s3Service;
 
+    @Transactional(readOnly = true)
+    public UserProfileResponse getTargetUserProfile(long userId, long targetUserId) {
 
-	@Transactional(readOnly = true)
-	public UserProfileResponse getTargetUserProfile(long userId, long targetUserId) {
+        User user = userQuery.findById(userId);
+        User targetUser = userQuery.findById(targetUserId);
 
-		User user = userQuery.findById(userId);
-		User targetUser = userQuery.findById(targetUserId);
+        boolean isAlreadySentArrow = arrowQuery.isArrowTransactionExist(user, targetUser);
 
-		boolean isAlreadySentArrow = arrowQuery.isArrowTransactionExist(user, targetUser);
+        return new UserProfileResponse(
+            targetUser.getProfilePhotoUrls(),
+            targetUser.getGender(),
+            targetUser.getNickname(),
+            targetUser.getArrow(),
+            targetUser.getAge(),
+            targetUser.getHeight(),
+            targetUser.getArea().getName(),
+            targetUser.getPhotoSyncRate(),
+            targetUser.getVocalRange().getClassification(),
+            targetUser.getAnimal().getName(),
+            isAlreadySentArrow);
+    }
 
-		return new UserProfileResponse(
-			targetUser.getProfilePhotoUrls(),
-			targetUser.getGender(),
-			targetUser.getNickname(),
-			targetUser.getArrow(),
-			targetUser.getAge(),
-			targetUser.getHeight(),
-			targetUser.getArea().getName(),
-			targetUser.getPhotoSyncRate(),
-			targetUser.getVocalRange().getClassification(),
-			targetUser.getAnimal().getName(),
-			isAlreadySentArrow);
-	}
+    public User saveUser(UserJoinRequest request) {
 
-	@Transactional
-	public User saveUser(UserJoinRequest request) {
+        // 이미 사용 중인 이메일인지 확인
+        if (userQuery.validateUsedEmail(request.getEmail())) {
 
-		// 이미 사용 중인 이메일인지 확인
-		if (userQuery.isAlreadyUsedEmail(request.getEmail())) {
-			throw new GeneralException(JoinException.ALREADY_USED_EMAIL);
-		}
+            throw new GeneralException(JoinException.ALREADY_USED_EMAIL);
+        }
 
-		// 이미 사용 중인 닉네임인지 확인
-		if (userQuery.isAlreadyUsedNickname(request.getNickname())) {
-			throw new GeneralException(JoinException.ALREADY_USED_NICKNAME);
-		}
+        // 이미 사용 중인 닉네임인지 확인
+        if (userQuery.validateUsedNickname(request.getNickname())) {
 
-		// 비밀빈호, 비밀번호 확인 값 일치 확인
-		String password = request.getPassword();
-		String passwordConfirmation = request.getPasswordConfirmation();
-		if (!StringUtils.equals(password, passwordConfirmation)) {
-			throw new GeneralException(JoinException.PASSWORD_CONFIRMATION_NOT_MATCH);
-		}
+            throw new GeneralException(JoinException.ALREADY_USED_NICKNAME);
+        }
 
-		// 성별 판별
-		Gender gender = Gender.from(request.getGender());
+        // 이미 사용 중인 핸드폰 번호인지 확인
+        if (userQuery.validateUsedPhoneNumber(request.getPhoneNumber())) {
 
-		// 나이 계산
-		LocalDate birth = request.getBirth();
-		int age = Period.between(birth, LocalDate.now()).getYears();
+            throw new GeneralException(JoinException.ALREADY_USED_PHONE_NUMBER);
+        }
 
-		// salt 생성 및 비밀번호 암호화
-		String salt = SaltGenerator.generateRandomSalt();
-		String encryptedPassword = passwordEncryptor.encrypt(password, salt);
+        // 비밀빈호, 비밀번호 확인 값 일치 확인
+        String password = request.getPassword();
+        String passwordConfirmation = request.getPasswordConfirmation();
+        if (!StringUtils.equals(password, passwordConfirmation)) {
 
-		// 음역대, 동물상, 지역 조회
-		VocalRange vocalRange = vocalRangeQuery.find(request.getVocalRange());
-		Animal animal = animalQuery.findByName(request.getLookAlikeAnimal());
-		Area area = areaQuery.findByName(request.getActivityArea());
+            throw new GeneralException(JoinException.PASSWORD_CONFIRMATION_NOT_MATCH);
+        }
 
-		// 사용자 생성 및 저장
-		User user = new User(
-			gender.genderBoolean,
-			request.getName(),
-			request.getNickname(),
-			request.getBirth(),
-			age,
-			request.getHeight(),
-			request.getEmail(),
-			encryptedPassword,
-			salt,
-			request.getPhoneNumber(),
-			JOIN_REWARD_ARROWS,
-			request.getPhotoSyncRate(),
-			request.getBodyType(),
-			request.getJob(),
-			request.getMbti(),
-			vocalRange,
-			animal,
-			area);
+        // 성별 판별
+        Gender gender = Gender.from(request.getGender());
 
-		return userCommand.save(user);
-	}
+        // 나이 계산
+        LocalDate birth = request.getBirth();
+        int age = Period.between(birth, LocalDate.now()).getYears();
 
-	@Transactional
-	public void saveProfilePhotos(User user, UserJoinRequest request) {
+        // salt 생성 및 비밀번호 암호화
+        String salt = SaltGenerator.generateRandomSalt();
+        String encryptedPassword = passwordEncryptor.encrypt(password, salt);
 
-		List<MultipartFile> photoFiles = request.getProfilePhotos();
+        // 음역대, 동물상, 지역 조회
+        VocalRange vocalRange = vocalRangeQuery.findBy(request.getVocalRange());
+        Animal animal = animalQuery.findByName(request.getLookAlikeAnimal());
+        Area area = areaQuery.findByName(request.getActivityArea());
 
-		List<String> profilePhotoUrls = s3Service.uploadProfilePhotos(photoFiles, user);
-		List<ProfilePhoto> profilePhotos = profilePhotoUrls.stream()
-			.map(profilePhotoUrl -> new ProfilePhoto(user, profilePhotoUrl))
-			.toList();
+        // 사용자 생성 및 저장
+        User user = new User(
+            gender.genderBoolean,
+            request.getName(),
+            request.getNickname(),
+            request.getBirth(),
+            age,
+            request.getHeight(),
+            request.getEmail(),
+            encryptedPassword,
+            salt,
+            request.getPhoneNumber(),
+            JOIN_REWARD_ARROWS,
+            request.getPhotoSyncRate(),
+            request.getBodyType(),
+            request.getJob(),
+            request.getMbti(),
+            vocalRange,
+            animal,
+            area);
 
-		profilePhotoCommand.save(profilePhotos);
-		user.updateProfilePhotos(profilePhotos);
-	}
+        return userCommand.save(user);
+    }
 
-	@Transactional
-	public void saveUserPreference(User user, UserJoinRequest request) {
+    public void saveProfilePhotos(User user, UserJoinRequest request) {
 
-		// 선호 음역대, 동물상, 지역 조회
-		Animal preferredAnimal = animalQuery.findByName(request.getPreferredAnimal());
-		VocalRange preferredVocalRange = vocalRangeQuery.find(request.getPreferredVocalRange());
-		Area preferredArea = areaQuery.findByName(request.getPreferredArea());
+        List<MultipartFile> photoFiles = request.getProfilePhotos();
 
-		UserPreference userPreference = new UserPreference(
-			request.getPreferredAgeLowerBound(),
-			request.getPreferredAgeUpperBound(),
-			request.getPreferredHeightLowerBound(),
-			request.getPreferredHeightUpperBound(),
-			request.getMbti(),
-			request.getBodyType(),
-			user,
-			preferredVocalRange,
-			preferredArea,
-			preferredAnimal);
-		userPreferenceCommand.save(userPreference);
-	}
+        List<String> profilePhotoUrls = s3Service.uploadProfilePhotos(photoFiles, user);
+        List<ProfilePhoto> profilePhotos = profilePhotoUrls.stream()
+            .map(profilePhotoUrl -> new ProfilePhoto(user, profilePhotoUrl))
+            .toList();
+
+        profilePhotoCommand.save(profilePhotos);
+        user.updateProfilePhotos(profilePhotos);
+    }
+
+    public void saveUserPreference(User user, UserJoinRequest request) {
+
+        // 선호 음역대, 동물상, 지역 조회
+        Animal preferredAnimal = animalQuery.findByName(request.getPreferredAnimal());
+        VocalRange preferredVocalRange = vocalRangeQuery.findBy(request.getPreferredVocalRange());
+        Area preferredArea = areaQuery.findByName(request.getPreferredArea());
+
+        UserPreference userPreference = new UserPreference(
+            request.getPreferredAgeLowerBound(),
+            request.getPreferredAgeUpperBound(),
+            request.getPreferredHeightLowerBound(),
+            request.getPreferredHeightUpperBound(),
+            request.getMbti(),
+            request.getBodyType(),
+            user,
+            preferredVocalRange,
+            preferredArea,
+            preferredAnimal);
+        userPreferenceCommand.save(userPreference);
+    }
 }

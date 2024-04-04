@@ -10,11 +10,11 @@ import yeonba.be.user.entity.Animal;
 @RequiredArgsConstructor
 public class AnimalQuery {
 
-	private final AnimalRepository animalRepository;
+    private final AnimalRepository animalRepository;
 
-	public Animal findByName(String name) {
+    public Animal findByName(String name) {
 
-		return animalRepository.findByName(name)
-			.orElseThrow(() -> new GeneralException(JoinException.ANIMAL_NOT_FOUND));
-	}
+        return animalRepository.findByName(name)
+            .orElseThrow(() -> new GeneralException(JoinException.ANIMAL_NOT_FOUND));
+    }
 }

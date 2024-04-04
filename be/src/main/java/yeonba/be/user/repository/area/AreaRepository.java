@@ -8,5 +8,5 @@ import yeonba.be.user.entity.Area;
 @Repository
 public interface AreaRepository extends JpaRepository<Area, Long> {
 
-  Optional<Area> findByName(String name);
+    Optional<Area> findByName(String name);
 }

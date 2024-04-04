@@ -59,7 +59,7 @@ public class LoginService {
     2. 임시 비밀번호 생성
     3. 사용자 비밀번호, 임시 비밀번호로 변경
     4. 임시 비밀번호 발급 메일 전송
-    */
+     */
     @Transactional
     public void sendTemporaryPasswordMail(UserPasswordInquiryRequest request) {
 
@@ -78,9 +78,10 @@ public class LoginService {
     @Transactional
     public void sendVerificationCodeMessage(UserVerificationCodeRequest request) {
 
-        // 전화 번호로 사용자 조회
+        // 해당 번호를 가진 사용자가 존재하는 지 확인
         String phoneNumber = request.getPhoneNumber();
-        if (!userQuery.existByPhoneNumber(phoneNumber)) {
+        if (!userQuery.validateUsedPhoneNumber(phoneNumber)) {
+
             throw new GeneralException(UserException.USER_NOT_FOUND);
         }
 
@@ -118,7 +119,7 @@ public class LoginService {
     public void sendJoinVerificationCodeMessage(UserVerificationCodeRequest request) {
 
         // 이미 사용 중인 번호인 지 검증
-        if (userQuery.existByPhoneNumber(request.getPhoneNumber())) {
+        if (userQuery.validateUsedPhoneNumber(request.getPhoneNumber())) {
 
             throw new GeneralException(JoinException.ALREADY_USED_PHONE_NUMBER);
         }
