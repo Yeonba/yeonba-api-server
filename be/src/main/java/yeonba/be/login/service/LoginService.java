@@ -71,7 +71,7 @@ public class LoginService {
 
         // 해당 번호를 가진 사용자가 존재하는 지 확인
         String phoneNumber = request.getPhoneNumber();
-        if (!userQuery.isAlreadyUsedPhoneNumber(phoneNumber)) {
+        if (!userQuery.validateUsedPhoneNumber(phoneNumber)) {
 
             throw new GeneralException(UserException.USER_NOT_FOUND);
         }
@@ -110,7 +110,7 @@ public class LoginService {
     public void sendJoinVerificationCodeMessage(UserVerificationCodeRequest request) {
 
         // 이미 사용 중인 번호인 지 검증
-        if (userQuery.isAlreadyUsedPhoneNumber(request.getPhoneNumber())) {
+        if (userQuery.validateUsedPhoneNumber(request.getPhoneNumber())) {
 
             throw new GeneralException(JoinException.ALREADY_USED_PHONE_NUMBER);
         }
