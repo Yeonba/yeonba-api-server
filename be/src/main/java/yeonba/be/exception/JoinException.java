@@ -2,16 +2,16 @@ package yeonba.be.exception;
 
 import org.springframework.http.HttpStatus;
 
-public enum LoginException implements BaseException {
+public enum JoinException implements BaseException {
 
-    VERIFICATION_CODE_NOT_FOUND(
+    ALREADY_USED_PHONE_NUMBER(
         HttpStatus.BAD_REQUEST,
-        "해당 인증 코드 내역이 존재하지 않습니다.");
+        "이미 사용 중인 핸드폰 번호입니다.");
 
     private final HttpStatus httpStatus;
     private final String reason;
 
-    LoginException(HttpStatus httpStatus, String reason) {
+    JoinException(HttpStatus httpStatus, String reason) {
 
         this.httpStatus = httpStatus;
         this.reason = reason;
