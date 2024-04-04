@@ -51,7 +51,6 @@ public class UserService {
 
     private final S3Service s3Service;
 
-
     @Transactional(readOnly = true)
     public UserProfileResponse getTargetUserProfile(long userId, long targetUserId) {
 
@@ -77,19 +76,19 @@ public class UserService {
     public User saveUser(UserJoinRequest request) {
 
         // 이미 사용 중인 이메일인지 확인
-        if (userQuery.isAlreadyUsedEmail(request.getEmail())) {
+        if (userQuery.validateUsedEmail(request.getEmail())) {
 
             throw new GeneralException(JoinException.ALREADY_USED_EMAIL);
         }
 
         // 이미 사용 중인 닉네임인지 확인
-        if (userQuery.isAlreadyUsedNickname(request.getNickname())) {
+        if (userQuery.validateUsedNickname(request.getNickname())) {
 
             throw new GeneralException(JoinException.ALREADY_USED_NICKNAME);
         }
 
         // 이미 사용 중인 핸드폰 번호인지 확인
-        if (userQuery.isAlreadyUsedPhoneNumber(request.getPhoneNumber())) {
+        if (userQuery.validateUsedPhoneNumber(request.getPhoneNumber())) {
 
             throw new GeneralException(JoinException.ALREADY_USED_PHONE_NUMBER);
         }
