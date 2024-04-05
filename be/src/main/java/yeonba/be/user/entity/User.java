@@ -73,8 +73,6 @@ public class User {
     private String mbti;
     private String refreshToken;
 
-    private String refreshToken;
-
     @ManyToOne
     @JoinColumn(name = "vocal_range_id")
     private VocalRange vocalRange;
