@@ -9,7 +9,7 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
-import yeonba.be.exception.ServiceJwtException;
+import yeonba.be.exception.UtilException;
 import yeonba.be.user.entity.User;
 
 @Component
@@ -72,8 +72,8 @@ public class JwtUtil {
                 .parseClaimsJws(jwt);
 
         } catch (Exception e) {
-            ServiceJwtException exception = ServiceJwtException.from(e);
-            throw new GeneralException(exception);
+
+            throw new GeneralException(UtilException.INVALID_JWT);
         }
     }
 }
