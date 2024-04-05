@@ -53,7 +53,18 @@ public class JwtUtil {
             .compact();
     }
 
-    public void validateJwt(String jwt) {
+    public long parseUserIdFromJwt(String jwt) {
+
+        validateJwt(jwt);
+
+        return Jwts.parser()
+            .setSigningKey(jwtSecret)
+            .parseClaimsJws(jwt)
+            .getBody()
+            .get("userId", Long.class);
+    }
+
+    private void validateJwt(String jwt) {
 
         try {
             Jwts.parser()
@@ -64,16 +75,5 @@ public class JwtUtil {
             ServiceJwtException exception = ServiceJwtException.from(e);
             throw new GeneralException(exception);
         }
-    }
-
-    public long parseUserIdFromJwt(String jwt) {
-
-        validateJwt(jwt);
-
-        return Jwts.parser()
-            .setSigningKey(jwtSecret)
-            .parseClaimsJws(jwt)
-            .getBody()
-            .get("userId", Long.class);
     }
 }
