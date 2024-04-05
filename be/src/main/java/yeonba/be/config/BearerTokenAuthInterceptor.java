@@ -10,8 +10,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.LoginException;
+import yeonba.be.util.GlobalValidationRegex;
 import yeonba.be.util.JwtUtil;
-import yeonba.be.util.ServiceRegex;
 
 @Component
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class BearerTokenAuthInterceptor implements HandlerInterceptor {
         }
 
         // Bearer 토큰 형식 확인
-        String regex = ServiceRegex.BEARER_TOKEN.getPattern();
+        String regex = GlobalValidationRegex.BEARER_TOKEN.getPattern();
         Matcher matcher = Pattern.compile(regex).matcher(bearerToken);
         if (!matcher.find()) {
 
