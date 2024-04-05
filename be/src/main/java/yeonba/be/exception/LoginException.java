@@ -26,7 +26,7 @@ public enum LoginException implements BaseException {
 
     ACCESS_TOKEN_NOT_EXIST(
         HttpStatus.UNAUTHORIZED,
-        "access token이 존재하지 않습니다."),
+        "인증이 필요한 사용자입니다. access token이 존재하지 않습니다."),
 
     INVALID_BEARER_TOKEN_FORMAT(
         HttpStatus.BAD_REQUEST,
