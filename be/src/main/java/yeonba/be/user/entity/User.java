@@ -179,11 +179,9 @@ public class User {
         }
     }
 
-    public void validateDailyCheck(LocalDate dailyCheckDay) {
+    public boolean isDailyChecked(LocalDate dailyCheckDate) {
 
-        if (this.lastAccessedAt.isAfter(dailyCheckDay.atStartOfDay())) {
-            throw new GeneralException(ArrowException.ALREADY_CHECKED_USER);
-        }
+        return this.lastAccessedAt.isAfter(dailyCheckDate.atStartOfDay());
     }
 
     public String getRepresentativeProfilePhoto() {
