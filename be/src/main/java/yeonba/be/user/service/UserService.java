@@ -174,4 +174,11 @@ public class UserService {
             preferredAnimal);
         userPreferenceCommand.save(userPreference);
     }
+
+    @Transactional
+    public void activateUser(long userId) {
+
+        User user = userQuery.findById(userId);
+        user.changeInactiveStatus(false);
+    }
 }
