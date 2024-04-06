@@ -30,7 +30,11 @@ public enum LoginException implements BaseException {
 
     INVALID_BEARER_TOKEN_FORMAT(
         HttpStatus.BAD_REQUEST,
-        "유효하지 않은 Bearer token 형식입니다.");
+        "유효하지 않은 Bearer token 형식입니다."),
+
+    REFRESH_TOKEN_NOT_EXIST(
+        HttpStatus.BAD_REQUEST,
+        "refresh token이 존재하지 않습니다. 다시 로그인 해주세요");
 
     private final HttpStatus httpStatus;
     private final String reason;
