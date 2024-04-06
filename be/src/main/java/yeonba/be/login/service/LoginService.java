@@ -15,7 +15,6 @@ import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
-import yeonba.be.login.dto.request.UserRefreshTokenRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
 import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
@@ -189,10 +188,9 @@ public class LoginService {
     }
 
     @Transactional(readOnly = true)
-    public UserRefreshTokenResponse refreshAccessToken(UserRefreshTokenRequest request) {
+    public UserRefreshTokenResponse refreshAccessToken(String refreshToken) {
 
         // refresh token에서 userId 파싱
-        String refreshToken = request.getRefreshToken();
         long userId = jwtUtil.parseUserIdFromJwt(refreshToken);
 
         // 사용자 조회 및 refresh token 입력값과 사용자 refresh token 일치 확인
