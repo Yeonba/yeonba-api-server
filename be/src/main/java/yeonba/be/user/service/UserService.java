@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.JoinException;
+import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.entity.Animal;
@@ -179,6 +180,10 @@ public class UserService {
     public void activateUser(long userId) {
 
         User user = userQuery.findById(userId);
+        if (!user.isInactive()) {
+            throw new GeneralException(UserException.NOT_INACTIVE_USER);
+        }
+
         user.changeInactiveStatus(false);
     }
 }
