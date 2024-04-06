@@ -17,9 +17,9 @@ import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
 import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
+import yeonba.be.login.dto.response.UserAccessTokenResponse;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
-import yeonba.be.login.dto.response.UserRefreshTokenResponse;
 import yeonba.be.login.entity.VerificationCode;
 import yeonba.be.login.repository.VerificationCodeCommand;
 import yeonba.be.login.repository.VerificationCodeQuery;
@@ -188,7 +188,7 @@ public class LoginService {
     }
 
     @Transactional(readOnly = true)
-    public UserRefreshTokenResponse refreshAccessToken(String refreshToken) {
+    public UserAccessTokenResponse refreshAccessToken(String refreshToken) {
 
         // refresh token에서 userId 파싱
         long userId = jwtUtil.parseUserIdFromJwt(refreshToken);
@@ -202,6 +202,6 @@ public class LoginService {
         // access token 재발급
         String accessToken = jwtUtil.generateAccessToken(user, new Date());
 
-        return new UserRefreshTokenResponse(accessToken);
+        return new UserAccessTokenResponse(accessToken);
     }
 }
