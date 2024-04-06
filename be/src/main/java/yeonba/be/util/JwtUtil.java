@@ -15,6 +15,8 @@ import yeonba.be.user.entity.User;
 @Component
 public class JwtUtil {
 
+    private final String BEARER_TOKEN_PREFIX = "Bearer ";
+
     private final Duration ACCESS_TOKEN_DURATION = Duration.of(8, ChronoUnit.HOURS);
     private final Duration REFRESH_TOKEN_DURATION = Duration.of(10, ChronoUnit.DAYS);
 
@@ -24,8 +26,9 @@ public class JwtUtil {
     public String generateAccessToken(User user, Date generatedAt) {
 
         Date expiredAt = getExpiredAt(generatedAt, ACCESS_TOKEN_DURATION);
+        String jwt = generateUserJwt(user, generatedAt, expiredAt);
 
-        return generateUserJwt(user, generatedAt, expiredAt);
+        return BEARER_TOKEN_PREFIX.concat(jwt);
     }
 
     public String generateRefreshToken(User user, Date generatedAt) {
