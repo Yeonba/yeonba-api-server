@@ -12,6 +12,7 @@ import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.JoinException;
 import yeonba.be.exception.LoginException;
 import yeonba.be.exception.UserException;
+import yeonba.be.login.dto.UserLoginResult;
 import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
@@ -19,7 +20,6 @@ import yeonba.be.login.dto.request.UserVerificationCodeRequest;
 import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserAccessTokenResponse;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
-import yeonba.be.login.dto.response.UserLoginResponse;
 import yeonba.be.login.entity.VerificationCode;
 import yeonba.be.login.repository.VerificationCodeCommand;
 import yeonba.be.login.repository.VerificationCodeQuery;
@@ -52,24 +52,21 @@ public class LoginService {
     private final PasswordEncryptor passwordEncryptor;
     private final JwtUtil jwtUtil;
 
-    /*
-    임시 비밀번호는 다음 과정을 거친다.
-    1. 요청 이메일 기반 사용자 조회
-    2. 임시 비밀번호 생성
-    3. 사용자 비밀번호, 임시 비밀번호로 변경
-    4. 임시 비밀번호 발급 메일 전송
-     */
     @Transactional
     public void sendTemporaryPasswordMail(UserPasswordInquiryRequest request) {
 
+        // 이메일로 사용자 조회
         String email = request.getEmail();
         User user = userQuery.findByEmail(email);
 
+        // 임시 비밀번호 생성
         String temporaryPassword = TemporaryPasswordGenerator.generatePassword();
 
+        // 임시 비밀번호 암호화, 사용자 비밀번호 변경
         String encryptedPassword = passwordEncryptor.encrypt(temporaryPassword, user.getSalt());
         user.changePassword(encryptedPassword);
 
+        // 임시 비밀번호 메시지 전송
         String text = String.format(TEMPORARY_PASSWORD_EMAIL_TEXT, temporaryPassword);
         emailService.sendMail(email, TEMPORARY_PASSWORD_EMAIL_SUBJECT, text);
     }
@@ -163,7 +160,7 @@ public class LoginService {
     }
 
     @Transactional
-    public UserLoginResponse login(UserLoginRequest request) {
+    public UserLoginResult login(UserLoginRequest request) {
 
         // 이메일로 사용자 조회
         String email = request.getEmail();
@@ -184,7 +181,7 @@ public class LoginService {
         // 사용자 refresh token 업데이트
         user.updateRefreshToken(refreshToken);
 
-        return new UserLoginResponse(accessToken, refreshToken);
+        return new UserLoginResult(accessToken, refreshToken, user.isInactive());
     }
 
     @Transactional(readOnly = true)
