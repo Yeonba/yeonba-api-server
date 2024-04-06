@@ -3,18 +3,26 @@ package yeonba.be.login.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.LoginException;
 import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
-import yeonba.be.login.dto.request.UserRefreshTokenRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
 import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
@@ -87,23 +95,46 @@ public class LoginController {
     @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "로그인 성공")
     @PostMapping("/users/login")
-    public ResponseEntity<CustomResponse<UserLoginResponse>> login(
-        @Valid @RequestBody UserLoginRequest request) {
+    public ResponseEntity<CustomResponse<Map<String, String>>> login(
+        @Valid @RequestBody UserLoginRequest request,
+        HttpServletResponse response) {
 
-        UserLoginResponse response = loginService.login(request);
+        UserLoginResponse loginResponse = loginService.login(request);
+
+        // refresh token을 전달할 cookie 설정
+        ResponseCookie refreshToken = ResponseCookie
+            .from("refreshToken", loginResponse.getRefreshToken())
+            .path("/users/refresh")
+            .secure(true)
+            .sameSite("Strict")
+            .httpOnly(true)
+            .build();
+        response.setHeader("Set-Cookie", refreshToken.toString());
+
+        // access token 응답 생성
+        Map<String, String> responseBody = Map.of("accessToken", loginResponse.getAccessToken());
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(response));
+            .body(new CustomResponse<>(responseBody));
     }
 
     @Operation(summary = "access token 재발급", description = "refresh token 통해 access token 재발급")
     @ApiResponse(responseCode = "200", description = "access token 재발급 성공")
     @PostMapping("/users/refresh")
     public ResponseEntity<CustomResponse<UserRefreshTokenResponse>> refresh(
-        @Valid @RequestBody UserRefreshTokenRequest request) {
+        HttpServletRequest request) {
 
-        UserRefreshTokenResponse response = loginService.refreshAccessToken(request);
+        // refresh token cookie 탐색 및 검증
+        Optional<Cookie> refreshTokenCookie = Arrays.stream(request.getCookies())
+            .filter(cookie -> cookie.getName().equals("refreshToken"))
+            .findFirst();
+        if (refreshTokenCookie.isEmpty()) {
+            throw new GeneralException(LoginException.REFRESH_TOKEN_NOT_EXIST);
+        }
+
+        String refreshToken = refreshTokenCookie.get().getValue();
+        UserRefreshTokenResponse response = loginService.refreshAccessToken(refreshToken);
 
         return ResponseEntity
             .ok()
