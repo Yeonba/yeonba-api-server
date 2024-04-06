@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserRefreshTokenResponse {
+public class UserAccessTokenResponse {
 	@Schema(
 		type = "string",
 		example = """
