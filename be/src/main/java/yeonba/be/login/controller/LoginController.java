@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.LoginException;
+import yeonba.be.login.dto.UserLoginResult;
 import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
@@ -99,21 +100,22 @@ public class LoginController {
     @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "로그인 성공")
     @PostMapping("/users/login")
-    public ResponseEntity<CustomResponse<UserAccessTokenResponse>> login(
+    public ResponseEntity<CustomResponse<UserLoginResponse>> login(
         @Valid @RequestBody UserLoginRequest request,
         HttpServletResponse response) {
 
-        UserLoginResponse loginResponse = loginService.login(request);
+        UserLoginResult loginResult = loginService.login(request);
 
         // refresh token을 전달할 cookie 설정
-        setRefreshTokenCookie(response, loginResponse.getRefreshToken());
+        setRefreshTokenCookie(response, loginResult.getRefreshToken());
 
-        UserAccessTokenResponse accessTokenResponse =
-            new UserAccessTokenResponse(loginResponse.getAccessToken());
+        UserLoginResponse loginResponse = new UserLoginResponse(
+            loginResult.getAccessToken(),
+            loginResult.isInactiveUser());
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(accessTokenResponse));
+            .body(new CustomResponse<>(loginResponse));
     }
 
     private void setRefreshTokenCookie(
