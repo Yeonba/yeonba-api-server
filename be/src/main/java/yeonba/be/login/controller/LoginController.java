@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
@@ -25,10 +24,10 @@ import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
 import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
+import yeonba.be.login.dto.response.UserAccessTokenResponse;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
-import yeonba.be.login.dto.response.UserRefreshTokenResponse;
 import yeonba.be.login.service.LoginService;
 import yeonba.be.user.service.JoinService;
 import yeonba.be.util.CustomResponse;
@@ -43,14 +42,19 @@ public class LoginController {
 
     @Operation(summary = "회원가입", description = "회원가입을 할 수 있습니다.")
     @PostMapping(path = "/users/join", consumes = "multipart/form-data")
-    public ResponseEntity<CustomResponse<UserJoinResponse>> join(
-        @Valid @ModelAttribute UserJoinRequest request) {
+    public ResponseEntity<CustomResponse<UserAccessTokenResponse>> join(
+        @Valid @ModelAttribute UserJoinRequest request,
+        HttpServletResponse response) {
 
-        UserJoinResponse response = joinService.join(request);
+        UserJoinResponse joinResponse = joinService.join(request);
+
+        setRefreshTokenCookie(response, joinResponse.getRefreshToken());
+        UserAccessTokenResponse accessTokenResponse =
+            new UserAccessTokenResponse(joinResponse.getAccessToken());
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(response));
+            .body(new CustomResponse<>(accessTokenResponse));
     }
 
     @Operation(summary = "이메일 찾기 인증 코드 sms 전송", description = "이메일 찾기를 위한 인증번호 sms 전송을 요청합니다.")
@@ -95,34 +99,41 @@ public class LoginController {
     @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "로그인 성공")
     @PostMapping("/users/login")
-    public ResponseEntity<CustomResponse<Map<String, String>>> login(
+    public ResponseEntity<CustomResponse<UserAccessTokenResponse>> login(
         @Valid @RequestBody UserLoginRequest request,
         HttpServletResponse response) {
 
         UserLoginResponse loginResponse = loginService.login(request);
 
         // refresh token을 전달할 cookie 설정
-        ResponseCookie refreshToken = ResponseCookie
-            .from("refreshToken", loginResponse.getRefreshToken())
+        setRefreshTokenCookie(response, loginResponse.getRefreshToken());
+
+        UserAccessTokenResponse accessTokenResponse =
+            new UserAccessTokenResponse(loginResponse.getAccessToken());
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(accessTokenResponse));
+    }
+
+    private void setRefreshTokenCookie(
+        HttpServletResponse response,
+        String refreshToken) {
+
+        ResponseCookie refreshTokenCookie = ResponseCookie
+            .from("refreshToken", refreshToken)
             .path("/users/refresh")
             .secure(true)
             .sameSite("Strict")
             .httpOnly(true)
             .build();
-        response.setHeader("Set-Cookie", refreshToken.toString());
-
-        // access token 응답 생성
-        Map<String, String> responseBody = Map.of("accessToken", loginResponse.getAccessToken());
-
-        return ResponseEntity
-            .ok()
-            .body(new CustomResponse<>(responseBody));
+        response.setHeader("Set-Cookie", refreshTokenCookie.toString());
     }
 
     @Operation(summary = "access token 재발급", description = "refresh token 통해 access token 재발급")
     @ApiResponse(responseCode = "200", description = "access token 재발급 성공")
     @PostMapping("/users/refresh")
-    public ResponseEntity<CustomResponse<UserRefreshTokenResponse>> refresh(
+    public ResponseEntity<CustomResponse<UserAccessTokenResponse>> refresh(
         HttpServletRequest request) {
 
         // refresh token cookie 탐색 및 검증
@@ -134,7 +145,7 @@ public class LoginController {
         }
 
         String refreshToken = refreshTokenCookie.get().getValue();
-        UserRefreshTokenResponse response = loginService.refreshAccessToken(refreshToken);
+        UserAccessTokenResponse response = loginService.refreshAccessToken(refreshToken);
 
         return ResponseEntity
             .ok()
