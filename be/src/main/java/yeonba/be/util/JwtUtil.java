@@ -43,11 +43,11 @@ public class JwtUtil {
         return Date.from(instant);
     }
 
-    private String generateUserJwt(User user, Date issuedAt, Date generatedAt) {
+    private String generateUserJwt(User user, Date generatedAt, Date expiredAt) {
 
         return Jwts.builder()
-            .setIssuedAt(issuedAt)
-            .setExpiration(generatedAt)
+            .setIssuedAt(generatedAt)
+            .setExpiration(expiredAt)
             .claim("userId", user.getId())
             .signWith(SignatureAlgorithm.HS256, jwtSecret)
             .compact();
