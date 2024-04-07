@@ -4,8 +4,8 @@ import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yeonba.be.login.dto.UserJoinResult;
 import yeonba.be.login.dto.request.UserJoinRequest;
-import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.user.entity.User;
 import yeonba.be.util.JwtUtil;
 
@@ -18,7 +18,7 @@ public class JoinService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public UserJoinResponse join(UserJoinRequest request) {
+    public UserJoinResult join(UserJoinRequest request) {
 
         // 사용자, 프로필 사진, 선호 조건 엔티티 생성 및 저장
         User user = userService.saveUser(request);
@@ -33,6 +33,6 @@ public class JoinService {
         // 사용자 refresh token 업데이트
         user.updateRefreshToken(refreshToken);
 
-        return new UserJoinResponse(accessToken, refreshToken);
+        return new UserJoinResult(accessToken, refreshToken);
     }
 }
