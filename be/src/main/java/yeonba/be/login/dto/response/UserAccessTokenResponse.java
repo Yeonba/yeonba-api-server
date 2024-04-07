@@ -7,13 +7,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class UserAccessTokenResponse {
-	@Schema(
-		type = "string",
-		example = """
-			eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-			.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
-			.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c""",
-		description = "새로 발급된 access token"
-	)
-	private String accessToken;
+
+    @Schema(
+        type = "string",
+        example = "header.payload.signature",
+        description = "새로 발급된 access token")
+    private String accessToken;
 }
