@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.LoginException;
+import yeonba.be.login.dto.UserJoinResult;
 import yeonba.be.login.dto.UserLoginResult;
 import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserJoinRequest;
@@ -27,7 +28,6 @@ import yeonba.be.login.dto.request.UserVerificationCodeRequest;
 import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserAccessTokenResponse;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
-import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
 import yeonba.be.login.service.LoginService;
 import yeonba.be.user.service.JoinService;
@@ -47,11 +47,11 @@ public class LoginController {
         @Valid @ModelAttribute UserJoinRequest request,
         HttpServletResponse response) {
 
-        UserJoinResponse joinResponse = joinService.join(request);
+        UserJoinResult joinResult = joinService.join(request);
 
-        setRefreshTokenCookie(response, joinResponse.getRefreshToken());
+        setRefreshTokenCookie(response, joinResult.getRefreshToken());
         UserAccessTokenResponse accessTokenResponse =
-            new UserAccessTokenResponse(joinResponse.getAccessToken());
+            new UserAccessTokenResponse(joinResult.getAccessToken());
 
         return ResponseEntity
             .ok()
