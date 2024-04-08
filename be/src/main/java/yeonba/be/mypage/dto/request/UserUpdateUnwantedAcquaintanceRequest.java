@@ -1,6 +1,7 @@
 package yeonba.be.mypage.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,9 +13,11 @@ import lombok.NoArgsConstructor;
 public class UserUpdateUnwantedAcquaintanceRequest {
 
     @Schema(type = "string", description = "이름", example = "안민재")
+    @NotBlank(message = "이름은 필수입니다.")
     private String name;
 
     @Schema(type = "string", description = "전화번호, 0101111222 포맷", example = "01011112222")
     @Pattern(regexp = "^010[0-9]{6}$")
+    @NotBlank(message = "전화번호는 필수입니다.")
     private String phoneNumber;
 }
