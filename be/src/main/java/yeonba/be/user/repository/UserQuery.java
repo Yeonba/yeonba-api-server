@@ -25,12 +25,7 @@ public class UserQuery {
         return userRepository.findByEmail(email)
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
     }
-
-    public boolean existByPhoneNumber(String phoneNumber) {
-
-        return userRepository.existsByPhoneNumber(phoneNumber);
-    }
-
+    
     public User findByPhoneNumber(String phoneNumber) {
 
         return userRepository.findByPhoneNumber(phoneNumber)
@@ -42,5 +37,20 @@ public class UserQuery {
         LocalDateTime now = LocalDateTime.now();
 
         return userRepository.findAllByDeletedAtIsBeforeAndDeletedIsFalse(now);
+    }
+
+    public boolean validateUsedEmail(String email) {
+
+        return userRepository.existsByEmail(email);
+    }
+
+    public boolean validateUsedNickname(String nickname) {
+
+        return userRepository.existsByNickname(nickname);
+    }
+
+    public boolean validateUsedPhoneNumber(String phoneNumber) {
+
+        return userRepository.existsByPhoneNumber(phoneNumber);
     }
 }

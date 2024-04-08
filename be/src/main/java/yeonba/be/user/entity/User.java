@@ -71,6 +71,7 @@ public class User {
 
     @Column(nullable = false)
     private String mbti;
+    private String refreshToken;
 
     @ManyToOne
     @JoinColumn(name = "vocal_range_id")
@@ -97,8 +98,8 @@ public class User {
 
     private LocalDateTime deletedAt;
 
-	@Column(name = "is_deleted")
-	private boolean deleted;
+    @Column(name = "is_deleted")
+    private boolean deleted;
 
     @OneToMany(mappedBy = "blockedUser", fetch = FetchType.LAZY)
     private List<Block> blocks;
@@ -121,8 +122,7 @@ public class User {
         String mbti,
         VocalRange vocalRange,
         Animal animal,
-        Area area,
-        List<ProfilePhoto> profilePhotos) {
+        Area area) {
 
         this.gender = gender;
         this.name = name;
@@ -143,7 +143,6 @@ public class User {
         this.vocalRange = vocalRange;
         this.animal = animal;
         this.area = area;
-        this.profilePhotos = profilePhotos;
     }
 
     public void validateSameUser(User user) {
@@ -168,6 +167,16 @@ public class User {
     public void delete(LocalDateTime willDeleteTime) {
 
         this.deletedAt = willDeleteTime;
+    }
+
+    /**
+     * 삭제된 사용자인지 검증
+     */
+    public void validateDeletedUser(LocalDateTime now) {
+
+        if (this.deletedAt.isAfter(now)) {
+            throw new IllegalArgumentException("삭제된 사용자입니다.");
+        }
     }
 
     public void validateDailyCheck(LocalDate dailyCheckDay) {
@@ -230,6 +239,16 @@ public class User {
         this.height = 0;
         this.email = "deleted";
         this.phoneNumber = "deleted";
-		this.deleted = true;
+        this.deleted = true;
+    }
+
+    public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
+
+        this.profilePhotos = profilePhotos;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+
+        this.refreshToken = refreshToken;
     }
 }
