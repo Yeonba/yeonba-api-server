@@ -135,7 +135,7 @@ public class MyPageController {
         @RequestAttribute("userId") long userId,
         @RequestBody UserUpdateUnwantedAcquaintancesRequest request) {
 
-        acquaintanceService.updateOrSaveUnwantedAcquaintances(userId, request);
+        acquaintanceService.updateUnwantedAcquaintances(userId, request);
 
         return ResponseEntity
             .accepted()

@@ -2,9 +2,7 @@ package yeonba.be.mypage.repository;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
-import yeonba.be.exception.GeneralException;
 import yeonba.be.mypage.entity.Acquaintance;
 
 @Component

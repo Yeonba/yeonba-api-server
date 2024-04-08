@@ -18,7 +18,7 @@ public class AcquaintanceService {
     private final AcquaintanceCommand acquaintanceCommand;
 
     @Transactional
-    public void updateOrSaveUnwantedAcquaintances(long userId, UserUpdateUnwantedAcquaintancesRequest request) {
+    public void updateUnwantedAcquaintances(long userId, UserUpdateUnwantedAcquaintancesRequest request) {
 
         // 요청한 사용자가 유효한 사용자인지 검증
         userQuery.findById(userId);
