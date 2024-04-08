@@ -3,13 +3,11 @@ package yeonba.be.mypage.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class UserUpdateUnwantedAcquaintanceRequest {
 
     @Schema(type = "string", description = "이름", example = "안민재")
