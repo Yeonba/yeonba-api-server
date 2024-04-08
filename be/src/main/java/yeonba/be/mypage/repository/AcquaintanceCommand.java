@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
-import yeonba.be.exception.AcquaintanceException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.mypage.entity.Acquaintance;
 
@@ -16,11 +15,7 @@ public class AcquaintanceCommand {
 
     public void saveAll(List<Acquaintance> acquaintances) {
 
-        try {
-            acquaintanceRepository.saveAll(acquaintances);
-        } catch (DataIntegrityViolationException e) {
-            throw new GeneralException(AcquaintanceException.ALREADY_EXIST_PHONENUMBER);
-        }
+        acquaintanceRepository.saveAll(acquaintances);
     }
 
     public void deleteAllByUserId(long userId) {
