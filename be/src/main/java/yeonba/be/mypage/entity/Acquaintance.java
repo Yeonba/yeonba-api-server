@@ -6,12 +6,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Table(name = "acquaintances")
 @Getter
 @Entity
+@EqualsAndHashCode(of = {"userId", "phoneNumber"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Acquaintance {

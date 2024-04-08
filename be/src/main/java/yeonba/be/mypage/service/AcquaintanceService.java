@@ -1,6 +1,9 @@
 package yeonba.be.mypage.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,11 +29,13 @@ public class AcquaintanceService {
         acquaintanceCommand.deleteAllByUserId(userId);
 
         // 새로운 만나고 싶지 않은 지인 목록 저장
-        List<Acquaintance> acquaintances = request.getAcquaintances()
+        Set<Acquaintance> unduplicatedAcquaintances = request.getAcquaintances()
             .stream()
             .map(acquaintance -> new Acquaintance(userId, acquaintance.getName(),
                 acquaintance.getPhoneNumber()))
-            .toList();
+            .collect(Collectors.toSet());
+
+        List<Acquaintance> acquaintances = new ArrayList<>(unduplicatedAcquaintances);
 
         acquaintanceCommand.saveAll(acquaintances);
     }
