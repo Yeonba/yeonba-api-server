@@ -3,6 +3,7 @@ package yeonba.be.config;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,6 +21,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
             .components(new Components())
+            .addServersItem(new Server().url("https://api.yeonba.co.kr"))
             .info(info);
     }
 
