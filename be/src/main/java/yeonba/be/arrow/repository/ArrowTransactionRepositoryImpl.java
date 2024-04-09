@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ArrowTransactionRepositoryImpl implements ArrowTransactionRepositoryCustom {
 
-    private final int MAX_ARROW_COUNT_OF_AD = 3;
     private final JPAQueryFactory queryFactory;
 
     @Override
@@ -29,6 +28,8 @@ public class ArrowTransactionRepositoryImpl implements ArrowTransactionRepositor
                     )
                     .fetchOne())
             .orElse(0L);
+
+        int MAX_ARROW_COUNT_OF_AD = 3;
 
         return countOfTodayAdView < MAX_ARROW_COUNT_OF_AD;
     }

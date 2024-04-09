@@ -5,14 +5,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Table(name = "acquaintances")
 @Getter
 @Entity
+@EqualsAndHashCode(of = {"userId", "phoneNumber"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Acquaintance {
@@ -24,5 +25,11 @@ public class Acquaintance {
     private long userId;
     private String name;
     private String phoneNumber;
-    private LocalDateTime createdAt;
+
+    public Acquaintance(long userId, String name, String phoneNumber) {
+
+        this.userId = userId;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+    }
 }
