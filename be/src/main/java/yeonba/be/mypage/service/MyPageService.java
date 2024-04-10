@@ -95,7 +95,6 @@ public class MyPageService {
         uploadProfilePhotos(profilePhotos, user);
     }
 
-    @Transactional(readOnly = true)
     public BlockedUsersResponse getBlockedUsers(long userId) {
 
         User user = userQuery.findById(userId);
@@ -149,7 +148,8 @@ public class MyPageService {
         // TODO: 회의 후 확장자 제한 로직 추가, 확장자 검증 후 업로드 시작
         // validateFileExtension(profilePhoto);
 
-        for (int profilePhotoIdx = 0; profilePhotoIdx < profilePhotos.size(); profilePhotoIdx++) {
+        for (int profilePhotoIdx = 0; profilePhotoIdx < profilePhotos.size();
+            profilePhotoIdx++) {
 
             MultipartFile profilePhoto = profilePhotos.get(profilePhotoIdx);
 
@@ -183,7 +183,8 @@ public class MyPageService {
             throw new IllegalArgumentException("기존 비밀번호가 틀렸습니다.");
         }
 
-        if (!StringUtils.equals(request.getNewPassword(), request.getNewPasswordConfirmation())) {
+        if (!StringUtils.equals(request.getNewPassword(),
+            request.getNewPasswordConfirmation())) {
             throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인 값이 일치하지 않습니다.");
         }
     }
