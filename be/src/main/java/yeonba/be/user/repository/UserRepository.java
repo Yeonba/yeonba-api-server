@@ -1,6 +1,5 @@
 package yeonba.be.user.repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,7 +9,7 @@ import yeonba.be.user.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByIdAndDeletedAtIsNull(long userId);
+    Optional<User> findByIdAndDeletedIsFalse(long userId);
 
     Optional<User> findByEmail(String email);
 
@@ -18,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByPhoneNumber(String phoneNumber);
 
-    List<User> findAllByDeletedAtIsBeforeAndDeletedIsFalse(LocalDateTime now);
+    List<User> findAllByDeletedIsTrue();
 
     boolean existsByNickname(String nickname);
 
