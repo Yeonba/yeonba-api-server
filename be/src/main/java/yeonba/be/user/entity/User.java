@@ -96,9 +96,7 @@ public class User {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    private LocalDateTime deletedAt;
-
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     private boolean deleted;
 
     @OneToMany(mappedBy = "blockedUser", fetch = FetchType.LAZY)
@@ -143,13 +141,7 @@ public class User {
         this.vocalRange = vocalRange;
         this.animal = animal;
         this.area = area;
-    }
-
-    public void validateSameUser(User user) {
-
-        if (!this.equals(user)) {
-            throw new IllegalArgumentException("동일한 사용자가 아닙니다.");
-        }
+        this.deleted = false;
     }
 
     public void validateNotSameUser(User user) {
@@ -164,19 +156,9 @@ public class User {
         this.encryptedPassword = encryptedNewPassword;
     }
 
-    public void delete(LocalDateTime willDeleteTime) {
+    public void delete() {
 
-        this.deletedAt = willDeleteTime;
-    }
-
-    /**
-     * 삭제된 사용자인지 검증
-     */
-    public void validateDeletedUser(LocalDateTime now) {
-
-        if (this.deletedAt.isAfter(now)) {
-            throw new IllegalArgumentException("삭제된 사용자입니다.");
-        }
+        this.deleted = true;
     }
 
     public void validateDailyCheck(LocalDate dailyCheckDay) {
@@ -211,6 +193,7 @@ public class User {
     }
 
     public String getGender() {
+
         if (this.gender) {
 
             return "남";
@@ -239,7 +222,6 @@ public class User {
         this.height = 0;
         this.email = "deleted";
         this.phoneNumber = "deleted";
-        this.deleted = true;
     }
 
     public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
