@@ -1,6 +1,5 @@
 package yeonba.be.user.repository;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
@@ -29,11 +28,6 @@ public class UserQuery {
 
         return userRepository.findByPhoneNumber(phoneNumber)
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
-    }
-
-    public List<User> findDeletedUsers() {
-
-        return userRepository.findAllByDeletedIsTrue();
     }
 
     public boolean validateUsedEmail(String email) {
