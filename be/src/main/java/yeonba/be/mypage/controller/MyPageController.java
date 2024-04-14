@@ -183,7 +183,7 @@ public class MyPageController {
             .body(new CustomResponse<>());
     }
 
-    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 할 수 있습니다.")
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 할 수 있습니다. 즉시 탈퇴 처리됩니다.")
     @ApiResponse(responseCode = "202", description = "계정 탈퇴 요청 정상 처리")
     @DeleteMapping("/users")
     public ResponseEntity<CustomResponse<Void>> deleteUser(

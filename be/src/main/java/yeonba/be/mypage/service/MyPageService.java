@@ -1,11 +1,9 @@
 package yeonba.be.mypage.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -131,11 +129,7 @@ public class MyPageService {
     public void deleteUser(long userId) {
 
         User user = userQuery.findById(userId);
-
-        // 탈퇴 취소 가능 기간
-        int recovableDays = 1;
-        LocalDateTime willDeleteTime = LocalDateTime.now().plusDays(recovableDays);
-        user.delete(willDeleteTime);
+        user.delete();
     }
 
     /**
@@ -187,16 +181,5 @@ public class MyPageService {
             request.getNewPasswordConfirmation())) {
             throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인 값이 일치하지 않습니다.");
         }
-    }
-
-    /**
-     * 매일 자정에 삭제된 사용자를 숨김 처리한다.
-     */
-    @Scheduled(cron = "0 0 0 * * *")
-    @Transactional
-    public void hideDeletedUser() {
-
-        userQuery.findWillDeleteUsers()
-            .forEach(User::hideUserInfo);
     }
 }
