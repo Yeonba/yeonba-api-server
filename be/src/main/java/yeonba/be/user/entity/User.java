@@ -159,6 +159,12 @@ public class User {
     public void delete() {
 
         this.deleted = true;
+        this.name = "deleted";
+        this.nickname = "deleted";
+        this.age = 0;
+        this.height = 0;
+        this.email = "deleted";
+        this.phoneNumber = "deleted";
     }
 
     public void validateDailyCheck(LocalDate dailyCheckDay) {
@@ -212,16 +218,6 @@ public class User {
     public void changeInactiveStatus(boolean inactiveStatus) {
 
         this.inactive = inactiveStatus;
-    }
-
-    public void hideUserInfo() {
-
-        this.name = "deleted";
-        this.nickname = "deleted";
-        this.age = 0;
-        this.height = 0;
-        this.email = "deleted";
-        this.phoneNumber = "deleted";
     }
 
     public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {

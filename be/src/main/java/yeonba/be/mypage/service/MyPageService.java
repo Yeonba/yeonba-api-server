@@ -130,7 +130,6 @@ public class MyPageService {
 
         User user = userQuery.findById(userId);
         user.delete();
-        user.hideUserInfo();
     }
 
     /**
