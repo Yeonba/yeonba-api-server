@@ -32,6 +32,7 @@ jobs:
       - name: Test with Gradle
         run: |
           chmod +x ./be/gradlew
-          ./be/gradlew test
+          cd be
+          ./gradlew test
         env:
           WORKING_DIRECTORY: ${{ env.WORKING_DIRECTORY }}
