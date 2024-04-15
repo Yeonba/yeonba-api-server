@@ -27,7 +27,7 @@ jobs:
       - name: Set application properties
         run: |
           touch be/src/main/resources/application.properties
-          echo "${{ secrets.APPLICATION_PROPERTIES_DEV }}" > be/src/main/resources/application.properties
+          echo "${{ secrets.APPLICATION_PROPERTIES }}" > be/src/main/resources/application.properties
 
       - name: Test with Gradle
         run: |
