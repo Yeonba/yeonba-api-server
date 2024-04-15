@@ -5,7 +5,7 @@ on:
     branches: [ "dev" ]
 
 env:
-  WORKING_DIRECTORY: ./be/
+  WORKING_DIRECTORY: ./
 
 permissions:
   contents: read
@@ -26,11 +26,11 @@ jobs:
 
       - name: Set application properties
         run: |
-          touch be/src/main/resources/application.properties
-          echo "${{ secrets.APPLICATION_PROPERTIES }}" > be/src/main/resources/application.properties
+          touch src/main/resources/application.properties
+          echo "${{ secrets.APPLICATION_PROPERTIES }}" > src/main/resources/application.properties
       - name: Test with Gradle
         run: |
           chmod +x gradlew
-          ./be/gradlew test
+          ./gradlew test
         env:
           WORKING_DIRECTORY: ${{ env.WORKING_DIRECTORY }}
