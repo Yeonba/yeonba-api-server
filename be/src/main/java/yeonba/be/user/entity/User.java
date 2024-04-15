@@ -229,4 +229,18 @@ public class User {
 
         this.refreshToken = refreshToken;
     }
+
+    public void updateProfile(
+        LocalDate birth,
+        int age,
+        VocalRange vocalRange,
+        Animal animal,
+        Area area) {
+
+        this.birth = birth;
+        this.age = age;
+        this.vocalRange = vocalRange;
+        this.animal = animal;
+        this.area = area;
+    }
 }
