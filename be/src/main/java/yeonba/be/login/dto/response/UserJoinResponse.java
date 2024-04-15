@@ -10,13 +10,13 @@ public class UserJoinResponse {
 
     @Schema(
         type = "string",
-        description = "access token",
+        description = "jwt",
         example = "header.payload,signature")
-    private String accessToken;
+    private String jwt;
 
     @Schema(
         type = "string",
-        description = "refresh token",
+        description = "jwt refresh token",
         example = "header.payload.signature")
-    private String refreshToken;
+    private String jwtRefreshToken;
 }
