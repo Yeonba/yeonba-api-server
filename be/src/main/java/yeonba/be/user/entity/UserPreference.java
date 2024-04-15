@@ -80,4 +80,22 @@ public class UserPreference {
         this.area = area;
         this.animal = animal;
     }
+
+    public void updatePreference(
+        VocalRange vocalRange,
+        Animal animal,
+        Area area,
+        int ageLowerBound,
+        int ageUpperBound,
+        int heightLowerBound,
+        int heightUpperBound) {
+
+        this.vocalRange = vocalRange;
+        this.animal = animal;
+        this.area = area;
+        this.ageLowerBound = ageLowerBound;
+        this.ageUpperBound = ageUpperBound;
+        this.heightLowerBound = heightLowerBound;
+        this.heightUpperBound = heightUpperBound;
+    }
 }
