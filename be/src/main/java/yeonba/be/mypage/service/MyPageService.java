@@ -1,5 +1,7 @@
 package yeonba.be.mypage.service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.UserException;
 import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
@@ -17,22 +21,37 @@ import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
+import yeonba.be.user.entity.Animal;
+import yeonba.be.user.entity.Area;
 import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
+import yeonba.be.user.entity.UserPreference;
+import yeonba.be.user.entity.VocalRange;
 import yeonba.be.user.repository.BlockCommand;
 import yeonba.be.user.repository.BlockQuery;
 import yeonba.be.user.repository.UserQuery;
+import yeonba.be.user.repository.animal.AnimalQuery;
+import yeonba.be.user.repository.area.AreaQuery;
+import yeonba.be.user.repository.userpreference.UserPreferenceQuery;
+import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
+import yeonba.be.util.AgeValidator;
 import yeonba.be.util.PasswordEncryptor;
 
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
 
-    private final S3Client s3Client;
-    private final UserQuery userQuery;
+    private final AnimalQuery animalQuery;
+    private final AreaQuery areaQuery;
     private final BlockQuery blockQuery;
+    private final UserPreferenceQuery userPreferenceQuery;
+    private final UserQuery userQuery;
+    private final VocalRangeQuery vocalRangeQuery;
+
     private final BlockCommand blockCommand;
+
     private final PasswordEncryptor passwordEncryptor;
+    private final S3Client s3Client;
 
     @Value("${S3_BUCKET_NAME}")
     private String bucketName;
@@ -60,11 +79,54 @@ public class MyPageService {
     @Transactional
     public void updateProfile(UserUpdateProfileRequest request, long userId) {
 
-        User validatedUser = userQuery.findById(userId);
+        // 사용자 및 사용자 선호 조건 조회
+        User user = userQuery.findById(userId);
+        UserPreference userPreference = userPreferenceQuery.findByUser(user);
 
-        // TODO: 선호 조건 테이블 생성 후 로직 추가
+        // 생년월일 업데이트시 성인(만 18세 이상)인 지 검증, 새로운 나이 계산
+        LocalDate birth = request.getBirth();
+        LocalDate now = LocalDate.now();
+        if(AgeValidator.isNotAdult(birth, now)) {
+            throw new GeneralException(UserException.IS_NOT_ADULT);
+        }
+        int age = (int) ChronoUnit.YEARS.between(birth, now);
 
-        // validatedUser.updateProfile(request);
+        // 음역대, 선호하는 음역대 조회
+        VocalRange vocalRange = vocalRangeQuery.findBy(request.getVocalRange());
+        VocalRange preferredVocalRange = vocalRangeQuery.findBy(request.getPreferredVocalRange());
+
+        // 동물상, 선호하는 동물상 조회
+        Animal animal = animalQuery.findByName(request.getLookAlikeAnimal());
+        Animal preferredAnimal = animalQuery.findByName(request.getPreferredAnimal());
+
+        // 활동 지역, 선호하는 지역 조회
+        Area area = areaQuery.findByName(request.getActivityArea());
+        Area preferredArea = areaQuery.findByName(request.getPreferredArea());
+
+        // 선호하는 나이 하한 <= 상한 검증
+        int preferredAgeLowerBound = request.getPreferredAgeLowerBound();
+        int preferredAgeUpperBound = request.getPreferredAgeUpperBound();
+        if(preferredAgeUpperBound < preferredAgeLowerBound) {
+            throw new GeneralException(UserException.LOWER_BOUND_LESS_THAN_OR_EQUAL_UPPER_BOUND);
+        }
+
+        // 선호하는 키 하한 <= 상한 검증
+        int preferredHeightLowerBound = request.getPreferredHeightLowerBound();
+        int preferredHeightUpperBound = request.getPreferredHeightUpperBound();
+        if(preferredHeightUpperBound < preferredHeightLowerBound) {
+            throw new GeneralException(UserException.LOWER_BOUND_LESS_THAN_OR_EQUAL_UPPER_BOUND);
+        }
+
+        // 사용자 프로필 및 선호 조건 업데이트
+        user.updateProfile(birth, age, vocalRange, animal, area);
+        userPreference.updatePreference(
+            preferredVocalRange,
+            preferredAnimal,
+            preferredArea,
+            preferredAgeLowerBound,
+            preferredHeightUpperBound,
+            preferredHeightLowerBound,
+            preferredHeightUpperBound);
     }
 
     @Transactional
