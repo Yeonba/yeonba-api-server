@@ -4,6 +4,18 @@ import org.springframework.http.HttpStatus;
 
 public enum UserException implements BaseException {
 
+    VOCAL_RANGE_NOT_FOUND(
+        HttpStatus.BAD_REQUEST,
+        "존재하지 않는 음역대입니다."),
+
+    ANIMAL_NOT_FOUND(
+        HttpStatus.BAD_REQUEST,
+        "존재하지 않는 동물상입니다."),
+
+    AREA_NOT_FOUND(
+        HttpStatus.BAD_REQUEST,
+        "존재하지 않는 지역입니다."),
+
     USER_NOT_FOUND(
         HttpStatus.BAD_REQUEST,
         "해당 사용자가 존재하지 않습니다."),
