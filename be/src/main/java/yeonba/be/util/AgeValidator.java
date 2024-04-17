@@ -1,7 +1,7 @@
 package yeonba.be.util;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.time.Period;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -10,9 +10,9 @@ public class AgeValidator {
 
     private static final int ADULT_AGE = 18;
 
-    public static boolean isNotAdult(LocalDate birth, LocalDate now) {
+    public static boolean isNotAdult(LocalDate birth, LocalDate currentDate) {
 
-        long age = ChronoUnit.YEARS.between(birth, now);
+        int age = Period.between(birth, currentDate).getYears();
 
         return age < ADULT_AGE;
     }

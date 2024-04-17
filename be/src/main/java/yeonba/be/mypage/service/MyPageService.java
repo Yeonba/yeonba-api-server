@@ -1,7 +1,7 @@
 package yeonba.be.mypage.service;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -86,11 +86,11 @@ public class MyPageService {
 
         // 생년월일 업데이트시 성인(만 18세 이상)인 지 검증, 새로운 나이 계산
         LocalDate birth = request.getBirth();
-        LocalDate now = LocalDate.now();
-        if (AgeValidator.isNotAdult(birth, now)) {
+        LocalDate currentDate = LocalDate.now();
+        if (AgeValidator.isNotAdult(birth, currentDate)) {
             throw new GeneralException(UserException.IS_NOT_ADULT);
         }
-        int age = (int) ChronoUnit.YEARS.between(birth, now);
+        int age = Period.between(birth, currentDate).getYears();
 
         // 음역대, 선호하는 음역대 조회
         VocalRange vocalRange = vocalRangeQuery.findBy(request.getVocalRange());
