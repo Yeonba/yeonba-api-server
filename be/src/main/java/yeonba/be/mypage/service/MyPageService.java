@@ -3,6 +3,7 @@ package yeonba.be.mypage.service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,7 +87,7 @@ public class MyPageService {
         // 생년월일 업데이트시 성인(만 18세 이상)인 지 검증, 새로운 나이 계산
         LocalDate birth = request.getBirth();
         LocalDate now = LocalDate.now();
-        if(AgeValidator.isNotAdult(birth, now)) {
+        if (AgeValidator.isNotAdult(birth, now)) {
             throw new GeneralException(UserException.IS_NOT_ADULT);
         }
         int age = (int) ChronoUnit.YEARS.between(birth, now);
@@ -103,19 +104,14 @@ public class MyPageService {
         Area area = areaQuery.findByName(request.getActivityArea());
         Area preferredArea = areaQuery.findByName(request.getPreferredArea());
 
-        // 선호하는 나이 하한 <= 상한 검증
-        int preferredAgeLowerBound = request.getPreferredAgeLowerBound();
-        int preferredAgeUpperBound = request.getPreferredAgeUpperBound();
-        if(preferredAgeUpperBound < preferredAgeLowerBound) {
-            throw new GeneralException(UserException.LOWER_BOUND_LESS_THAN_OR_EQUAL_UPPER_BOUND);
-        }
+        // 하한, 상한 값이 모두 존재할 경우만 하한 <= 상한 검증
+        Integer preferredAgeLowerBound = request.getPreferredAgeLowerBound();
+        Integer preferredAgeUpperBound = request.getPreferredAgeUpperBound();
+        validateBounds(preferredAgeLowerBound, preferredAgeUpperBound);
 
-        // 선호하는 키 하한 <= 상한 검증
-        int preferredHeightLowerBound = request.getPreferredHeightLowerBound();
-        int preferredHeightUpperBound = request.getPreferredHeightUpperBound();
-        if(preferredHeightUpperBound < preferredHeightLowerBound) {
-            throw new GeneralException(UserException.LOWER_BOUND_LESS_THAN_OR_EQUAL_UPPER_BOUND);
-        }
+        Integer preferredHeightLowerBound = request.getPreferredHeightLowerBound();
+        Integer preferredHeightUpperBound = request.getPreferredHeightUpperBound();
+        validateBounds(preferredHeightLowerBound, preferredHeightUpperBound);
 
         // 사용자 프로필 및 선호 조건 업데이트
         user.updateProfile(birth, age, vocalRange, animal, area);
@@ -127,6 +123,18 @@ public class MyPageService {
             preferredHeightUpperBound,
             preferredHeightLowerBound,
             preferredHeightUpperBound);
+    }
+
+    private void validateBounds(Integer lowerBound, Integer upperBound) {
+
+        if (Objects.isNull(lowerBound) || Objects.isNull(upperBound)) {
+
+            return;
+        }
+
+        if (lowerBound > upperBound) {
+            throw new GeneralException(UserException.LOWER_BOUND_LESS_THAN_OR_EQUAL_UPPER_BOUND);
+        }
     }
 
     @Transactional
