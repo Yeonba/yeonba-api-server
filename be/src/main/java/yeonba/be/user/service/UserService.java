@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.JoinException;
+import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.entity.Animal;
@@ -27,6 +28,7 @@ import yeonba.be.user.repository.area.AreaQuery;
 import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
+import yeonba.be.util.AgeValidator;
 import yeonba.be.util.PasswordEncryptor;
 import yeonba.be.util.S3Service;
 import yeonba.be.util.SaltGenerator;
@@ -104,9 +106,13 @@ public class UserService {
         // 성별 판별
         Gender gender = Gender.from(request.getGender());
 
-        // 나이 계산
+        // 성인 여부 검증 & 나이 계산
         LocalDate birth = request.getBirth();
-        int age = Period.between(birth, LocalDate.now()).getYears();
+        LocalDate currentDate = LocalDate.now();
+        if (AgeValidator.isNotAdult(birth, currentDate)) {
+            throw new GeneralException(UserException.IS_NOT_ADULT);
+        }
+        int age = Period.between(birth, currentDate).getYears();
 
         // salt 생성 및 비밀번호 암호화
         String salt = SaltGenerator.generateRandomSalt();
