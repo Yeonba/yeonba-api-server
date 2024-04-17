@@ -23,17 +23,13 @@ public class UserPreference {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private int ageLowerBound;
+    private Integer ageLowerBound;
 
-    @Column(nullable = false)
-    private int ageUpperBound;
+    private Integer ageUpperBound;
 
-    @Column(nullable = false)
-    private int heightLowerBound;
+    private Integer heightLowerBound;
 
-    @Column(nullable = false)
-    private int heightUpperBound;
+    private Integer heightUpperBound;
 
     @Column(nullable = false)
     private String mbti;
