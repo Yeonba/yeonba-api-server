@@ -1,12 +1,12 @@
 package yeonba.be.mypage.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -113,32 +113,28 @@ public class UserUpdateProfileRequest {
         type = "number",
         description = "선호하는 나이 하한",
         example = "21")
-    @Min(value = 0, message = "선호하는 나이 하한은 양수여야 합니다.")
-    @NotNull(message = "선호하는 나이 하한은 반드시 입력되어야 합니다.")
+    @PositiveOrZero(message = "선호하는 나이 하한은 0 이상이어야 합니다.")
     private Integer preferredAgeLowerBound;
 
     @Schema(
         type = "number",
         description = "선호하는 나이 상한",
         example = "30")
-    @Min(value = 0, message = "선호하는 나이 상한은 양수여야 합니다.")
-    @NotNull(message = "선호하는 나이 상한은 반드시 입력되어야 합니다.")
+    @PositiveOrZero(message = "선호하는 나이 상한은 0 이상이어야 합니다.")
     private Integer preferredAgeUpperBound;
 
     @Schema(
         type = "number",
         description = "선호하는 키 하한",
         example = "177")
-    @Positive(message = "선호하는 키 하한은 양수여야 합니다.")
-    @NotNull(message = "선호하는 키 하한은 반드시 입력되어야 합니다.")
+    @PositiveOrZero(message = "선호하는 키 하한은 0 이상이어야 합니다.")
     private Integer preferredHeightLowerBound;
 
     @Schema(
         type = "number",
         description = "선호하는 키 상한",
         example = "185")
-    @Positive(message = "선호하는 키 상한은 양수여야 합니다.")
-    @NotNull(message = "선호하는 키 상한은 반드시 입력되어야 합니다.")
+    @PositiveOrZero(message = "선호하는 키 상한은 0 이상이어야 합니다.")
     private Integer preferredHeightUpperBound;
 
     @Schema(
