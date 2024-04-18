@@ -3,6 +3,8 @@ package yeonba.be.user.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,6 +25,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.user.enums.LoginType;
 
 @Table(name = "users")
 @Getter
@@ -35,6 +38,12 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private long socialId;
+
+    @Enumerated(EnumType.STRING)
+    private LoginType loginType;
+
     private boolean gender;
 
     @Column(nullable = false)
