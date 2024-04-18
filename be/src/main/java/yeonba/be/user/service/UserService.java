@@ -20,6 +20,7 @@ import yeonba.be.user.entity.User;
 import yeonba.be.user.entity.UserPreference;
 import yeonba.be.user.entity.VocalRange;
 import yeonba.be.user.enums.Gender;
+import yeonba.be.user.enums.LoginType;
 import yeonba.be.user.repository.UserCommand;
 import yeonba.be.user.repository.UserQuery;
 import yeonba.be.user.repository.animal.AnimalQuery;
@@ -75,6 +76,8 @@ public class UserService {
 
     public User saveUser(UserJoinRequest request) {
 
+        LoginType loginType = LoginType.from(request.getLoginType());
+
         // 이미 사용 중인 이메일인지 확인
         if (userQuery.validateUsedEmail(request.getEmail())) {
 
@@ -119,6 +122,8 @@ public class UserService {
 
         // 사용자 생성 및 저장
         User user = new User(
+            request.getSocialId(),
+            loginType,
             gender.genderBoolean,
             request.getName(),
             request.getNickname(),

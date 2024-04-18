@@ -112,6 +112,8 @@ public class User {
     private List<Block> blocks;
 
     public User(
+        long socialId,
+        LoginType loginType,
         boolean gender,
         String name,
         String nickname,
@@ -131,6 +133,8 @@ public class User {
         Animal animal,
         Area area) {
 
+        this.socialId = socialId;
+        this.loginType = loginType;
         this.gender = gender;
         this.name = name;
         this.nickname = nickname;
