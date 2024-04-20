@@ -61,7 +61,7 @@ public class UserService {
 
         return new UserProfileResponse(
             targetUser.getProfilePhotoUrls(),
-            targetUser.getGender(),
+            targetUser.getGenderString(),
             targetUser.getNickname(),
             targetUser.getArrow(),
             targetUser.getAge(),

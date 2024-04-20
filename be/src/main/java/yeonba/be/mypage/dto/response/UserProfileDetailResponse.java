@@ -87,7 +87,7 @@ public class UserProfileDetailResponse {
     public UserProfileDetailResponse(User user) {
 
         this.profilePhotoUrls = user.getProfilePhotoUrls();
-        this.gender = user.getGender();
+        this.gender = user.getGenderString();
         this.name = user.getName();
         this.birth = user.getBirth();
         this.height = user.getHeight();
