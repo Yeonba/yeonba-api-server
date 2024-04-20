@@ -23,4 +23,14 @@ public enum Gender {
 
         return FEMALE;
     }
+
+    public static String genderBooleanToString(boolean genderBoolean) {
+
+        if (genderBoolean == MALE.genderBoolean) {
+
+            return MALE.genderString;
+        }
+
+        return FEMALE.genderString;
+    }
 }
