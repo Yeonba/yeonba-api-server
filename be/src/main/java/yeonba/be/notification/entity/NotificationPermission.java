@@ -47,4 +47,9 @@ public class NotificationPermission {
 
         return permissionStatus;
     }
+
+    public void updatePermissionStatus(boolean permissionStatus) {
+
+        this.permissionStatus = permissionStatus;
+    }
 }
