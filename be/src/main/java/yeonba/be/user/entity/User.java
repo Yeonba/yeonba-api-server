@@ -23,6 +23,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.UserException;
+import yeonba.be.user.enums.Gender;
 
 @Table(name = "users")
 @Getter
@@ -147,7 +149,7 @@ public class User {
     public void validateNotSameUser(User user) {
 
         if (this.equals(user)) {
-            throw new IllegalArgumentException("동일한 사용자입니다.");
+            throw new GeneralException(UserException.SAME_USER);
         }
     }
 
@@ -198,14 +200,14 @@ public class User {
         this.arrow -= arrow;
     }
 
-    public String getGender() {
+    public String getGenderString() {
 
-        if (this.gender) {
+        return Gender.genderBooleanToString(this.gender);
+    }
 
-            return "남";
-        }
+    public boolean getGenderBoolean() {
 
-        return "여";
+        return this.gender;
     }
 
     public List<String> getProfilePhotoUrls() {
@@ -228,5 +230,12 @@ public class User {
     public void updateRefreshToken(String refreshToken) {
 
         this.refreshToken = refreshToken;
+    }
+
+    public void validateSameGender(User user) {
+
+        if (this.gender == user.getGenderBoolean()) {
+            throw new GeneralException(UserException.SAME_GENDER_USER);
+        }
     }
 }
