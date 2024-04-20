@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
 import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
@@ -22,6 +23,8 @@ import yeonba.be.mypage.dto.response.BlockedUsersResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.notification.dto.response.NotificationPermissionsResponse;
+import yeonba.be.notification.entity.NotificationPermission;
+import yeonba.be.notification.entity.NotificationType;
 import yeonba.be.notification.repository.NotificationPermissionQuery;
 import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
@@ -208,5 +211,35 @@ public class MyPageService {
             arrowReceivedNotificationPermission,
             chattingRequestNotificationPermission,
             chattingRequestAcceptedNotificationPermission);
+    }
+
+    @Transactional
+    public void updateNotificationPermissions(long userId, UserAllowNotificationsRequest request) {
+
+        User user = userQuery.findById(userId);
+
+        updateNotificationPermissionStatusBy(
+            user,
+            ARROW_RECEIVED,
+            request.getAllowArrowReceivedNotification());
+        updateNotificationPermissionStatusBy(
+            user,
+            CHAT_REQUESTED,
+            request.getAllowChattingRequestNotification());
+        updateNotificationPermissionStatusBy(
+            user,
+            CHAT_REQUEST_ACCEPTED,
+            request.getAllowChattingRequestAcceptedNotification());
+
+    }
+
+    private void updateNotificationPermissionStatusBy(
+        User user,
+        NotificationType type,
+        boolean permissionStatus) {
+
+        NotificationPermission notificationPermission =
+            notificationPermissionQuery.findBy(user, type);
+        notificationPermission.updatePermissionStatus(permissionStatus);
     }
 }
