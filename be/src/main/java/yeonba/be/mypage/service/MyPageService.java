@@ -1,5 +1,9 @@
 package yeonba.be.mypage.service;
 
+import static yeonba.be.notification.entity.NotificationType.ARROW_RECEIVED;
+import static yeonba.be.notification.entity.NotificationType.CHAT_REQUESTED;
+import static yeonba.be.notification.entity.NotificationType.CHAT_REQUEST_ACCEPTED;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +21,8 @@ import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
+import yeonba.be.notification.dto.response.NotificationPermissionsResponse;
+import yeonba.be.notification.repository.NotificationPermissionQuery;
 import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.BlockCommand;
@@ -29,8 +35,11 @@ import yeonba.be.util.PasswordEncryptor;
 public class MyPageService {
 
     private final S3Client s3Client;
-    private final UserQuery userQuery;
+
     private final BlockQuery blockQuery;
+    private final UserQuery userQuery;
+    private final NotificationPermissionQuery notificationPermissionQuery;
+
     private final BlockCommand blockCommand;
     private final PasswordEncryptor passwordEncryptor;
 
@@ -181,5 +190,23 @@ public class MyPageService {
             request.getNewPasswordConfirmation())) {
             throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인 값이 일치하지 않습니다.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public NotificationPermissionsResponse getNotificationPermissions(long userId) {
+
+        User user = userQuery.findById(userId);
+
+        boolean arrowReceivedNotificationPermission =
+            notificationPermissionQuery.findBy(user, ARROW_RECEIVED).getPermissionStatus();
+        boolean chattingRequestNotificationPermission =
+            notificationPermissionQuery.findBy(user, CHAT_REQUESTED).getPermissionStatus();
+        boolean chattingRequestAcceptedNotificationPermission =
+            notificationPermissionQuery.findBy(user, CHAT_REQUEST_ACCEPTED).getPermissionStatus();
+
+        return new NotificationPermissionsResponse(
+            arrowReceivedNotificationPermission,
+            chattingRequestNotificationPermission,
+            chattingRequestAcceptedNotificationPermission);
     }
 }
