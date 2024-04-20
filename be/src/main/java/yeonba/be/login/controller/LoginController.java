@@ -45,6 +45,34 @@ public class LoginController {
             .body(new CustomResponse<>(response));
     }
 
+    @Operation(summary = "소셜 로그인", description = "소셜 로그인을 할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "로그인 성공")
+    @PostMapping("/users/login")
+    public ResponseEntity<CustomResponse<UserLoginResponse>> login(
+        @RequestBody UserLoginRequest request) {
+
+        UserLoginResponse response = loginService.login(request);
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(response));
+    }
+
+    @Operation(
+        summary = "jwt 재발급",
+        description = "refresh token을 통해 jwt를 재발급받을 수 있습니다."
+    )
+    @PostMapping("/users/refresh")
+    public ResponseEntity<CustomResponse<UserRefreshTokenResponse>> refresh(
+        @RequestBody UserRefreshTokenRequest request) {
+
+        String createdJwt = "created";
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(new UserRefreshTokenResponse(createdJwt)));
+    }
+
     @Operation(summary = "이메일 찾기 인증 코드 sms 전송", description = "이메일 찾기를 위한 인증번호 sms 전송을 요청합니다.")
     @ApiResponse(responseCode = "202", description = "전화번호 인증 코드 전송 성공")
     @PostMapping("/users/email-inquiry/verification-code")
@@ -82,42 +110,6 @@ public class LoginController {
         return ResponseEntity
             .accepted()
             .body(new CustomResponse<>());
-    }
-
-    @Operation(summary = "로그인", description = "로그인을 할 수 있습니다.")
-    @ApiResponse(responseCode = "200", description = "로그인 성공")
-    @PostMapping("/users/login")
-    public ResponseEntity<CustomResponse<UserLoginResponse>> login(
-        @RequestBody UserLoginRequest request) {
-
-        return ResponseEntity
-            .ok()
-            .body(new CustomResponse<>(
-                new UserLoginResponse(
-                    """
-                        eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-                        .eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
-                        .SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c""",
-                    """
-                        eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-                        .eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
-                        .SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"""
-                )));
-    }
-
-    @Operation(
-        summary = "access token 재발급",
-        description = "refresh token을 통해 access token을 재발급받을 수 있습니다."
-    )
-    @PostMapping("/users/refresh")
-    public ResponseEntity<CustomResponse<UserRefreshTokenResponse>> refresh(
-        @RequestBody UserRefreshTokenRequest request) {
-
-        String createdJwt = "created";
-
-        return ResponseEntity
-            .ok()
-            .body(new CustomResponse<>(new UserRefreshTokenResponse(createdJwt)));
     }
 
     @Operation(summary = "핸드폰 번호 인증 코드 sms 전송", description = "핸드 번호 인증 코드 sms 전송")
