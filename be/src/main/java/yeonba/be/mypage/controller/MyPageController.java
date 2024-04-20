@@ -114,7 +114,7 @@ public class MyPageController {
 
     @Operation(summary = "알림 동의 내역(on/off) 조회", description = "알림 동의 내역을 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "알림 동의 내역 조회 성공")
-    @GetMapping("/notifications/permissions")
+    @GetMapping("/users/notifications/permissions")
     public ResponseEntity<CustomResponse<NotificationPermissionsResponse>>
     getNotificationPermissions(@RequestAttribute("userId") long userId) {
 
@@ -128,9 +128,12 @@ public class MyPageController {
 
     @Operation(summary = "알림 on/off 설정", description = "알림별로 on/off를 설정할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "알림 on/off 설정 정상 처리")
-    @PatchMapping("/user/notifications")
+    @PatchMapping("/users/notifications/permissions")
     public ResponseEntity<CustomResponse<Void>> allowNotifications(
-        @RequestBody UserAllowNotificationsRequest request) {
+        @RequestAttribute("userId") long userId,
+        @Valid @RequestBody UserAllowNotificationsRequest request) {
+
+        myPageService.updateNotificationPermissions(userId, request);
 
         return ResponseEntity
             .accepted()
