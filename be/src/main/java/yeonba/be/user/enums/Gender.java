@@ -1,7 +1,11 @@
 package yeonba.be.user.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
+@Getter
+@AllArgsConstructor
 public enum Gender {
 
     MALE("남", true),
@@ -9,11 +13,6 @@ public enum Gender {
 
     public final String genderString;
     public final boolean genderBoolean;
-
-    Gender(String genderString, boolean genderBoolean) {
-        this.genderString = genderString;
-        this.genderBoolean = genderBoolean;
-    }
 
     public static Gender from(String genderString) {
 
