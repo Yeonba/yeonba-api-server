@@ -14,13 +14,13 @@ import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
-import yeonba.be.login.dto.request.UserRefreshTokenRequest;
+import yeonba.be.login.dto.request.UserRefreshJwtRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
 import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
-import yeonba.be.login.dto.response.UserRefreshTokenResponse;
+import yeonba.be.login.dto.response.UserRefrehJwtResponse;
 import yeonba.be.login.service.LoginService;
 import yeonba.be.user.service.JoinService;
 import yeonba.be.util.CustomResponse;
@@ -58,19 +58,16 @@ public class LoginController {
             .body(new CustomResponse<>(response));
     }
 
-    @Operation(
-        summary = "jwt 재발급",
-        description = "refresh token을 통해 jwt를 재발급받을 수 있습니다."
-    )
+    @Operation(summary = "jwt 재발급", description = "refresh token을 통해 jwt를 재발급받을 수 있습니다.")
     @PostMapping("/users/refresh")
-    public ResponseEntity<CustomResponse<UserRefreshTokenResponse>> refresh(
-        @RequestBody UserRefreshTokenRequest request) {
+    public ResponseEntity<CustomResponse<UserRefrehJwtResponse>> refreshJwt(
+        @RequestBody UserRefreshJwtRequest request) {
 
-        String createdJwt = "created";
+        UserRefrehJwtResponse response = loginService.refreshJwt(request);
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(new UserRefreshTokenResponse(createdJwt)));
+            .body(new CustomResponse<>(response));
     }
 
     @Operation(summary = "이메일 찾기 인증 코드 sms 전송", description = "이메일 찾기를 위한 인증번호 sms 전송을 요청합니다.")

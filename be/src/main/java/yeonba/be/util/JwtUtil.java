@@ -33,6 +33,15 @@ public class JwtUtil {
         return generateUserJwt(user, generatedAt, expiredAt);
     }
 
+    public long getUserIdFromToken(String token) {
+
+        return Long.parseLong(Jwts.parser()
+            .setSigningKey(jwtSecret)
+            .parseClaimsJws(token)
+            .getBody()
+            .get("userId", String.class));
+    }
+
     private Date getExpiredAt(Date generatedAt, Duration duration) {
 
         Instant instant = generatedAt.toInstant()
