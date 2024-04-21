@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RestController;
-import yeonba.be.arrow.dto.UserArrowsResponse;
+import yeonba.be.arrow.dto.response.UserArrowsResponse;
 import yeonba.be.arrow.service.ArrowService;
 import yeonba.be.util.CustomResponse;
 
