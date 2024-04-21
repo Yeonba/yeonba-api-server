@@ -2,10 +2,11 @@ package yeonba.be.arrow.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import yeonba.be.arrow.dto.UserArrowsResponse;
+import yeonba.be.arrow.dto.response.UserArrowsResponse;
 import yeonba.be.arrow.entity.ArrowTransaction;
 import yeonba.be.arrow.repository.ArrowCommand;
 import yeonba.be.arrow.repository.ArrowQuery;
@@ -19,34 +20,32 @@ import yeonba.be.user.repository.UserQuery;
 @RequiredArgsConstructor
 public class ArrowService {
 
-    private final int DAILY_CHECK_ARROW_COUNT = 10;
     private final int ADVERTISEMENT_ARROW_COUNT = 5;
     private final UserQuery userQuery;
     private final ArrowCommand arrowCommand;
     private final ArrowQuery arrowQuery;
 
-    /*
-      출석 체크는 다음 과정을 거쳐 이뤄진다.
-      1. 사용자 최종 접속 일시를 통해 이미 출석 체크하였는지 확인
-      2. 화살 송수신 내역 저장
-      3. 사용자 최종 접속 일시 갱신
-      4. 사용자 화살 개수 증가
-     */
     @Transactional
     public void dailyCheck(long userId) {
 
         User dailyCheckUser = userQuery.findById(userId);
 
-        LocalDateTime dailyCheckedAt = LocalDateTime.now();
-        dailyCheckUser.validateDailyCheck(dailyCheckedAt.toLocalDate());
+        // 휴면 상태 사용자는 출석 체크 불가
+        if (dailyCheckUser.isInactive()) {
+            throw new GeneralException(UserException.INACTIVE_USER);
+        }
 
-        ArrowTransaction arrowTransaction = new ArrowTransaction(
-            dailyCheckUser,
-            DAILY_CHECK_ARROW_COUNT);
+        // 처음 가입한 사용자는 최종 접속 일시가 null, 이 경우 출석 체크를 그냥 진행함
+        if (!Objects.isNull(dailyCheckUser.getLastAccessedAt())) {
+            LocalDateTime dailyCheckedAt = LocalDateTime.now();
+            dailyCheckUser.validateDailyCheck(dailyCheckedAt.toLocalDate());
+        }
+
+        int dailyCheckArrows = 10;
+        ArrowTransaction arrowTransaction = new ArrowTransaction(dailyCheckUser, dailyCheckArrows);
         arrowCommand.save(arrowTransaction);
 
-        dailyCheckUser.updateLastAccessedAt(dailyCheckedAt);
-        dailyCheckUser.plusArrow(DAILY_CHECK_ARROW_COUNT);
+        dailyCheckUser.plusArrow(dailyCheckArrows);
     }
 
     @Transactional(readOnly = true)
