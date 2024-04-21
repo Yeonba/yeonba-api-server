@@ -181,9 +181,9 @@ public class User {
         return this.profilePhotos.get(0).getPhotoUrl();
     }
 
-    public void updateLastAccessedAt(LocalDateTime accessedAt) {
+    public void updateLastAccessedAt(LocalDateTime accessAt) {
 
-        this.lastAccessedAt = accessedAt;
+        this.lastAccessedAt = accessAt;
     }
 
     public void plusArrow(int arrow) {
