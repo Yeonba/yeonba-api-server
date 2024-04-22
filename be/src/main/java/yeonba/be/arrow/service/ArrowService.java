@@ -26,7 +26,7 @@ public class ArrowService {
     private final ArrowQuery arrowQuery;
 
     @Transactional
-    public void dailyCheck(long userId) {
+    public void dailyCheck(long userId, LocalDate dailyCheckDay) {
 
         User dailyCheckUser = userQuery.findById(userId);
 
@@ -37,8 +37,7 @@ public class ArrowService {
 
         // 처음 가입한 사용자는 최종 접속 일시가 null, 이 경우 출석 체크를 그냥 진행함
         if (!Objects.isNull(dailyCheckUser.getLastAccessedAt())) {
-            LocalDateTime dailyCheckedAt = LocalDateTime.now();
-            dailyCheckUser.validateDailyCheck(dailyCheckedAt.toLocalDate());
+            dailyCheckUser.validateDailyCheck(dailyCheckDay);
         }
 
         int dailyCheckArrows = 10;
