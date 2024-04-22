@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +42,8 @@ public class ArrowController {
     public ResponseEntity<CustomResponse<Void>> dailyCheck(
         @RequestAttribute("userId") long userId) {
 
-        arrowService.dailyCheck(userId);
+        LocalDate dailyCheckDay = LocalDate.now();
+        arrowService.dailyCheck(userId, dailyCheckDay);
 
         return ResponseEntity
             .ok()
