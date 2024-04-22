@@ -13,10 +13,10 @@ public class ArrowQuery {
 
     private final ArrowTransactionRepository arrowTransactionRepository;
 
-    public boolean isArrowTransactionExist(User sentUser, User receivedUser) {
+    public boolean isArrowTransactionExist(User sender, User receiver) {
 
         return arrowTransactionRepository
-            .existsBySenderAndReceiver(sentUser, receivedUser);
+            .existsBySenderAndReceiver(sender, receiver);
     }
 
     public void validateAdvertisementArrowCount(long userId, LocalDateTime today) {
