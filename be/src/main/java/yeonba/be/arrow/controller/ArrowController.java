@@ -71,7 +71,8 @@ public class ArrowController {
     public ResponseEntity<CustomResponse<Void>> chargeArrows(
         @RequestAttribute("userId") long userId) {
 
-        arrowService.chargeArrows(userId);
+        LocalDate chargeDay = LocalDate.now();
+        arrowService.chargeArrows(userId, chargeDay);
 
         return ResponseEntity
             .ok()
