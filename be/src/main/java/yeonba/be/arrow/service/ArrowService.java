@@ -92,12 +92,12 @@ public class ArrowService {
     }
 
     @Transactional
-    public void chargeArrows(long userId) {
+    public void chargeArrows(long userId, LocalDate chargeDay) {
 
         User user = userQuery.findById(userId);
 
-        LocalDateTime today = LocalDate.now().atStartOfDay();
-        arrowQuery.validateAdvertisementArrowCount(userId, today);
+        LocalDateTime chargeDayStartTime = chargeDay.atStartOfDay();
+        arrowQuery.validateAdvertisementArrowCount(userId, chargeDayStartTime);
 
         ArrowTransaction arrowTransaction = new ArrowTransaction(
             user,
