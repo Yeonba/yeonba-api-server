@@ -35,14 +35,23 @@ public class JwtUtil {
 
     public long getUserIdFromToken(String token) {
 
-        return Long.parseLong(Jwts.parser()
+        Object userIdObject = Jwts.parser()
             .setSigningKey(jwtSecret)
             .parseClaimsJws(token)
             .getBody()
-            .get("userId", String.class));
+            .get("userId");
+
+        if (userIdObject instanceof String) {
+            return Long.parseLong((String) userIdObject);
+        } else if (userIdObject instanceof Integer) {
+            return ((Integer) userIdObject).longValue();
+        } else {
+            throw new IllegalArgumentException("Unexpected type for userId: " + userIdObject.getClass().getName());
+        }
     }
 
-    private Date getExpiredAt(Date generatedAt, Duration duration) {
+    private Date getExpiredAt(
+        Date generatedAt, Duration duration) {
 
         Instant instant = generatedAt.toInstant()
             .plusMillis(duration.toMillis());
