@@ -72,6 +72,7 @@ public class User {
     @Column(nullable = false)
     private String mbti;
     private String refreshToken;
+    private String deviceToken;
 
     @ManyToOne
     @JoinColumn(name = "vocal_range_id")
@@ -228,5 +229,10 @@ public class User {
     public void updateRefreshToken(String refreshToken) {
 
         this.refreshToken = refreshToken;
+    }
+
+    public void updateDeviceToken(String deviceToken) {
+
+        this.deviceToken = deviceToken;
     }
 }
