@@ -33,7 +33,7 @@ public class UserUpdateProfileRequest {
         example = "177")
     @Positive(message = "키는 양수여야 합니다.")
     @NotNull(message = "키는 반드시 입력되어야 합니다.")
-    private Integer height;
+    private int height;
 
     @Schema(
         type = "string",
