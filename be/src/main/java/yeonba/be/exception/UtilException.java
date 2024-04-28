@@ -1,7 +1,11 @@
 package yeonba.be.exception;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
+@AllArgsConstructor
 public enum UtilException implements BaseException {
 
     INVALID_JWT(
@@ -10,26 +14,12 @@ public enum UtilException implements BaseException {
 
     NOT_ALLOWED_IMAGE_FILE_EXTENSION(
         HttpStatus.BAD_REQUEST,
-        "jpg, jpeg, png 확장자 형식의 파일만 허용됩니다.");
+        "jpg, jpeg, png 확장자 형식의 파일만 허용됩니다."),
+
+    FCM_EXCEPTION(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        "FCM을 통한 알림 전송 도중 예외가 발생하였습니다. 관리자에게 문의하세요");
 
     private final HttpStatus httpStatus;
     private final String reason;
-
-    UtilException(HttpStatus httpStatus, String reason) {
-
-        this.httpStatus = httpStatus;
-        this.reason = reason;
-    }
-
-    @Override
-    public HttpStatus getHttpStatus() {
-
-        return httpStatus;
-    }
-
-    @Override
-    public String getReason() {
-
-        return reason;
-    }
 }
