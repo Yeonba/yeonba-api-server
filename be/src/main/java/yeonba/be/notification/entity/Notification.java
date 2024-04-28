@@ -53,13 +53,12 @@ public class Notification {
 
     public Notification(
         String content,
-        boolean read,
         NotificationType type,
         User creator,
         User receiver) {
 
         this.content = content;
-        this.read = read;
+        this.read = false;
         this.type = type;
         this.creator = creator;
         this.receiver = receiver;
