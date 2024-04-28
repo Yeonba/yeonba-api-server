@@ -9,6 +9,9 @@ import yeonba.be.notification.dto.request.NotificationReceivedRequest;
 import yeonba.be.notification.dto.response.NotificationPageResponse;
 import yeonba.be.notification.dto.response.NotificationResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadCountResponse;
+import yeonba.be.notification.entity.Notification;
+import yeonba.be.notification.event.NotificationSendEvent;
+import yeonba.be.notification.repository.NotificationCommand;
 import yeonba.be.notification.repository.NotificationQuery;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
@@ -18,6 +21,7 @@ import yeonba.be.user.repository.UserQuery;
 public class NotificationService {
 
     private final UserQuery userQuery;
+    private final NotificationCommand notificationCommand;
     private final NotificationQuery notificationQuery;
 
     @Transactional(readOnly = true)
@@ -42,5 +46,22 @@ public class NotificationService {
             notificationQuery.findReceivedNotificationsBy(receiverId, pageRequest);
 
         return NotificationPageResponse.of(page);
+    }
+
+    @Transactional
+    public void saveNotification(NotificationSendEvent sendEvent) {
+
+        long creatorId = sendEvent.creatorId();
+        User creator = userQuery.findById(creatorId);
+
+        long receiverId = sendEvent.receiverId();
+        User receiver = userQuery.findById(receiverId);
+
+        Notification notification = new Notification(
+            sendEvent.getNotificationMessage(),
+            sendEvent.type(),
+            creator,
+            receiver);
+        notificationCommand.save(notification);
     }
 }
