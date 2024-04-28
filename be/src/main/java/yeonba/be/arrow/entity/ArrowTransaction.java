@@ -28,12 +28,12 @@ public class ArrowTransaction {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "sent_user_id")
-    private User sentUser;
+    @JoinColumn(name = "sender_id")
+    private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "received_user_id")
-    private User receivedUser;
+    @JoinColumn(name = "receiver_id")
+    private User receiver;
 
     @Column(nullable = false)
     private int arrows;
@@ -43,20 +43,20 @@ public class ArrowTransaction {
     private LocalDateTime createdAt;
 
     public ArrowTransaction(
-        User receivedUser,
+        User receiver,
         int arrows) {
 
-        this.receivedUser = receivedUser;
+        this.receiver = receiver;
         this.arrows = arrows;
     }
 
     public ArrowTransaction(
-        User sentUser,
-        User receivedUser,
+        User sender,
+        User receiver,
         int arrows) {
 
-        this.sentUser = sentUser;
-        this.receivedUser = receivedUser;
+        this.sender = sender;
+        this.receiver = receiver;
         this.arrows = arrows;
     }
 }
