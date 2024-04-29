@@ -96,7 +96,7 @@ public class UserJoinRequest {
         example = "180")
     @Positive(message = "키는 양의 정수여야 합니다.")
     @NotNull(message = "키는 반드시 입력되어야 합니다.")
-    private Integer height;
+    private int height;
 
     @Schema(
         type = "string",
@@ -150,7 +150,7 @@ public class UserJoinRequest {
         value = 80,
         message = "사진 싱크로율이 80퍼 이상이어야 가입할 수 있습니다.")
     @NotNull(message = "사진 싱크로율은 반드시 입력되어야 합니다.")
-    private Integer photoSyncRate;
+    private int photoSyncRate;
 
     @Schema(
         type = "string",
@@ -185,7 +185,6 @@ public class UserJoinRequest {
         description = "선호하는 나이 하한",
         example = "22")
     @Positive(message = "선호하는 나이 하한은 양수여야 합니다.")
-    @NotNull(message = "선호하는 나이 하한은 반드시 입력되어야 합니다.")
     private Integer preferredAgeLowerBound;
 
     @Schema(
@@ -193,7 +192,6 @@ public class UserJoinRequest {
         description = "선호하는 나이 상한",
         example = "30")
     @Positive(message = "선호하는 나이 상한은 양수여야 합니다.")
-    @NotNull(message = "선호하는 나이 상한은 반드시 입력되어야 합니다.")
     private Integer preferredAgeUpperBound;
 
     @Schema(
@@ -201,7 +199,6 @@ public class UserJoinRequest {
         description = "선호하는 키 하한",
         example = "177")
     @Positive(message = "선호하는 키 하한은 양수여야 합니다.")
-    @NotNull(message = "선호하는 키 하한은 반드시 입력되어야 합니다.")
     private Integer preferredHeightLowerBound;
 
     @Schema(
@@ -209,7 +206,6 @@ public class UserJoinRequest {
         description = "선호하는 키 상한",
         example = "185")
     @Positive(message = "선호하는 키 상한은 양수여야 합니다.")
-    @NotNull(message = "선호하는 키 상한은 반드시 입력되어야 합니다.")
     private Integer preferredHeightUpperBound;
 
     @Schema(
