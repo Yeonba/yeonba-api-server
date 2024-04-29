@@ -50,7 +50,7 @@ public class LoginController {
     @ApiResponse(responseCode = "200", description = "로그인 성공")
     @PostMapping("/users/login")
     public ResponseEntity<CustomResponse<UserLoginResponse>> login(
-        @RequestBody UserLoginRequest request) {
+        @Valid @RequestBody UserLoginRequest request) {
 
         UserLoginResponse response = loginService.login(request);
 
