@@ -35,7 +35,7 @@ public class UserQuery {
 
     public User findByPhoneNumber(String phoneNumber) {
 
-        return userRepository.findByPhoneNumber(phoneNumber)
+        return userRepository.findByPhoneNumberAndDeletedIsFalse(phoneNumber)
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
     }
 

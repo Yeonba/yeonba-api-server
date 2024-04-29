@@ -55,8 +55,9 @@ public class LoginService {
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
 
-        User user = userQuery.findBySocialIdAndLoginType(
-            request.getSocialId(), LoginType.from(request.getLoginType()));
+        User user = userQuery.findByPhoneNumber(request.getPhoneNumber());
+        LoginType loginType = LoginType.from(request.getLoginType());
+        validateLoginInfo(user, request.getSocialId(), loginType);
 
         Date now = new Date();
         String jwt = jwtUtil.generateAccessToken(user, now);
@@ -66,6 +67,14 @@ public class LoginService {
         user.updateRefreshToken(refreshToken);
 
         return new UserLoginResponse(jwt, refreshToken);
+    }
+
+    private void validateLoginInfo(User user, long socialId, LoginType loginType) {
+
+        if (user.getSocialId() != socialId || user.getLoginType() != loginType) {
+
+            throw new GeneralException(UserException.NOT_MATCH_LOGIN_TYPE);
+        }
     }
 
     @Transactional

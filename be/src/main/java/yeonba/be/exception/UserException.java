@@ -14,7 +14,7 @@ public enum UserException implements BaseException {
 
     NOT_MATCH_LOGIN_TYPE(
         HttpStatus.BAD_REQUEST,
-        "다른 로그인 방식을 이용하거나 회원가입을 해주세요.");
+        "다른 로그인 방식을 이용해주세요.");
 
     private final HttpStatus httpStatus;
     private final String reason;
