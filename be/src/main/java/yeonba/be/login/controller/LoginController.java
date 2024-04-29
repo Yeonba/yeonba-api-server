@@ -34,6 +34,7 @@ public class LoginController {
     private final JoinService joinService;
 
     @Operation(summary = "회원가입", description = "회원가입을 할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "회원가입 성공")
     @PostMapping(path = "/users/join", consumes = "multipart/form-data")
     public ResponseEntity<CustomResponse<UserJoinResponse>> join(
         @Valid @ModelAttribute UserJoinRequest request) {
@@ -59,6 +60,7 @@ public class LoginController {
     }
 
     @Operation(summary = "jwt 재발급", description = "refresh token을 통해 jwt를 재발급받을 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "jwt 재발급 성공")
     @PostMapping("/users/refresh")
     public ResponseEntity<CustomResponse<UserRefrehJwtResponse>> refreshJwt(
         @RequestBody UserRefreshJwtRequest request) {
