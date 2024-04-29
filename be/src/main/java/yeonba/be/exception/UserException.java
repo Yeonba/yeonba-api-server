@@ -4,6 +4,10 @@ import org.springframework.http.HttpStatus;
 
 public enum UserException implements BaseException {
 
+    INVALID_REFRESH_TOKEN(
+        HttpStatus.UNAUTHORIZED,
+        "유효하지 않은 리프레시 토큰입니다."),
+
     USER_NOT_FOUND(
         HttpStatus.BAD_REQUEST,
         "해당 사용자가 존재하지 않습니다."),

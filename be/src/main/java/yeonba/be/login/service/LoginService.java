@@ -74,6 +74,7 @@ public class LoginService {
         long userId = jwtUtil.getUserIdFromToken(request.getRefreshToken());
 
         User user = userQuery.findById(userId);
+        user.validateRefreshToken(request.getRefreshToken());
 
         Date now = new Date();
         String jwt = jwtUtil.generateAccessToken(user, now);

@@ -25,6 +25,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.UserException;
 import yeonba.be.user.enums.LoginType;
 
 @Table(name = "users")
@@ -236,6 +237,13 @@ public class User {
     public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
 
         this.profilePhotos = profilePhotos;
+    }
+
+    public void validateRefreshToken(String refreshToken) {
+
+        if (!this.refreshToken.equals(refreshToken)) {
+            throw new GeneralException(UserException.INVALID_REFRESH_TOKEN);
+        }
     }
 
     public void updateRefreshToken(String refreshToken) {
