@@ -143,4 +143,14 @@ public class UserUpdateProfileRequest {
         example = "마른 체형")
     @NotBlank(message = "선호하는 체형은 반드시 입력되어야 합니다.")
     private String preferredBodyType;
+
+    @Schema(
+        type = "string",
+        description = "선호하는 MBTI",
+        example = "ISTJ")
+    @Pattern(
+        regexp = "^[EI][SN][TF][JP]$",
+        message = "유효하지 않은 MBTI 형식입니다.")
+    @NotBlank(message = "선호하는 MBTI는 반드시 입력되어야 합니다.")
+    private String preferredMbti;
 }
