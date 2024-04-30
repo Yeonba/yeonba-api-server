@@ -78,20 +78,24 @@ public class UserPreference {
     }
 
     public void updatePreference(
+        Integer ageLowerBound,
+        Integer ageUpperBound,
+        Integer heightLowerBound,
+        Integer heightUpperBound,
+        String mbti,
+        String bodyType,
         VocalRange vocalRange,
         Animal animal,
-        Area area,
-        int ageLowerBound,
-        int ageUpperBound,
-        int heightLowerBound,
-        int heightUpperBound) {
+        Area area) {
 
-        this.vocalRange = vocalRange;
-        this.animal = animal;
-        this.area = area;
         this.ageLowerBound = ageLowerBound;
         this.ageUpperBound = ageUpperBound;
         this.heightLowerBound = heightLowerBound;
         this.heightUpperBound = heightUpperBound;
+        this.mbti = mbti;
+        this.bodyType = bodyType;
+        this.vocalRange = vocalRange;
+        this.animal = animal;
+        this.area = area;
     }
 }
