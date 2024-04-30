@@ -1,5 +1,6 @@
 package yeonba.be.user.repository.animal;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
@@ -16,5 +17,10 @@ public class AnimalQuery {
 
         return animalRepository.findByName(name)
             .orElseThrow(() -> new GeneralException(UserException.ANIMAL_NOT_FOUND));
+    }
+
+    public List<Animal> findAll() {
+
+        return animalRepository.findAll();
     }
 }
