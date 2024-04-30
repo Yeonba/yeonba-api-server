@@ -93,16 +93,21 @@ public class MyPageService {
         int age = Period.between(birth, currentDate).getYears();
 
         // 음역대, 선호하는 음역대 조회
-        VocalRange vocalRange = vocalRangeQuery.findBy(request.getVocalRange());
-        VocalRange preferredVocalRange = vocalRangeQuery.findBy(request.getPreferredVocalRange());
+        List<VocalRange> vocalRanges = vocalRangeQuery.findAll();
+        VocalRange vocalRange =
+            findVocalRangeByClassification(vocalRanges, request.getVocalRange());
+        VocalRange preferredVocalRange =
+            findVocalRangeByClassification(vocalRanges, request.getPreferredVocalRange());
 
         // 동물상, 선호하는 동물상 조회
-        Animal animal = animalQuery.findByName(request.getLookAlikeAnimal());
-        Animal preferredAnimal = animalQuery.findByName(request.getPreferredAnimal());
+        List<Animal> animals = animalQuery.findAll();
+        Animal animal = findAnimalByName(animals, request.getLookAlikeAnimal());
+        Animal preferredAnimal = findAnimalByName(animals, request.getPreferredAnimal());
 
         // 활동 지역, 선호하는 지역 조회
-        Area area = areaQuery.findByName(request.getActivityArea());
-        Area preferredArea = areaQuery.findByName(request.getPreferredArea());
+        List<Area> areas = areaQuery.findAll();
+        Area area = findAreaByName(areas, request.getActivityArea());
+        Area preferredArea = findAreaByName(areas, request.getPreferredArea());
 
         // 하한, 상한 값이 모두 존재할 경우만 하한 <= 상한 검증
         Integer preferredAgeLowerBound = request.getPreferredAgeLowerBound();
@@ -114,15 +119,53 @@ public class MyPageService {
         validateBounds(preferredHeightLowerBound, preferredHeightUpperBound);
 
         // 사용자 프로필 및 선호 조건 업데이트
-        user.updateProfile(birth, age, vocalRange, animal, area);
+        user.updateProfile(
+            request.getNickname(),
+            request.getHeight(),
+            birth,
+            age,
+            request.getBodyType(),
+            request.getJob(),
+            request.getMbti(),
+            vocalRange,
+            animal,
+            area);
+
         userPreference.updatePreference(
+            preferredAgeLowerBound,
+            preferredAgeUpperBound,
+            preferredHeightLowerBound,
+            preferredHeightUpperBound,
+            request.getPreferredMbti(),
+            request.getPreferredBodyType(),
             preferredVocalRange,
             preferredAnimal,
-            preferredArea,
-            preferredAgeLowerBound,
-            preferredHeightUpperBound,
-            preferredHeightLowerBound,
-            preferredHeightUpperBound);
+            preferredArea);
+    }
+
+    private VocalRange findVocalRangeByClassification(
+        List<VocalRange> vocalRanges, String classification) {
+
+        return vocalRanges.stream()
+            .filter(vocalRange -> vocalRange.hasSameClassificationAs(classification))
+            .findFirst()
+            .orElseThrow(() -> new GeneralException(UserException.VOCAL_RANGE_NOT_FOUND));
+    }
+
+    private Animal findAnimalByName(List<Animal> animals, String name) {
+
+        return animals.stream()
+            .filter(animal -> animal.hasSameNameAs(name))
+            .findFirst()
+            .orElseThrow(() -> new GeneralException(UserException.ANIMAL_NOT_FOUND));
+    }
+
+    private Area findAreaByName(List<Area> areas, String name) {
+
+        return areas.stream()
+            .filter(area -> area.hasSameNameAs(name))
+            .findFirst()
+            .orElseThrow(() -> new GeneralException(UserException.AREA_NOT_FOUND));
     }
 
     private void validateBounds(Integer lowerBound, Integer upperBound) {
