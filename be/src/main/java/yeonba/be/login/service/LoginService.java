@@ -2,6 +2,7 @@ package yeonba.be.login.service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -10,16 +11,22 @@ import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.JoinException;
 import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserEmailInquiryRequest;
+import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
+import yeonba.be.login.dto.request.UserRefreshJwtRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
 import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserEmailInquiryResponse;
+import yeonba.be.login.dto.response.UserLoginResponse;
+import yeonba.be.login.dto.response.UserRefrehJwtResponse;
 import yeonba.be.login.entity.VerificationCode;
 import yeonba.be.login.repository.VerificationCodeCommand;
 import yeonba.be.login.repository.VerificationCodeQuery;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.repository.UserQuery;
+import yeonba.be.user.enums.LoginType;
+import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.util.EmailService;
+import yeonba.be.util.JwtUtil;
 import yeonba.be.util.PasswordEncryptor;
 import yeonba.be.util.SmsService;
 import yeonba.be.util.TemporaryPasswordGenerator;
@@ -43,6 +50,49 @@ public class LoginService {
     private final SmsService smsService;
 
     private final PasswordEncryptor passwordEncryptor;
+    private final JwtUtil jwtUtil;
+
+    @Transactional
+    public UserLoginResponse login(UserLoginRequest request) {
+
+        User user = userQuery.findByPhoneNumber(request.getPhoneNumber());
+        LoginType loginType = LoginType.from(request.getLoginType());
+        validateLoginInfo(user, request.getSocialId(), loginType);
+
+        Date now = new Date();
+        String jwt = jwtUtil.generateAccessToken(user, now);
+        String refreshToken = jwtUtil.generateRefreshToken(user, now);
+
+        // 사용자 refresh token 업데이트
+        user.updateRefreshToken(refreshToken);
+
+        return new UserLoginResponse(jwt, refreshToken);
+    }
+
+    private void validateLoginInfo(User user, long socialId, LoginType loginType) {
+
+        if (user.getSocialId() != socialId || user.getLoginType() != loginType) {
+
+            throw new GeneralException(UserException.NOT_MATCH_LOGIN_TYPE);
+        }
+    }
+
+    @Transactional
+    public UserRefrehJwtResponse refreshJwt(UserRefreshJwtRequest request) {
+
+        long userId = jwtUtil.getUserIdFromToken(request.getRefreshToken());
+
+        User user = userQuery.findById(userId);
+        user.validateRefreshToken(request.getRefreshToken());
+
+        Date now = new Date();
+        String jwt = jwtUtil.generateAccessToken(user, now);
+        String refreshToken = jwtUtil.generateRefreshToken(user, now);
+
+        user.updateRefreshToken(refreshToken);
+
+        return new UserRefrehJwtResponse(jwt, refreshToken);
+    }
 
     /*
     임시 비밀번호는 다음 과정을 거친다.

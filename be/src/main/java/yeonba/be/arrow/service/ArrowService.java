@@ -13,7 +13,7 @@ import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.repository.UserQuery;
+import yeonba.be.user.repository.user.UserQuery;
 
 @Service
 @RequiredArgsConstructor

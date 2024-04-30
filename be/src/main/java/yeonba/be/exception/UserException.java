@@ -4,25 +4,33 @@ import org.springframework.http.HttpStatus;
 
 public enum UserException implements BaseException {
 
-  USER_NOT_FOUND(
-      HttpStatus.BAD_REQUEST,
-      "해당 사용자가 존재하지 않습니다.");
+    INVALID_REFRESH_TOKEN(
+        HttpStatus.UNAUTHORIZED,
+        "유효하지 않은 리프레시 토큰입니다."),
 
-  private final HttpStatus httpStatus;
-  private final String reason;
+    USER_NOT_FOUND(
+        HttpStatus.BAD_REQUEST,
+        "해당 사용자가 존재하지 않습니다."),
 
-  UserException(HttpStatus httpStatus, String reason) {
-    this.httpStatus = httpStatus;
-    this.reason = reason;
-  }
+    NOT_MATCH_LOGIN_TYPE(
+        HttpStatus.BAD_REQUEST,
+        "다른 로그인 방식을 이용해주세요.");
 
-  @Override
-  public HttpStatus getHttpStatus() {
-    return httpStatus;
-  }
+    private final HttpStatus httpStatus;
+    private final String reason;
 
-  @Override
-  public String getReason() {
-    return reason;
-  }
+    UserException(HttpStatus httpStatus, String reason) {
+        this.httpStatus = httpStatus;
+        this.reason = reason;
+    }
+
+    @Override
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
+    @Override
+    public String getReason() {
+        return reason;
+    }
 }
