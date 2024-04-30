@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,9 +27,7 @@ import yeonba.be.user.repository.area.AreaQuery;
 import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
-import yeonba.be.util.PasswordEncryptor;
 import yeonba.be.util.S3Service;
-import yeonba.be.util.SaltGenerator;
 
 @Service
 @RequiredArgsConstructor
@@ -47,8 +44,6 @@ public class UserService {
     private final ArrowQuery arrowQuery;
     private final UserQuery userQuery;
     private final VocalRangeQuery vocalRangeQuery;
-
-    private final PasswordEncryptor passwordEncryptor;
 
     private final S3Service s3Service;
 
@@ -78,12 +73,6 @@ public class UserService {
 
         LoginType loginType = LoginType.from(request.getLoginType());
 
-        // 이미 사용 중인 이메일인지 확인
-        if (userQuery.validateUsedEmail(request.getEmail())) {
-
-            throw new GeneralException(JoinException.ALREADY_USED_EMAIL);
-        }
-
         // 이미 사용 중인 닉네임인지 확인
         if (userQuery.validateUsedNickname(request.getNickname())) {
 
@@ -96,24 +85,12 @@ public class UserService {
             throw new GeneralException(JoinException.ALREADY_USED_PHONE_NUMBER);
         }
 
-        // 비밀빈호, 비밀번호 확인 값 일치 확인
-        String password = request.getPassword();
-        String passwordConfirmation = request.getPasswordConfirmation();
-        if (!StringUtils.equals(password, passwordConfirmation)) {
-
-            throw new GeneralException(JoinException.PASSWORD_CONFIRMATION_NOT_MATCH);
-        }
-
         // 성별 판별
         Gender gender = Gender.from(request.getGender());
 
         // 나이 계산
         LocalDate birth = request.getBirth();
         int age = Period.between(birth, LocalDate.now()).getYears();
-
-        // salt 생성 및 비밀번호 암호화
-        String salt = SaltGenerator.generateRandomSalt();
-        String encryptedPassword = passwordEncryptor.encrypt(password, salt);
 
         // 음역대, 동물상, 지역 조회
         VocalRange vocalRange = vocalRangeQuery.findBy(request.getVocalRange());
@@ -130,9 +107,6 @@ public class UserService {
             request.getBirth(),
             age,
             request.getHeight(),
-            request.getEmail(),
-            encryptedPassword,
-            salt,
             request.getPhoneNumber(),
             JOIN_REWARD_ARROWS,
             request.getPhotoSyncRate(),
