@@ -119,7 +119,7 @@ public class UserService {
         String encryptedPassword = passwordEncryptor.encrypt(password, salt);
 
         // 음역대, 동물상, 지역 조회
-        VocalRange vocalRange = vocalRangeQuery.findBy(request.getVocalRange());
+        VocalRange vocalRange = vocalRangeQuery.findByClassification(request.getVocalRange());
         Animal animal = animalQuery.findByName(request.getLookAlikeAnimal());
         Area area = areaQuery.findByName(request.getActivityArea());
 
@@ -164,7 +164,8 @@ public class UserService {
 
         // 선호 음역대, 동물상, 지역 조회
         Animal preferredAnimal = animalQuery.findByName(request.getPreferredAnimal());
-        VocalRange preferredVocalRange = vocalRangeQuery.findBy(request.getPreferredVocalRange());
+        VocalRange preferredVocalRange =
+            vocalRangeQuery.findByClassification(request.getPreferredVocalRange());
         Area preferredArea = areaQuery.findByName(request.getPreferredArea());
 
         UserPreference userPreference = new UserPreference(
