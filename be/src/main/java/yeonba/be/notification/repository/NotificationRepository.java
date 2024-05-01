@@ -10,4 +10,6 @@ public interface NotificationRepository
     extends JpaRepository<Notification, Long>, NotificationRepositoryCustom {
 
     long countByReceiverAndReadIsFalse(User receiver);
+
+    boolean existsByReceiverAndReadIsFalse(User receiver);
 }
