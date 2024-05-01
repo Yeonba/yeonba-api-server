@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.notification.dto.request.NotificationReceivedRequest;
 import yeonba.be.notification.dto.response.NotificationPageResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadCountResponse;
+import yeonba.be.notification.dto.response.NotificationUnreadExistResponse;
 import yeonba.be.notification.service.NotificationService;
 import yeonba.be.util.CustomResponse;
 
@@ -23,8 +24,8 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping("/notifications/unread/count")
-    @Operation(summary = "읽지 않은 알림 개수 조회", description = "읽지 않은 알림 개수를 조회할 수 있습니다.")
+    @GetMapping("/users/notifications/unread/count")
+    @Operation(summary = "읽지 않은 알림 개수 조회", description = "읽지 않은 알림 개수 조회 가능")
     @ApiResponse(responseCode = "200", description = "읽지 않은 알림 개수 조회 성공")
     public ResponseEntity<CustomResponse<NotificationUnreadCountResponse>>
     getUnreadNotificationsCount(@RequestAttribute("userId") long userId) {
@@ -37,15 +38,29 @@ public class NotificationController {
             .body(new CustomResponse<>(response));
     }
 
-    @GetMapping("/notifications")
+    @GetMapping("/users/notifications")
     @Operation(summary = "받은 알림 목록 조회", description = "받은 알림 목록을 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "받은 알림 목록 조회 성공")
     public ResponseEntity<CustomResponse<NotificationPageResponse>> getReceivedNotifications(
         @RequestAttribute("userId") long userId,
         @Valid @ParameterObject NotificationReceivedRequest request) {
 
-        NotificationPageResponse response = notificationService
-            .getReceivedNotificationsBy(userId, request);
+        NotificationPageResponse response =
+            notificationService.getReceivedNotificationsBy(userId, request);
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(response));
+    }
+
+    @GetMapping("/users/notifications/unread/exists")
+    @Operation(summary = "읽지 않은 알림 존재 여부 조회", description = "읽지 않은 알림 존재 여부 확인 가능")
+    @ApiResponse(responseCode = "200", description = "읽지 않은 알림 존재 여부 확인 성공")
+    public ResponseEntity<CustomResponse<NotificationUnreadExistResponse>>
+    getUnreadNotificationExistence(@RequestAttribute("userId") long userId) {
+
+        NotificationUnreadExistResponse response =
+            notificationService.isUnreadNotificationExist(userId);
 
         return ResponseEntity
             .ok()
