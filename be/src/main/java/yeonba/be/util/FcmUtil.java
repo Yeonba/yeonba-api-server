@@ -6,6 +6,7 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UtilException;
@@ -16,11 +17,15 @@ import yeonba.be.notification.event.NotificationSendEvent;
 @Slf4j
 public class FcmUtil {
 
+    @Value("${NOTIFICATION_ICON_URL}")
+    private String notificationIconUrl;
+
     private final FirebaseMessaging firebaseMessaging;
 
     public void sendNotification(NotificationSendEvent sendEvent) {
 
         Notification notification = Notification.builder()
+            .setImage(notificationIconUrl)
             .setTitle(sendEvent.getNotificationTitle())
             .setBody(sendEvent.getNotificationMessage())
             .build();
