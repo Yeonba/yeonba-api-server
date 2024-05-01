@@ -15,8 +15,8 @@ public class UserPreferenceQuery {
 
     public UserPreference findByUser(User user) {
 
-        return userPreferenceRepository.findByUser(user)
-            .orElseThrow(()->new GeneralException(UserException.USER_PREFERENCE_NOT_FOUND));
+        return userPreferenceRepository.findFirstByUser(user)
+            .orElseThrow(() -> new GeneralException(UserException.USER_PREFERENCE_NOT_FOUND));
     }
 
 }
