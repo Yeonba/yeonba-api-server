@@ -28,11 +28,7 @@ import yeonba.be.user.repository.user.UserCommand;
 import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
-<<<<<<< HEAD
 import yeonba.be.util.AgeValidator;
-import yeonba.be.util.PasswordEncryptor;
-=======
->>>>>>> dev
 import yeonba.be.util.S3Service;
 
 @Service
@@ -117,11 +113,6 @@ public class UserService {
             request.getBirth(),
             age,
             request.getHeight(),
-<<<<<<< HEAD
-            encryptedPassword,
-            salt,
-=======
->>>>>>> dev
             request.getPhoneNumber(),
             JOIN_REWARD_ARROWS,
             request.getPhotoSyncRate(),
