@@ -34,9 +34,9 @@ public class JoinService {
         userService.saveUserPreference(user, request);
 
         // access token, refresh token 발급
-        Date issuedAt = new Date();
-        String accessToken = jwtUtil.generateAccessToken(user, issuedAt);
-        String refreshToken = jwtUtil.generateRefreshToken(user, issuedAt);
+        Date now = new Date();
+        String accessToken = jwtUtil.generateAccessToken(user, now);
+        String refreshToken = jwtUtil.generateRefreshToken(user, now);
 
         // 사용자 refresh token 업데이트
         user.updateRefreshToken(refreshToken);

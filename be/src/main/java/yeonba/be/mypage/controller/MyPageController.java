@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
-import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.request.UserUpdateUnwantedAcquaintancesRequest;
@@ -65,20 +64,6 @@ public class MyPageController {
         return ResponseEntity
             .ok()
             .body(new CustomResponse<>(response));
-    }
-
-    @Operation(summary = "비밀번호 수정", description = "자신의 비밀번호를 수정할 수 있습니다.")
-    @ApiResponse(responseCode = "200", description = "비밀번호 수정 완료")
-    @PatchMapping("/users/password")
-    public ResponseEntity<CustomResponse<Void>> changePassword(
-        @RequestBody UserChangePasswordRequest request,
-        @RequestAttribute("userId") long userId) {
-
-        myPageService.changePassword(request, userId);
-
-        return ResponseEntity
-            .accepted()
-            .body(new CustomResponse<>());
     }
 
     @Operation(summary = "자신의 프로필 사진 수정", description = "자신의 프로필 사진을 수정할 수 있습니다.")

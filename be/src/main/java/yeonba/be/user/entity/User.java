@@ -3,6 +3,8 @@ package yeonba.be.user.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,6 +25,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.UserException;
+import yeonba.be.user.enums.LoginType;
 
 @Table(name = "users")
 @Getter
@@ -35,6 +39,12 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private long socialId;
+
+    @Enumerated(EnumType.STRING)
+    private LoginType loginType;
+
     private boolean gender;
 
     @Column(nullable = false)
@@ -47,15 +57,6 @@ public class User {
     private LocalDate birth;
     private int age;
     private int height;
-
-    @Column(nullable = false)
-    private String email;
-
-    @Column(nullable = false)
-    private String encryptedPassword;
-
-    @Column(nullable = false)
-    private String salt;
 
     @Column(nullable = false)
     private String phoneNumber;
@@ -104,15 +105,14 @@ public class User {
     private List<Block> blocks;
 
     public User(
+        long socialId,
+        LoginType loginType,
         boolean gender,
         String name,
         String nickname,
         LocalDate birth,
         int age,
         int height,
-        String email,
-        String encryptedPassword,
-        String salt,
         String phoneNumber,
         int arrow,
         int photoSyncRate,
@@ -123,15 +123,14 @@ public class User {
         Animal animal,
         Area area) {
 
+        this.socialId = socialId;
+        this.loginType = loginType;
         this.gender = gender;
         this.name = name;
         this.nickname = nickname;
         this.birth = birth;
         this.age = age;
         this.height = height;
-        this.email = email;
-        this.encryptedPassword = encryptedPassword;
-        this.salt = salt;
         this.phoneNumber = phoneNumber;
         this.arrow = arrow;
         this.photoSyncRate = photoSyncRate;
@@ -152,11 +151,6 @@ public class User {
         }
     }
 
-    public void changePassword(String encryptedNewPassword) {
-
-        this.encryptedPassword = encryptedNewPassword;
-    }
-
     public void delete() {
 
         this.deleted = true;
@@ -164,7 +158,6 @@ public class User {
         this.nickname = "deleted";
         this.age = 0;
         this.height = 0;
-        this.email = "deleted";
         this.phoneNumber = "deleted";
     }
 
@@ -224,6 +217,13 @@ public class User {
     public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
 
         this.profilePhotos = profilePhotos;
+    }
+
+    public void validateRefreshToken(String refreshToken) {
+
+        if (!this.refreshToken.equals(refreshToken)) {
+            throw new GeneralException(UserException.INVALID_REFRESH_TOKEN);
+        }
     }
 
     public void updateRefreshToken(String refreshToken) {
