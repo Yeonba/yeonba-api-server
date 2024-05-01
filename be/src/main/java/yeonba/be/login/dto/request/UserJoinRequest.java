@@ -18,6 +18,20 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserJoinRequest {
 
     @Schema(
+        type = "number",
+        description = "소셜 로그인 ID",
+        example = "1234567890")
+    @NotNull(message = "소셜 로그인 ID는 반드시 입력되어야 합니다.")
+    private long socialId;
+
+    @Schema(
+        type = "string",
+        description = "소셜 로그인 타입",
+        example = "KAKAO")
+    @NotBlank(message = "소셜 로그인 타입은 반드시 입력되어야 합니다.")
+    private String loginType;
+
+    @Schema(
         type = "string",
         description = "성별",
         example = "남")
