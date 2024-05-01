@@ -36,9 +36,9 @@ public enum UserException implements BaseException {
         HttpStatus.BAD_REQUEST,
         "해당 사용자의 선호내역이 존재하지 않습니다."),
 
-    IS_NOT_ADULT(
+    AGE_OUT_OF_RANGE(
         HttpStatus.BAD_REQUEST,
-        "만 18세 미만은 저희 서비스를 이용할 수 없습니다."),
+        "서비스 이용이 가능한 사용자 나이는 20~40세입니다."),
 
     LOWER_BOUND_LESS_THAN_OR_EQUAL_UPPER_BOUND(
         HttpStatus.BAD_REQUEST,
