@@ -59,9 +59,6 @@ public class User {
     private int height;
 
     @Column(nullable = false)
-    private String email;
-
-    @Column(nullable = false)
     private String encryptedPassword;
 
     @Column(nullable = false)
@@ -121,7 +118,6 @@ public class User {
         LocalDate birth,
         int age,
         int height,
-        String email,
         String encryptedPassword,
         String salt,
         String phoneNumber,
@@ -142,7 +138,6 @@ public class User {
         this.birth = birth;
         this.age = age;
         this.height = height;
-        this.email = email;
         this.encryptedPassword = encryptedPassword;
         this.salt = salt;
         this.phoneNumber = phoneNumber;
@@ -177,7 +172,6 @@ public class User {
         this.nickname = "deleted";
         this.age = 0;
         this.height = 0;
-        this.email = "deleted";
         this.phoneNumber = "deleted";
     }
 
