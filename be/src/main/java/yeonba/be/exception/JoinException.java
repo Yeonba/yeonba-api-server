@@ -8,10 +8,6 @@ public enum JoinException implements BaseException {
         HttpStatus.BAD_REQUEST,
         "비밀번호 확인 값이 비밀번호와 일치하지 않습니다."),
 
-    ALREADY_USED_EMAIL(
-        HttpStatus.BAD_REQUEST,
-        "이미 사용 중인 이메일입니다."),
-
     ALREADY_USED_NICKNAME(
         HttpStatus.BAD_REQUEST,
         "이미 사용 중인 닉네임입니다."),
