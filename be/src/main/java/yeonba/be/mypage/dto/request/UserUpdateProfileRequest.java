@@ -5,12 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
 @Getter
 @NoArgsConstructor
@@ -31,7 +30,7 @@ public class UserUpdateProfileRequest {
         type = "number",
         description = "키",
         example = "177")
-    @Positive(message = "키는 양수여야 합니다.")
+    @Range(min = 130, max = 220, message = "키는 130 ~ 220cm 내 값만 가능합니다.")
     @NotNull(message = "키는 반드시 입력되어야 합니다.")
     private int height;
 
@@ -113,34 +112,34 @@ public class UserUpdateProfileRequest {
         type = "number",
         description = "선호하는 나이 하한",
         example = "21")
-    @PositiveOrZero(message = "선호하는 나이 하한은 0 이상이어야 합니다.")
+    @Range(min = 20, max = 40, message = "선호하는 나이는 20~40 내 값만 가능합니다.")
     private Integer preferredAgeLowerBound;
 
     @Schema(
         type = "number",
         description = "선호하는 나이 상한",
         example = "30")
-    @PositiveOrZero(message = "선호하는 나이 상한은 0 이상이어야 합니다.")
+    @Range(min = 20, max = 40, message = "선호하는 나이는 20~40 내 값만 가능합니다.")
     private Integer preferredAgeUpperBound;
 
     @Schema(
         type = "number",
         description = "선호하는 키 하한",
         example = "177")
-    @PositiveOrZero(message = "선호하는 키 하한은 0 이상이어야 합니다.")
+    @Range(min = 130, max = 220, message = "선호하는 키는 130~220cm 내 값만 가능합니다.")
     private Integer preferredHeightLowerBound;
 
     @Schema(
         type = "number",
         description = "선호하는 키 상한",
         example = "185")
-    @PositiveOrZero(message = "선호하는 키 상한은 0 이상이어야 합니다.")
+    @Range(min = 130, max = 220, message = "선호하는 키는 130~220cm 내 값만 가능합니다.")
     private Integer preferredHeightUpperBound;
 
     @Schema(
         type = "string",
         description = "선호하는 체형",
-        example = "마른 체형")
+        example = "마른체형")
     @NotBlank(message = "선호하는 체형은 반드시 입력되어야 합니다.")
     private String preferredBodyType;
 
