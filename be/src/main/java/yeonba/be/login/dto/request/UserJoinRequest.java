@@ -72,16 +72,6 @@ public class UserJoinRequest {
 
     @Schema(
         type = "string",
-        description = "이메일",
-        example = "mj3242@naver.com")
-    @Pattern(
-        regexp = "[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$",
-        message = "유효하지 않은 이메일 형식입니다.")
-    @NotBlank(message = "이메일은 반드시 입력되어야 합니다.")
-    private String email;
-
-    @Schema(
-        type = "string",
         description = "생년월일",
         example = "1998-04-08")
     @NotNull(message = "생년월일은 반드시 입력되어야 합니다.")
