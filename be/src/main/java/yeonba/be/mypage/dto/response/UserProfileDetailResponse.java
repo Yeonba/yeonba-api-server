@@ -44,12 +44,6 @@ public class UserProfileDetailResponse {
 
     @Schema(
         type = "string",
-        description = "이메일",
-        example = "mj3242@naver.com")
-    private String email;
-
-    @Schema(
-        type = "string",
         description = "전화번호",
         example = "01011112222")
     private String phoneNumber;
@@ -91,7 +85,6 @@ public class UserProfileDetailResponse {
         this.name = user.getName();
         this.birth = user.getBirth();
         this.height = user.getHeight();
-        this.email = user.getEmail();
         this.phoneNumber = user.getPhoneNumber();
         this.nickname = user.getNickname();
         this.photoSyncRate = user.getPhotoSyncRate();
