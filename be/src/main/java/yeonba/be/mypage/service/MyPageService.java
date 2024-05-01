@@ -22,7 +22,6 @@ import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.BlockCommand;
 import yeonba.be.user.repository.BlockQuery;
 import yeonba.be.user.repository.user.UserQuery;
-import yeonba.be.util.PasswordEncryptor;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,6 @@ public class MyPageService {
     private final UserQuery userQuery;
     private final BlockQuery blockQuery;
     private final BlockCommand blockCommand;
-    private final PasswordEncryptor passwordEncryptor;
 
     @Value("${S3_BUCKET_NAME}")
     private String bucketName;
@@ -65,22 +63,6 @@ public class MyPageService {
         // TODO: 선호 조건 테이블 생성 후 로직 추가
 
         // validatedUser.updateProfile(request);
-    }
-
-    @Transactional
-    public void changePassword(UserChangePasswordRequest request, long userId) {
-
-        User user = userQuery.findById(userId);
-
-        String encryptedOldPassword = passwordEncryptor
-            .encrypt(request.getOldPassword(), user.getSalt());
-
-        comparePasswords(request, user, encryptedOldPassword);
-
-        String encryptedNewPassword = passwordEncryptor
-            .encrypt(request.getNewPassword(), user.getSalt());
-
-        user.changePassword(encryptedNewPassword);
     }
 
     public void updateProfilePhotos(List<MultipartFile> profilePhotos, MultipartFile realTimePhoto,
@@ -163,23 +145,6 @@ public class MyPageService {
                 throw new IllegalStateException(
                     "Failed to upload file: " + profilePhoto.getOriginalFilename(), e);
             }
-        }
-    }
-
-    /**
-     * 기존 비밀번호가 올바른지 검증 새 비밀번호와 새 비밀번호 확인 값이 일치하는지 검증
-     */
-    private void comparePasswords(UserChangePasswordRequest request,
-        User user,
-        String encryptedOldPassword) {
-
-        if (!user.getEncryptedPassword().equalsIgnoreCase(encryptedOldPassword)) {
-            throw new IllegalArgumentException("기존 비밀번호가 틀렸습니다.");
-        }
-
-        if (!StringUtils.equals(request.getNewPassword(),
-            request.getNewPasswordConfirmation())) {
-            throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인 값이 일치하지 않습니다.");
         }
     }
 }
