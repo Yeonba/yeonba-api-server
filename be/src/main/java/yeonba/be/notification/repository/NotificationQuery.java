@@ -24,4 +24,9 @@ public class NotificationQuery {
 
         return notificationRepository.findBy(receiverId, pageRequest);
     }
+
+    public boolean existsUnreadNotificationsBy(User receiver) {
+
+        return notificationRepository.existsByReceiverAndReadIsFalse(receiver);
+    }
 }
