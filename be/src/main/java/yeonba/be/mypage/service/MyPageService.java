@@ -80,12 +80,10 @@ public class MyPageService {
         User user = userQuery.findById(userId);
         UserPreference userPreference = userPreferenceQuery.findByUser(user);
 
-        // 생년월일 업데이트시 성인(만 18세 이상)인 지 검증, 새로운 나이 계산
+        // 생년월일 업데이트시 20~40세인 지 검증, 새로운 나이 계산
         LocalDate birth = request.getBirth();
         LocalDate currentDate = LocalDate.now();
-        if (AgeValidator.isNotAdult(birth, currentDate)) {
-            throw new GeneralException(UserException.IS_NOT_ADULT);
-        }
+        AgeValidator.validateAgeByBirth(birth, currentDate);
         int age = Period.between(birth, currentDate).getYears();
 
         // 음역대, 선호하는 음역대 조회
