@@ -3,6 +3,7 @@ package yeonba.be.arrow.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.arrow.dto.UserArrowsResponse;
@@ -12,6 +13,8 @@ import yeonba.be.arrow.repository.ArrowCommand;
 import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.notification.entity.NotificationType;
+import yeonba.be.notification.event.NotificationSendEvent;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.UserQuery;
 
@@ -24,6 +27,7 @@ public class ArrowService {
     private final UserQuery userQuery;
     private final ArrowCommand arrowCommand;
     private final ArrowQuery arrowQuery;
+    private final ApplicationEventPublisher eventPublisher;
 
     /*
       출석 체크는 다음 과정을 거쳐 이뤄진다.
@@ -89,6 +93,16 @@ public class ArrowService {
 
         sender.minusArrow(arrows);
         receiver.plusArrow(arrows);
+
+        LocalDateTime createdAt = LocalDateTime.now();
+        NotificationSendEvent notificationSendEvent = new NotificationSendEvent(
+            receiver.getDeviceToken(),
+            NotificationType.ARROW_RECEIVED,
+            senderId,
+            receiverId,
+            sender.getName(),
+            createdAt);
+        eventPublisher.publishEvent(notificationSendEvent);
     }
 
     @Transactional
