@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.JoinException;
-import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.entity.Animal;
@@ -90,12 +89,10 @@ public class UserService {
         // 성별 판별
         Gender gender = Gender.from(request.getGender());
 
-        // 성인 여부 검증 & 나이 계산
+        // 나이 20~40세인 지 검증 & 나이 계산
         LocalDate birth = request.getBirth();
         LocalDate currentDate = LocalDate.now();
-        if (AgeValidator.isNotAdult(birth, currentDate)) {
-            throw new GeneralException(UserException.IS_NOT_ADULT);
-        }
+        AgeValidator.validateAgeByBirth(birth, currentDate);
         int age = Period.between(birth, currentDate).getYears();
 
         // 음역대, 동물상, 지역 조회
