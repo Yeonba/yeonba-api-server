@@ -9,6 +9,7 @@ import yeonba.be.notification.dto.request.NotificationReceivedRequest;
 import yeonba.be.notification.dto.response.NotificationPageResponse;
 import yeonba.be.notification.dto.response.NotificationResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadCountResponse;
+import yeonba.be.notification.dto.response.NotificationUnreadExistResponse;
 import yeonba.be.notification.entity.Notification;
 import yeonba.be.notification.event.NotificationSendEvent;
 import yeonba.be.notification.repository.NotificationCommand;
@@ -63,5 +64,14 @@ public class NotificationService {
             creator,
             receiver);
         notificationCommand.save(notification);
+    }
+
+    @Transactional
+    public NotificationUnreadExistResponse isUnreadNotificationExist(long receiverId) {
+
+        User receiver = userQuery.findById(receiverId);
+        boolean exist = notificationQuery.existsUnreadNotificationsBy(receiver);
+
+        return new NotificationUnreadExistResponse(exist);
     }
 }
