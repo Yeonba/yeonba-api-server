@@ -59,12 +59,6 @@ public class User {
     private int height;
 
     @Column(nullable = false)
-    private String encryptedPassword;
-
-    @Column(nullable = false)
-    private String salt;
-
-    @Column(nullable = false)
     private String phoneNumber;
     private int arrow;
     private int photoSyncRate;
@@ -118,8 +112,6 @@ public class User {
         LocalDate birth,
         int age,
         int height,
-        String encryptedPassword,
-        String salt,
         String phoneNumber,
         int arrow,
         int photoSyncRate,
@@ -138,8 +130,6 @@ public class User {
         this.birth = birth;
         this.age = age;
         this.height = height;
-        this.encryptedPassword = encryptedPassword;
-        this.salt = salt;
         this.phoneNumber = phoneNumber;
         this.arrow = arrow;
         this.photoSyncRate = photoSyncRate;
@@ -158,11 +148,6 @@ public class User {
         if (this.equals(user)) {
             throw new IllegalArgumentException("동일한 사용자입니다.");
         }
-    }
-
-    public void changePassword(String encryptedNewPassword) {
-
-        this.encryptedPassword = encryptedNewPassword;
     }
 
     public void delete() {

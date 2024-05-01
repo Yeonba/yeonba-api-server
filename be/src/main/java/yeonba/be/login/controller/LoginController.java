@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserRefreshJwtRequest;
-import yeonba.be.login.dto.request.UserVerificationCodeRequest;
-import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
 import yeonba.be.login.dto.response.UserRefrehJwtResponse;
@@ -67,31 +65,5 @@ public class LoginController {
         return ResponseEntity
             .ok()
             .body(new CustomResponse<>(response));
-    }
-
-    @Operation(summary = "핸드폰 번호 인증 코드 sms 전송", description = "핸드 번호 인증 코드 sms 전송")
-    @ApiResponse(responseCode = "202", description = "인증 코드 전송 정상 처리")
-    @PostMapping("/users/join/phone-number/verification-code")
-    public ResponseEntity<CustomResponse<Void>> verifyJoinPhoneNumber(
-        @Valid @RequestBody UserVerificationCodeRequest request) {
-
-        loginService.sendJoinVerificationCodeMessage(request);
-
-        return ResponseEntity
-            .accepted()
-            .body(new CustomResponse<>());
-    }
-
-    @Operation(summary = "핸드폰 번호 인증", description = "회원가입 과정서 핸드폰 번호 인증")
-    @ApiResponse(responseCode = "202", description = "핸드폰 번호 인증 정상 처리")
-    @PostMapping("/users/join/phone-number")
-    public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
-        @Valid @RequestBody UserVerifyPhoneNumberRequest request) {
-
-        loginService.verifyPhoneNumber(request);
-
-        return ResponseEntity
-            .accepted()
-            .body(new CustomResponse<>());
     }
 }

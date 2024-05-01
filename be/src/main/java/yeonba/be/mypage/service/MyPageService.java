@@ -5,7 +5,6 @@ import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +14,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UserException;
-import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.BlockedUserResponse;
@@ -36,7 +34,6 @@ import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceQuery;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
 import yeonba.be.util.AgeValidator;
-import yeonba.be.util.PasswordEncryptor;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +48,6 @@ public class MyPageService {
 
     private final BlockCommand blockCommand;
 
-    private final PasswordEncryptor passwordEncryptor;
     private final S3Client s3Client;
 
     @Value("${S3_BUCKET_NAME}")
@@ -180,22 +176,6 @@ public class MyPageService {
         }
     }
 
-    @Transactional
-    public void changePassword(UserChangePasswordRequest request, long userId) {
-
-        User user = userQuery.findById(userId);
-
-        String encryptedOldPassword = passwordEncryptor
-            .encrypt(request.getOldPassword(), user.getSalt());
-
-        comparePasswords(request, user, encryptedOldPassword);
-
-        String encryptedNewPassword = passwordEncryptor
-            .encrypt(request.getNewPassword(), user.getSalt());
-
-        user.changePassword(encryptedNewPassword);
-    }
-
     public void updateProfilePhotos(List<MultipartFile> profilePhotos, MultipartFile realTimePhoto,
         long userId) {
 
@@ -276,23 +256,6 @@ public class MyPageService {
                 throw new IllegalStateException(
                     "Failed to upload file: " + profilePhoto.getOriginalFilename(), e);
             }
-        }
-    }
-
-    /**
-     * 기존 비밀번호가 올바른지 검증 새 비밀번호와 새 비밀번호 확인 값이 일치하는지 검증
-     */
-    private void comparePasswords(UserChangePasswordRequest request,
-        User user,
-        String encryptedOldPassword) {
-
-        if (!user.getEncryptedPassword().equalsIgnoreCase(encryptedOldPassword)) {
-            throw new IllegalArgumentException("기존 비밀번호가 틀렸습니다.");
-        }
-
-        if (!StringUtils.equals(request.getNewPassword(),
-            request.getNewPasswordConfirmation())) {
-            throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인 값이 일치하지 않습니다.");
         }
     }
 }

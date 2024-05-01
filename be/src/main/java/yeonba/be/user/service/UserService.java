@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,10 +28,12 @@ import yeonba.be.user.repository.user.UserCommand;
 import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
+<<<<<<< HEAD
 import yeonba.be.util.AgeValidator;
 import yeonba.be.util.PasswordEncryptor;
+=======
+>>>>>>> dev
 import yeonba.be.util.S3Service;
-import yeonba.be.util.SaltGenerator;
 
 @Service
 @RequiredArgsConstructor
@@ -49,8 +50,6 @@ public class UserService {
     private final ArrowQuery arrowQuery;
     private final UserQuery userQuery;
     private final VocalRangeQuery vocalRangeQuery;
-
-    private final PasswordEncryptor passwordEncryptor;
 
     private final S3Service s3Service;
 
@@ -92,14 +91,6 @@ public class UserService {
             throw new GeneralException(JoinException.ALREADY_USED_PHONE_NUMBER);
         }
 
-        // 비밀빈호, 비밀번호 확인 값 일치 확인
-        String password = request.getPassword();
-        String passwordConfirmation = request.getPasswordConfirmation();
-        if (!StringUtils.equals(password, passwordConfirmation)) {
-
-            throw new GeneralException(JoinException.PASSWORD_CONFIRMATION_NOT_MATCH);
-        }
-
         // 성별 판별
         Gender gender = Gender.from(request.getGender());
 
@@ -110,10 +101,6 @@ public class UserService {
             throw new GeneralException(UserException.IS_NOT_ADULT);
         }
         int age = Period.between(birth, currentDate).getYears();
-
-        // salt 생성 및 비밀번호 암호화
-        String salt = SaltGenerator.generateRandomSalt();
-        String encryptedPassword = passwordEncryptor.encrypt(password, salt);
 
         // 음역대, 동물상, 지역 조회
         VocalRange vocalRange = vocalRangeQuery.findByClassification(request.getVocalRange());
@@ -130,8 +117,11 @@ public class UserService {
             request.getBirth(),
             age,
             request.getHeight(),
+<<<<<<< HEAD
             encryptedPassword,
             salt,
+=======
+>>>>>>> dev
             request.getPhoneNumber(),
             JOIN_REWARD_ARROWS,
             request.getPhotoSyncRate(),

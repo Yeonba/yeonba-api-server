@@ -53,25 +53,6 @@ public class UserJoinRequest {
 
     @Schema(
         type = "string",
-        description = "비밀번호",
-        example = "Aa1234!@")
-    @Pattern(
-        regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[~#@!]).{8,20}$",
-        message = """
-            비밀번호는 영어대소문자, 숫자, 특수문자(~#@!)를
-            최소 1자씩 포함하며 8~20자 사이여야 합니다.""")
-    @NotBlank(message = "비밀번호는 반드시 입력되어야 합니다.")
-    private String password;
-
-    @Schema(
-        type = "string",
-        description = "비밀번호 확인값",
-        example = "Aa1234!@")
-    @NotBlank(message = "비밀번호 확인값은 반드시 입력되어야 합니다.")
-    private String passwordConfirmation;
-
-    @Schema(
-        type = "string",
         description = "생년월일",
         example = "1998-04-08")
     @NotNull(message = "생년월일은 반드시 입력되어야 합니다.")
