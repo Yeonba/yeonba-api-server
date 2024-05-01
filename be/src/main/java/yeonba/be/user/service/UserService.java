@@ -22,11 +22,11 @@ import yeonba.be.user.entity.UserPreference;
 import yeonba.be.user.entity.VocalRange;
 import yeonba.be.user.enums.Gender;
 import yeonba.be.user.enums.LoginType;
-import yeonba.be.user.repository.user.UserCommand;
-import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.animal.AnimalQuery;
 import yeonba.be.user.repository.area.AreaQuery;
 import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
+import yeonba.be.user.repository.user.UserCommand;
+import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
 import yeonba.be.util.AgeValidator;
@@ -80,12 +80,6 @@ public class UserService {
 
         LoginType loginType = LoginType.from(request.getLoginType());
 
-        // 이미 사용 중인 이메일인지 확인
-        if (userQuery.validateUsedEmail(request.getEmail())) {
-
-            throw new GeneralException(JoinException.ALREADY_USED_EMAIL);
-        }
-
         // 이미 사용 중인 닉네임인지 확인
         if (userQuery.validateUsedNickname(request.getNickname())) {
 
@@ -136,7 +130,6 @@ public class UserService {
             request.getBirth(),
             age,
             request.getHeight(),
-            request.getEmail(),
             encryptedPassword,
             salt,
             request.getPhoneNumber(),
