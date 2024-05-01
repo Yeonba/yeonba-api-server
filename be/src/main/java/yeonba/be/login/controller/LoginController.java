@@ -10,14 +10,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import yeonba.be.login.dto.request.UserEmailInquiryRequest;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
-import yeonba.be.login.dto.request.UserPasswordInquiryRequest;
 import yeonba.be.login.dto.request.UserRefreshJwtRequest;
 import yeonba.be.login.dto.request.UserVerificationCodeRequest;
 import yeonba.be.login.dto.request.UserVerifyPhoneNumberRequest;
-import yeonba.be.login.dto.response.UserEmailInquiryResponse;
 import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
 import yeonba.be.login.dto.response.UserRefrehJwtResponse;
@@ -70,45 +67,6 @@ public class LoginController {
         return ResponseEntity
             .ok()
             .body(new CustomResponse<>(response));
-    }
-
-    @Operation(summary = "이메일 찾기 인증 코드 sms 전송", description = "이메일 찾기를 위한 인증번호 sms 전송을 요청합니다.")
-    @ApiResponse(responseCode = "202", description = "전화번호 인증 코드 전송 성공")
-    @PostMapping("/users/email-inquiry/verification-code")
-    public ResponseEntity<CustomResponse<Void>> verifyPhoneNumber(
-        @Valid @RequestBody UserVerificationCodeRequest request) {
-
-        loginService.sendVerificationCodeMessage(request);
-
-        return ResponseEntity
-            .accepted()
-            .body(new CustomResponse<>());
-    }
-
-    @Operation(summary = "이메일 찾기", description = "인증 코드를 바탕으로 아이디를 찾을 수 있습니다.")
-    @ApiResponse(responseCode = "200", description = "아이디 찾기 정상 처리")
-    @PostMapping("/users/email-inquiry")
-    public ResponseEntity<CustomResponse<UserEmailInquiryResponse>> emailInquiry(
-        @Valid @RequestBody UserEmailInquiryRequest request) {
-
-        UserEmailInquiryResponse response = loginService.findEmail(request);
-
-        return ResponseEntity
-            .ok()
-            .body(new CustomResponse<>(response));
-    }
-
-    @Operation(summary = "비밀번호 찾기", description = "이메일로 임시 비밀번호를 발급받을 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "임시 비밀번호 발급(비밀번호 찾기) 정상 처리")
-    @PostMapping("/users/pw-inquiry")
-    public ResponseEntity<CustomResponse<Void>> passwordInquiry(
-        @Valid @RequestBody UserPasswordInquiryRequest request) {
-
-        loginService.sendTemporaryPasswordMail(request);
-
-        return ResponseEntity
-            .accepted()
-            .body(new CustomResponse<>());
     }
 
     @Operation(summary = "핸드폰 번호 인증 코드 sms 전송", description = "핸드 번호 인증 코드 sms 전송")
