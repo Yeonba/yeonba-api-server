@@ -1,5 +1,6 @@
 package yeonba.be.notification.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.notification.dto.request.NotificationReceivedRequest;
 import yeonba.be.notification.dto.response.NotificationPageResponse;
-import yeonba.be.notification.dto.response.NotificationResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadCountResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadExistResponse;
 import yeonba.be.notification.entity.Notification;
@@ -15,7 +15,7 @@ import yeonba.be.notification.event.NotificationSendEvent;
 import yeonba.be.notification.repository.NotificationCommand;
 import yeonba.be.notification.repository.NotificationQuery;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.repository.UserQuery;
+import yeonba.be.user.repository.user.UserQuery;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class NotificationService {
         return new NotificationUnreadCountResponse(unreadNotificationsCount);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public NotificationPageResponse getReceivedNotificationsBy(
         long receiverId, NotificationReceivedRequest request) {
 
@@ -43,10 +43,20 @@ public class NotificationService {
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        Page<NotificationResponse> page =
-            notificationQuery.findReceivedNotificationsBy(receiverId, pageRequest);
+        User receiver = userQuery.findById(receiverId);
+        Page<Notification> page =
+            notificationQuery.findReceivedNotificationsBy(receiver, pageRequest);
 
-        return NotificationPageResponse.of(page);
+        readNotifications(page.getContent());
+
+        return NotificationPageResponse.from(page);
+    }
+
+    private void readNotifications(List<Notification> notifications) {
+
+        notifications.stream()
+            .filter(notification -> !notification.isRead())
+            .forEach(Notification::read);
     }
 
     @Transactional
@@ -66,7 +76,7 @@ public class NotificationService {
         notificationCommand.save(notification);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public NotificationUnreadExistResponse isUnreadNotificationExist(long receiverId) {
 
         User receiver = userQuery.findById(receiverId);
