@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
+import yeonba.be.notification.entity.Notification;
 
 @Getter
 @AllArgsConstructor
@@ -39,10 +40,14 @@ public class NotificationPageResponse {
         example = "true")
     private Boolean isLast;
 
-    public static NotificationPageResponse of(Page<NotificationResponse> page) {
+    public static NotificationPageResponse from(Page<Notification> page) {
+
+        List<NotificationResponse> content = page.getContent().stream()
+            .map(NotificationResponse::from)
+            .toList();
 
         return new NotificationPageResponse(
-            page.getContent(),
+            content,
             page.getTotalPages(),
             page.getTotalElements(),
             page.isFirst(),
