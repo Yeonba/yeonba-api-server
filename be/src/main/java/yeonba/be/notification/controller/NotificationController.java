@@ -24,9 +24,9 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping("/users/notifications/unread/count")
     @Operation(summary = "읽지 않은 알림 개수 조회", description = "읽지 않은 알림 개수 조회 가능")
     @ApiResponse(responseCode = "200", description = "읽지 않은 알림 개수 조회 성공")
+    @GetMapping("/users/notifications/unread/count")
     public ResponseEntity<CustomResponse<NotificationUnreadCountResponse>>
     getUnreadNotificationsCount(@RequestAttribute("userId") long userId) {
 
@@ -38,9 +38,9 @@ public class NotificationController {
             .body(new CustomResponse<>(response));
     }
 
-    @GetMapping("/users/notifications")
     @Operation(summary = "받은 알림 목록 조회", description = "받은 알림 목록을 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "받은 알림 목록 조회 성공")
+    @GetMapping("/users/notifications")
     public ResponseEntity<CustomResponse<NotificationPageResponse>> getReceivedNotifications(
         @RequestAttribute("userId") long userId,
         @Valid @ParameterObject NotificationReceivedRequest request) {
@@ -53,9 +53,9 @@ public class NotificationController {
             .body(new CustomResponse<>(response));
     }
 
-    @GetMapping("/users/notifications/unread/exists")
     @Operation(summary = "읽지 않은 알림 존재 여부 조회", description = "읽지 않은 알림 존재 여부 확인 가능")
     @ApiResponse(responseCode = "200", description = "읽지 않은 알림 존재 여부 확인 성공")
+    @GetMapping("/users/notifications/unread/exists")
     public ResponseEntity<CustomResponse<NotificationUnreadExistResponse>>
     getUnreadNotificationExistence(@RequestAttribute("userId") long userId) {
 
