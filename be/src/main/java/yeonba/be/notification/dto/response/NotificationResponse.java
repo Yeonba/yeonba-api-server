@@ -2,10 +2,20 @@ package yeonba.be.notification.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import yeonba.be.notification.entity.Notification;
+import yeonba.be.user.entity.User;
 
 @Getter
+@AllArgsConstructor
 public class NotificationResponse {
+
+    @Schema(
+        type = "number",
+        description = "알림 ID",
+        example = "1")
+    private long id;
 
     @Schema(
         type = "string",
@@ -53,21 +63,19 @@ public class NotificationResponse {
         example = "false")
     private Boolean isRead;
 
-    public NotificationResponse(
-        String notificationType,
-        String content,
-        long creatorId,
-        String creatorProfilePhotoUrl,
-        String creatorName,
-        LocalDateTime createdAt,
-        Boolean isRead) {
+    public static NotificationResponse from(Notification notification) {
 
-        this.notificationType = notificationType;
-        this.content = content;
-        this.creatorId = creatorId;
-        this.creatorProfilePhotoUrl = creatorProfilePhotoUrl;
-        this.creatorName = creatorName;
-        this.createdAt = createdAt;
-        this.isRead = isRead;
+        User creator = notification.getCreator();
+
+        return new NotificationResponse(
+            notification.getId(),
+            notification.getType().name(),
+            notification.getContent(),
+            creator.getId(),
+            creator.getRepresentativeProfilePhoto(),
+            creator.getName(),
+            notification.getCreatedAt(),
+            notification.isRead()
+        );
     }
 }
