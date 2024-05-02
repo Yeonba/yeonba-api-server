@@ -63,4 +63,8 @@ public class Notification {
         this.creator = creator;
         this.receiver = receiver;
     }
+
+    public void read() {
+        this.read = true;
+    }
 }
