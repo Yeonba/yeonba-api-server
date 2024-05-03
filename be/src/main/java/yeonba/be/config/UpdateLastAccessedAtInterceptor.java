@@ -24,12 +24,10 @@ public class UpdateLastAccessedAtInterceptor implements HandlerInterceptor {
         Object handler,
         Exception ex) throws Exception {
 
-        Optional<Long> userId = Optional.ofNullable((Long) request.getAttribute("userId"));
-        if (userId.isEmpty()) {
-            throw new GeneralException(LoginException.UNAUTHORIZED);
-        }
+        long userId = (long) Optional.ofNullable(request.getAttribute("userId"))
+            .orElseThrow(() -> new GeneralException(LoginException.UNAUTHORIZED));
 
         LocalDateTime accessAt = LocalDateTime.now();
-        userService.updateLastAccessedAt(userId.get(), accessAt);
+        userService.updateLastAccessedAt(userId, accessAt);
     }
 }
