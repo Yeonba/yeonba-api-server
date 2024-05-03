@@ -1,5 +1,9 @@
 package yeonba.be.arrow.service;
 
+import static yeonba.be.arrow.enums.ArrowTransactionType.DAILY_CHECK;
+import static yeonba.be.arrow.enums.ArrowTransactionType.REWARDS_FOR_WATCHING_ADVERTISEMENTS;
+import static yeonba.be.arrow.enums.ArrowTransactionType.USER_TO_USER;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -20,7 +24,6 @@ import yeonba.be.user.repository.user.UserQuery;
 @RequiredArgsConstructor
 public class ArrowService {
 
-    private final int ADVERTISEMENT_ARROW_COUNT = 5;
     private final UserQuery userQuery;
     private final ArrowCommand arrowCommand;
     private final ArrowQuery arrowQuery;
@@ -41,7 +44,10 @@ public class ArrowService {
         }
 
         int dailyCheckArrows = 10;
-        ArrowTransaction arrowTransaction = new ArrowTransaction(dailyCheckUser, dailyCheckArrows);
+        ArrowTransaction arrowTransaction = new ArrowTransaction(
+            DAILY_CHECK,
+            dailyCheckUser,
+            dailyCheckArrows);
         arrowCommand.save(arrowTransaction);
 
         dailyCheckUser.plusArrow(dailyCheckArrows);
@@ -84,7 +90,8 @@ public class ArrowService {
 
         // 화살은 1개만 보낼 수 있음
         int sendArrow = 1;
-        ArrowTransaction arrowTransaction = new ArrowTransaction(sender, receiver, sendArrow);
+        ArrowTransaction arrowTransaction =
+            new ArrowTransaction(USER_TO_USER, sender, receiver, sendArrow);
         arrowCommand.save(arrowTransaction);
 
         sender.minusArrow(sendArrow);
@@ -94,16 +101,18 @@ public class ArrowService {
     @Transactional
     public void chargeArrows(long userId, LocalDate chargeDay) {
 
-        User user = userQuery.findById(userId);
+        User arrowChargeUser = userQuery.findById(userId);
 
         LocalDateTime chargeDayStartTime = chargeDay.atStartOfDay();
         arrowQuery.validateAdvertisementArrowCount(userId, chargeDayStartTime);
 
+        int chargeArrows = 5;
         ArrowTransaction arrowTransaction = new ArrowTransaction(
-            user,
-            ADVERTISEMENT_ARROW_COUNT);
+            REWARDS_FOR_WATCHING_ADVERTISEMENTS,
+            arrowChargeUser,
+            chargeArrows);
 
         arrowCommand.save(arrowTransaction);
-        user.plusArrow(ADVERTISEMENT_ARROW_COUNT);
+        arrowChargeUser.plusArrow(chargeArrows);
     }
 }
