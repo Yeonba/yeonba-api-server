@@ -91,7 +91,6 @@ public class UserProfileDetailResponse {
         this.name = user.getName();
         this.birth = user.getBirth();
         this.height = user.getHeight();
-        this.email = user.getEmail();
         this.phoneNumber = user.getPhoneNumber();
         this.nickname = user.getNickname();
         this.photoSyncRate = user.getPhotoSyncRate();

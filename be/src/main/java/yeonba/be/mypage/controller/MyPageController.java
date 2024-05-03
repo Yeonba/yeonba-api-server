@@ -66,20 +66,6 @@ public class MyPageController {
             .body(new CustomResponse<>(response));
     }
 
-    @Operation(summary = "비밀번호 수정", description = "자신의 비밀번호를 수정할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "비밀번호 수정 완료")
-    @PatchMapping("/users/password")
-    public ResponseEntity<CustomResponse<Void>> changePassword(
-        @RequestBody UserChangePasswordRequest request,
-        @RequestAttribute("userId") long userId) {
-
-        myPageService.changePassword(request, userId);
-
-        return ResponseEntity
-            .accepted()
-            .body(new CustomResponse<>());
-    }
-
     @Operation(summary = "자신의 프로필 사진 수정", description = "자신의 프로필 사진을 수정할 수 있습니다.")
     @ApiResponse(responseCode = "202", description = "자신의 프로필 사진 수정 정상 처리")
     @PutMapping(path = "/users/profile-photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

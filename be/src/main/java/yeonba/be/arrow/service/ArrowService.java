@@ -14,7 +14,7 @@ import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UserException;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.repository.UserQuery;
+import yeonba.be.user.repository.user.UserQuery;
 
 @Service
 @RequiredArgsConstructor
@@ -106,5 +106,4 @@ public class ArrowService {
         arrowCommand.save(arrowTransaction);
         user.plusArrow(ADVERTISEMENT_ARROW_COUNT);
     }
-
 }

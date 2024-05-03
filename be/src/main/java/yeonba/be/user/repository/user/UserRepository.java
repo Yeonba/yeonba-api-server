@@ -1,4 +1,4 @@
-package yeonba.be.user.repository;
+package yeonba.be.user.repository.user;
 
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,13 +10,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByIdAndDeletedIsFalse(long userId);
 
-    Optional<User> findByEmail(String email);
-
     boolean existsByPhoneNumber(String phoneNumber);
 
-    Optional<User> findByPhoneNumber(String phoneNumber);
+    Optional<User> findByPhoneNumberAndDeletedIsFalse(String phoneNumber);
 
     boolean existsByNickname(String nickname);
-
-    boolean existsByEmail(String email);
 }

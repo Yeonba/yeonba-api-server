@@ -15,8 +15,7 @@ public class ArrowQuery {
 
     public boolean isArrowTransactionExist(User sender, User receiver) {
 
-        return arrowTransactionRepository
-            .existsBySenderAndReceiver(sender, receiver);
+        return arrowTransactionRepository.existsBySenderAndReceiver(sender, receiver);
     }
 
     public void validateAdvertisementArrowCount(long userId, LocalDateTime today) {

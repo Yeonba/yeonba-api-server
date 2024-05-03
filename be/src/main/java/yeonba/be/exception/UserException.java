@@ -8,6 +8,18 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum UserException implements BaseException {
 
+    INVALID_REFRESH_TOKEN(
+        HttpStatus.UNAUTHORIZED,
+        "유효하지 않은 리프레시 토큰입니다."),
+
+    NOT_MATCH_LOGIN_TYPE(
+        HttpStatus.BAD_REQUEST,
+        "다른 로그인 방식을 이용해주세요."),
+
+    USER_NOT_FOUND(
+        HttpStatus.BAD_REQUEST,
+        "해당 사용자가 존재하지 않습니다."),
+
     SAME_USER(
         HttpStatus.BAD_REQUEST,
         "같은 사용자(자기 자신) 입니다."),
@@ -15,10 +27,6 @@ public enum UserException implements BaseException {
     SAME_GENDER_USER(
         HttpStatus.BAD_REQUEST,
         "같은 성별 사용자 입니다."),
-
-    USER_NOT_FOUND(
-        HttpStatus.BAD_REQUEST,
-        "해당 사용자가 존재하지 않습니다."),
 
     INACTIVE_USER(
         HttpStatus.BAD_REQUEST,
