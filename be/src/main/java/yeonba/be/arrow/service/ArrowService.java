@@ -94,14 +94,9 @@ public class ArrowService {
         sender.minusArrow(arrows);
         receiver.plusArrow(arrows);
 
-        LocalDateTime createdAt = LocalDateTime.now();
-        NotificationSendEvent notificationSendEvent = new NotificationSendEvent(
-            receiver.getDeviceToken(),
-            NotificationType.ARROW_RECEIVED,
-            senderId,
-            receiverId,
-            sender.getName(),
-            createdAt);
+        LocalDateTime createdAt = arrowTransaction.getCreatedAt();
+        NotificationSendEvent notificationSendEvent =
+            new NotificationSendEvent(NotificationType.ARROW_RECEIVED, sender, receiver, createdAt);
         eventPublisher.publishEvent(notificationSendEvent);
     }
 
