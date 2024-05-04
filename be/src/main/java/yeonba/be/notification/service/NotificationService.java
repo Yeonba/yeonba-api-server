@@ -62,17 +62,11 @@ public class NotificationService {
     @Transactional
     public void saveNotification(NotificationSendEvent sendEvent) {
 
-        long creatorId = sendEvent.creatorId();
-        User creator = userQuery.findById(creatorId);
-
-        long receiverId = sendEvent.receiverId();
-        User receiver = userQuery.findById(receiverId);
-
         Notification notification = new Notification(
             sendEvent.getNotificationMessage(),
             sendEvent.type(),
-            creator,
-            receiver);
+            sendEvent.creator(),
+            sendEvent.receiver());
         notificationCommand.save(notification);
     }
 
