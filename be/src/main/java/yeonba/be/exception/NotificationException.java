@@ -10,7 +10,11 @@ public enum NotificationException implements BaseException {
 
     NOTIFICATION_PERMISSION_NOT_FOUND(
         HttpStatus.BAD_REQUEST,
-        "해당 알림 동의 내역이 존재하지 않습니다.");
+        "해당 알림 동의 내역이 존재하지 않습니다."),
+
+    DEVICE_TOKEN_NOT_FOUND(
+        HttpStatus.BAD_REQUEST,
+        "해당 사용자의 device token이 존재하지 않습니다. token을 먼저 등록해주세요.");
 
     private final HttpStatus httpStatus;
     private final String reason;
