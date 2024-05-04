@@ -11,6 +11,7 @@ import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.JoinException;
 import yeonba.be.login.dto.request.UserJoinRequest;
+import yeonba.be.user.dto.request.UserUpdateDeviceTokenRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.entity.Animal;
 import yeonba.be.user.entity.Area;
@@ -20,11 +21,11 @@ import yeonba.be.user.entity.UserPreference;
 import yeonba.be.user.entity.VocalRange;
 import yeonba.be.user.enums.Gender;
 import yeonba.be.user.enums.LoginType;
-import yeonba.be.user.repository.user.UserCommand;
-import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.animal.AnimalQuery;
 import yeonba.be.user.repository.area.AreaQuery;
 import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
+import yeonba.be.user.repository.user.UserCommand;
+import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
 import yeonba.be.util.S3Service;
@@ -152,5 +153,12 @@ public class UserService {
             preferredArea,
             preferredAnimal);
         userPreferenceCommand.save(userPreference);
+    }
+
+    @Transactional
+    public void updateDeviceToken(long userId, UserUpdateDeviceTokenRequest request) {
+
+        User user = userQuery.findById(userId);
+        user.updateDeviceToken(request.getDeviceToken());
     }
 }
