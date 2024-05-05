@@ -16,7 +16,8 @@ public class NotificationEventListener {
     @EventListener
     public void sendNotification(NotificationSendEvent sendEvent) {
 
-        fcmUtil.sendNotification(sendEvent);
+        int badge = notificationService.getBadge(sendEvent.receiver().getId());
+        fcmUtil.sendNotification(sendEvent, badge);
         notificationService.saveNotification(sendEvent);
     }
 }
