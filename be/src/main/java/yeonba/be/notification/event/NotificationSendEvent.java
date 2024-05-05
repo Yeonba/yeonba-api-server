@@ -17,6 +17,6 @@ public record NotificationSendEvent(
 
     public String getNotificationMessage() {
 
-        return String.format(type.getMessage(), creator.getName());
+        return type.getFormattedMessage(this.creator.getName());
     }
 }
