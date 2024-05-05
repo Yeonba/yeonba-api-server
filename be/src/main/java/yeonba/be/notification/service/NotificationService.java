@@ -39,7 +39,7 @@ public class NotificationService {
 
         User receiver = userQuery.findById(receiverId);
         Page<Notification> page =
-            notificationQuery.findRecentReceivedNotificationsBy(receiver, pageRequest);
+            notificationQuery.findRecentlyReceivedNotificationsBy(receiver, pageRequest);
 
         readNotifications(page.getContent());
 
