@@ -1,11 +1,14 @@
 package yeonba.be.notification.service;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.NotificationException;
 import yeonba.be.notification.dto.request.NotificationPageRequest;
 import yeonba.be.notification.dto.response.NotificationPageResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadExistResponse;
@@ -82,10 +85,15 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isUserAllowedNotification(User user, NotificationType type) {
+    public boolean canSendNotification(User receiver, NotificationType type) {
+
+        Optional<String> deviceToken = Optional.ofNullable(receiver.getDeviceToken());
+        if (deviceToken.isEmpty()) {
+            throw new GeneralException(NotificationException.DEVICE_TOKEN_NOT_FOUND);
+        }
 
         NotificationPermission notificationPermission =
-            notificationPermissionQuery.findByUserAndType(user, type);
+            notificationPermissionQuery.findByUserAndType(receiver, type);
 
         return notificationPermission.getPermissionStatus();
     }
