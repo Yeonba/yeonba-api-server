@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import yeonba.be.notification.dto.request.NotificationReceivedRequest;
+import yeonba.be.notification.dto.request.NotificationPageRequest;
 import yeonba.be.notification.dto.response.NotificationPageResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadExistResponse;
 import yeonba.be.notification.entity.Notification;
@@ -25,8 +25,8 @@ public class NotificationService {
     private final NotificationQuery notificationQuery;
 
     @Transactional
-    public NotificationPageResponse getReceivedNotificationsBy(
-        long receiverId, NotificationReceivedRequest request) {
+    public NotificationPageResponse getRecentlyReceivedNotificationsBy(
+        long receiverId, NotificationPageRequest request) {
 
         int pageNumber = request.getPage();
         int size = 9;
@@ -35,7 +35,7 @@ public class NotificationService {
 
         User receiver = userQuery.findById(receiverId);
         Page<Notification> page =
-            notificationQuery.findReceivedNotificationsBy(receiver, pageRequest);
+            notificationQuery.findRecentReceivedNotificationsBy(receiver, pageRequest);
 
         readNotifications(page.getContent());
 
