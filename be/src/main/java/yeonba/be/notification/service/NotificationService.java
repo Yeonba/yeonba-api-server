@@ -10,8 +10,11 @@ import yeonba.be.notification.dto.request.NotificationPageRequest;
 import yeonba.be.notification.dto.response.NotificationPageResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadExistResponse;
 import yeonba.be.notification.entity.Notification;
+import yeonba.be.notification.entity.NotificationPermission;
+import yeonba.be.notification.entity.NotificationType;
 import yeonba.be.notification.event.NotificationSendEvent;
 import yeonba.be.notification.repository.NotificationCommand;
+import yeonba.be.notification.repository.NotificationPermissionQuery;
 import yeonba.be.notification.repository.NotificationQuery;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.user.UserQuery;
@@ -23,6 +26,7 @@ public class NotificationService {
     private final UserQuery userQuery;
     private final NotificationCommand notificationCommand;
     private final NotificationQuery notificationQuery;
+    private final NotificationPermissionQuery notificationPermissionQuery;
 
     @Transactional
     public NotificationPageResponse getRecentlyReceivedNotificationsBy(
@@ -75,5 +79,14 @@ public class NotificationService {
         User user = userQuery.findById(userId);
 
         return (int) notificationQuery.countUnreadNotificationsBy(user);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isUserAllowedNotification(User user, NotificationType type) {
+
+        NotificationPermission notificationPermission =
+            notificationPermissionQuery.findByUserAndType(user, type);
+
+        return notificationPermission.getPermissionStatus();
     }
 }
