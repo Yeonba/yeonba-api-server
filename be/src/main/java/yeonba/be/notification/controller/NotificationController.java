@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.notification.dto.request.NotificationReceivedRequest;
 import yeonba.be.notification.dto.response.NotificationPageResponse;
-import yeonba.be.notification.dto.response.NotificationUnreadCountResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadExistResponse;
 import yeonba.be.notification.service.NotificationService;
 import yeonba.be.util.CustomResponse;
@@ -23,20 +22,6 @@ import yeonba.be.util.CustomResponse;
 public class NotificationController {
 
     private final NotificationService notificationService;
-
-    @Operation(summary = "읽지 않은 알림 개수 조회", description = "읽지 않은 알림 개수 조회 가능")
-    @ApiResponse(responseCode = "200", description = "읽지 않은 알림 개수 조회 성공")
-    @GetMapping("/users/notifications/unread/count")
-    public ResponseEntity<CustomResponse<NotificationUnreadCountResponse>>
-    getUnreadNotificationsCount(@RequestAttribute("userId") long userId) {
-
-        NotificationUnreadCountResponse response =
-            notificationService.countUnreadNotifications(userId);
-
-        return ResponseEntity
-            .ok()
-            .body(new CustomResponse<>(response));
-    }
 
     @Operation(summary = "받은 알림 목록 조회", description = "받은 알림 목록을 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "받은 알림 목록 조회 성공")
