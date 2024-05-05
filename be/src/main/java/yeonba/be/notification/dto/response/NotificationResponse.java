@@ -57,12 +57,6 @@ public class NotificationResponse {
         example = "2024-04-10 10:12:00.112233")
     private LocalDateTime createdAt;
 
-    @Schema(
-        type = "boolean",
-        description = "알림 읽음 여부",
-        example = "false")
-    private Boolean isRead;
-
     public static NotificationResponse from(Notification notification) {
 
         User creator = notification.getCreator();
@@ -74,8 +68,7 @@ public class NotificationResponse {
             creator.getId(),
             creator.getRepresentativeProfilePhoto(),
             creator.getName(),
-            notification.getCreatedAt(),
-            notification.isRead()
+            notification.getCreatedAt()
         );
     }
 }
