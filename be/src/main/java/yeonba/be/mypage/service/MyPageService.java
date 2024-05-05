@@ -5,6 +5,10 @@ import static yeonba.be.notification.entity.NotificationType.CHATTING_REQUESTED;
 import static yeonba.be.notification.entity.NotificationType.CHATTING_REQUEST_ACCEPTED;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.NotificationException;
 import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
@@ -23,6 +29,7 @@ import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.notification.dto.response.NotificationPermissionsResponse;
 import yeonba.be.notification.entity.NotificationPermission;
 import yeonba.be.notification.entity.NotificationType;
+import yeonba.be.notification.repository.NotificationPermissionCommand;
 import yeonba.be.notification.repository.NotificationPermissionQuery;
 import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
@@ -39,6 +46,7 @@ public class MyPageService {
     private final BlockQuery blockQuery;
     private final UserQuery userQuery;
     private final NotificationPermissionQuery notificationPermissionQuery;
+    private final NotificationPermissionCommand notificationPermissionCommand;
 
     private final BlockCommand blockCommand;
 
@@ -162,14 +170,15 @@ public class MyPageService {
     public NotificationPermissionsResponse getNotificationPermissions(long userId) {
 
         User user = userQuery.findById(userId);
+        List<NotificationPermission> notificationPermissions =
+            notificationPermissionQuery.findAllByUser(user);
 
         boolean arrowReceivedNotificationPermission =
-            notificationPermissionQuery.findBy(user, ARROW_RECEIVED).getPermissionStatus();
+            getNotificationPermissionStatusBy(notificationPermissions, ARROW_RECEIVED);
         boolean chattingRequestNotificationPermission =
-            notificationPermissionQuery.findBy(user, CHATTING_REQUESTED).getPermissionStatus();
+            getNotificationPermissionStatusBy(notificationPermissions, CHATTING_REQUESTED);
         boolean chattingRequestAcceptedNotificationPermission =
-            notificationPermissionQuery.findBy(user, CHATTING_REQUEST_ACCEPTED)
-                .getPermissionStatus();
+            getNotificationPermissionStatusBy(notificationPermissions, CHATTING_REQUEST_ACCEPTED);
 
         return new NotificationPermissionsResponse(
             arrowReceivedNotificationPermission,
@@ -177,33 +186,68 @@ public class MyPageService {
             chattingRequestAcceptedNotificationPermission);
     }
 
+    private boolean getNotificationPermissionStatusBy(
+        List<NotificationPermission> notificationPermissions, NotificationType type) {
+
+        Optional<NotificationPermission> foundPermission = notificationPermissions.stream()
+            .filter(notificationPermission -> notificationPermission.hasSameTypeAs(type))
+            .findFirst();
+
+        return foundPermission.map(NotificationPermission::getPermissionStatus)
+            .orElseThrow(() ->
+                new GeneralException(NotificationException.NOTIFICATION_PERMISSION_NOT_FOUND));
+    }
+
     @Transactional
     public void updateNotificationPermissions(long userId, UserAllowNotificationsRequest request) {
 
+        // 사용자 및 사용자 동의 내역 목록 조회
         User user = userQuery.findById(userId);
+        List<NotificationPermission> notificationPermissions =
+            notificationPermissionQuery.findAllByUser(user);
 
-        updateNotificationPermissionStatusBy(
+        // 알림 타입, 알림 동의 내역 Map 구성
+        Map<NotificationType, NotificationPermission> typePermissionMap =
+            notificationPermissions.stream()
+                .collect(Collectors.toMap(NotificationPermission::getType, Function.identity()));
+
+        // 알림 타입별 내역 수정 or 내역 생성 작업 수행
+        updateOrCreateNotificationPermissionBy(
+            typePermissionMap,
             user,
             ARROW_RECEIVED,
             request.isAllowArrowReceivedNotification());
-        updateNotificationPermissionStatusBy(
+        updateOrCreateNotificationPermissionBy(
+            typePermissionMap,
             user,
             CHATTING_REQUESTED,
             request.isAllowChattingRequestNotification());
-        updateNotificationPermissionStatusBy(
+        updateOrCreateNotificationPermissionBy(
+            typePermissionMap,
             user,
             CHATTING_REQUEST_ACCEPTED,
             request.isAllowChattingRequestAcceptedNotification());
-
     }
 
-    private void updateNotificationPermissionStatusBy(
+    private void updateOrCreateNotificationPermissionBy(
+        Map<NotificationType, NotificationPermission> typePermissonMap,
         User user,
         NotificationType type,
         boolean permissionStatus) {
 
+        Optional<NotificationPermission> foundNotificationPermission =
+            Optional.ofNullable(typePermissonMap.get(type));
+
+        // 동의 내역이 존재할 경우 동의 상태 업데이트
+        if (foundNotificationPermission.isPresent()) {
+            foundNotificationPermission.get().updatePermissionStatus(permissionStatus);
+
+            return;
+        }
+
+        // 동의 내역이 존재하지 않을 시, 생성 후 저장
         NotificationPermission notificationPermission =
-            notificationPermissionQuery.findBy(user, type);
-        notificationPermission.updatePermissionStatus(permissionStatus);
+            new NotificationPermission(permissionStatus, type, user);
+        notificationPermissionCommand.save(notificationPermission);
     }
 }
