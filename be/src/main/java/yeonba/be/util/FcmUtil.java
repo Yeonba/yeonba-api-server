@@ -6,13 +6,10 @@ import com.google.firebase.messaging.ApsAlert;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import yeonba.be.exception.GeneralException;
-import yeonba.be.exception.NotificationException;
 import yeonba.be.notification.event.NotificationSendEvent;
 
 @Service
@@ -24,9 +21,6 @@ public class FcmUtil {
 
     @Async
     public void sendNotification(NotificationSendEvent sendEvent, int badge) {
-
-        String deviceToken = Optional.ofNullable(sendEvent.receiver().getDeviceToken())
-            .orElseThrow(() -> new GeneralException(NotificationException.DEVICE_TOKEN_NOT_FOUND));
 
         ApnsConfig apnsConfig = ApnsConfig.builder()
             .setAps(
@@ -43,6 +37,7 @@ public class FcmUtil {
             )
             .build();
 
+        String deviceToken = sendEvent.receiver().getDeviceToken();
         Message message = Message.builder()
             .setToken(deviceToken)
             .setApnsConfig(apnsConfig)
