@@ -1,8 +1,8 @@
 package yeonba.be.mypage.service;
 
 import static yeonba.be.notification.entity.NotificationType.ARROW_RECEIVED;
-import static yeonba.be.notification.entity.NotificationType.CHAT_REQUESTED;
-import static yeonba.be.notification.entity.NotificationType.CHAT_REQUEST_ACCEPTED;
+import static yeonba.be.notification.entity.NotificationType.CHATTING_REQUESTED;
+import static yeonba.be.notification.entity.NotificationType.CHATTING_REQUEST_ACCEPTED;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -166,9 +166,10 @@ public class MyPageService {
         boolean arrowReceivedNotificationPermission =
             notificationPermissionQuery.findBy(user, ARROW_RECEIVED).getPermissionStatus();
         boolean chattingRequestNotificationPermission =
-            notificationPermissionQuery.findBy(user, CHAT_REQUESTED).getPermissionStatus();
+            notificationPermissionQuery.findBy(user, CHATTING_REQUESTED).getPermissionStatus();
         boolean chattingRequestAcceptedNotificationPermission =
-            notificationPermissionQuery.findBy(user, CHAT_REQUEST_ACCEPTED).getPermissionStatus();
+            notificationPermissionQuery.findBy(user, CHATTING_REQUEST_ACCEPTED)
+                .getPermissionStatus();
 
         return new NotificationPermissionsResponse(
             arrowReceivedNotificationPermission,
@@ -184,15 +185,15 @@ public class MyPageService {
         updateNotificationPermissionStatusBy(
             user,
             ARROW_RECEIVED,
-            request.getAllowArrowReceivedNotification());
+            request.isAllowArrowReceivedNotification());
         updateNotificationPermissionStatusBy(
             user,
-            CHAT_REQUESTED,
-            request.getAllowChattingRequestNotification());
+            CHATTING_REQUESTED,
+            request.isAllowChattingRequestNotification());
         updateNotificationPermissionStatusBy(
             user,
-            CHAT_REQUEST_ACCEPTED,
-            request.getAllowChattingRequestAcceptedNotification());
+            CHATTING_REQUEST_ACCEPTED,
+            request.isAllowChattingRequestAcceptedNotification());
 
     }
 
