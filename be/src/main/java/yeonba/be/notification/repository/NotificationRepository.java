@@ -14,5 +14,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     boolean existsByReceiverAndReadIsFalse(User receiver);
 
-    Page<Notification> findAllByReceiver(User receiver, PageRequest pageRequest);
+    Page<Notification> findAllByReceiverOrderByCreatedAtDesc(
+        User receiver, PageRequest pageRequest);
 }
