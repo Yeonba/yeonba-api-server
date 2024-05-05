@@ -1,22 +1,22 @@
 package yeonba.be.notification.dto.request;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
-public class NotificationReceivedRequest {
+public class NotificationPageRequest {
 
-    @Parameter(
-        name = "page",
+    @Schema(
+        type = "number",
         description = "페이지 번호",
-        example = "0",
-        in = ParameterIn.QUERY)
+        example = "0")
     @NotNull(message = "페이지 번호는 반드시 포함되어야 합니다.")
     @PositiveOrZero(message = "페이지 번호는 0 이상이어야 합니다.")
-    private Integer page;
+    private int page;
 }
