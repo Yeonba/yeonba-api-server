@@ -4,6 +4,7 @@ import static yeonba.be.notification.entity.NotificationType.ARROW_RECEIVED;
 import static yeonba.be.notification.entity.NotificationType.CHATTING_REQUESTED;
 import static yeonba.be.notification.entity.NotificationType.CHATTING_REQUEST_ACCEPTED;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -211,22 +212,18 @@ public class MyPageService {
             notificationPermissions.stream()
                 .collect(Collectors.toMap(NotificationPermission::getType, Function.identity()));
 
-        // 알림 타입별 내역 수정 or 내역 생성 작업 수행
-        updateOrCreateNotificationPermissionBy(
-            typePermissionMap,
-            user,
-            ARROW_RECEIVED,
-            request.isAllowArrowReceivedNotification());
-        updateOrCreateNotificationPermissionBy(
-            typePermissionMap,
-            user,
-            CHATTING_REQUESTED,
+        // 알림 타입, 알림 동의 상태 Map 구성
+        Map<NotificationType, Boolean> typePermissonStatusMap = new HashMap<>();
+        typePermissonStatusMap.put(ARROW_RECEIVED, request.isAllowArrowReceivedNotification());
+        typePermissonStatusMap.put(CHATTING_REQUESTED,
             request.isAllowChattingRequestNotification());
-        updateOrCreateNotificationPermissionBy(
-            typePermissionMap,
-            user,
-            CHATTING_REQUEST_ACCEPTED,
-            request.isAllowChattingRequestAcceptedNotification());
+        typePermissonStatusMap.put(
+            CHATTING_REQUEST_ACCEPTED, request.isAllowChattingRequestAcceptedNotification());
+
+        // 알림 타입별 내역 수정 or 내역 생성 작업 수행
+        typePermissonStatusMap.forEach((type, permissionStatus) ->
+            updateOrCreateNotificationPermissionBy(typePermissionMap, user, type, permissionStatus)
+        );
     }
 
     private void updateOrCreateNotificationPermissionBy(
