@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.notification.dto.request.NotificationReceivedRequest;
 import yeonba.be.notification.dto.response.NotificationPageResponse;
-import yeonba.be.notification.dto.response.NotificationUnreadCountResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadExistResponse;
 import yeonba.be.notification.entity.Notification;
 import yeonba.be.notification.event.NotificationSendEvent;
@@ -24,15 +23,6 @@ public class NotificationService {
     private final UserQuery userQuery;
     private final NotificationCommand notificationCommand;
     private final NotificationQuery notificationQuery;
-
-    @Transactional(readOnly = true)
-    public NotificationUnreadCountResponse countUnreadNotifications(long userId) {
-
-        User receiver = userQuery.findById(userId);
-        long unreadNotificationsCount = notificationQuery.countUnreadNotificationsBy(receiver);
-
-        return new NotificationUnreadCountResponse(unreadNotificationsCount);
-    }
 
     @Transactional
     public NotificationPageResponse getReceivedNotificationsBy(
@@ -77,5 +67,13 @@ public class NotificationService {
         boolean exist = notificationQuery.existsUnreadNotificationsBy(receiver);
 
         return new NotificationUnreadExistResponse(exist);
+    }
+
+    @Transactional(readOnly = true)
+    public int getBadge(long userId) {
+
+        User user = userQuery.findById(userId);
+
+        return (int) notificationQuery.countUnreadNotificationsBy(user);
     }
 }
