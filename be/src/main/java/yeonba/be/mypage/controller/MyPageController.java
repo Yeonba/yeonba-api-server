@@ -113,7 +113,7 @@ public class MyPageController {
 
     @Operation(summary = "알림 on/off 설정", description = "알림별로 on/off를 설정할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "알림 on/off 설정 정상 처리")
-    @PatchMapping("/users/notifications/permissions")
+    @PutMapping("/users/notifications/permissions")
     public ResponseEntity<CustomResponse<Void>> allowNotifications(
         @RequestAttribute("userId") long userId,
         @Valid @RequestBody UserAllowNotificationsRequest request) {
