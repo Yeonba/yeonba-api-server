@@ -23,8 +23,9 @@ public class NotificationQuery {
         return notificationRepository.existsByReceiverAndReadIsFalse(receiver);
     }
 
-    public Page<Notification> findReceivedNotificationsBy(User receiver, PageRequest pageRequest) {
+    public Page<Notification> findRecentReceivedNotificationsBy(
+        User receiver, PageRequest pageRequest) {
 
-        return notificationRepository.findAllByReceiver(receiver, pageRequest);
+        return notificationRepository.findAllByReceiverOrderByCreatedAtDesc(receiver, pageRequest);
     }
 }
