@@ -52,4 +52,9 @@ public class NotificationPermission {
 
         this.permissionStatus = permissionStatus;
     }
+
+    public boolean hasSameTypeAs(NotificationType type) {
+
+        return this.type.equals(type);
+    }
 }
