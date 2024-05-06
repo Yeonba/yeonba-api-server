@@ -1,7 +1,7 @@
-package yeonba.be.user.repository;
+package yeonba.be.user.repository.user;
+
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,42 +21,24 @@ public class UserQuery {
 
     public User findById(long userId) {
 
-        return userRepository.findById(userId)
+        return userRepository.findByIdAndDeletedIsFalse(userId)
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
-    }
-
-    public User findByEmail(String email) {
-
-        return userRepository.findByEmail(email)
-            .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
-    }
-
-    public boolean existByPhoneNumber(String phoneNumber) {
-
-        return userRepository.existsByPhoneNumber(phoneNumber);
     }
 
     public User findByPhoneNumber(String phoneNumber) {
 
-        return userRepository.findByPhoneNumber(phoneNumber)
+        return userRepository.findByPhoneNumberAndDeletedIsFalse(phoneNumber)
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
     }
 
-    public List<User> findWillDeleteUsers() {
-
-        LocalDateTime now = LocalDateTime.now();
-
-        return userRepository.findAllByDeletedAtIsBeforeAndDeletedIsFalse(now);
-    }
-
-    public boolean isAlreadyUsedNickname(String nickname) {
+    public boolean validateUsedNickname(String nickname) {
 
         return userRepository.existsByNickname(nickname);
     }
 
-    public boolean isAlreadyUsedEmail(String email) {
+    public boolean validateUsedPhoneNumber(String phoneNumber) {
 
-        return userRepository.existsByEmail(email);
+        return userRepository.existsByPhoneNumber(phoneNumber);
     }
 
     public UserQueryPageResponse findAllFavorites(long userId, PageRequest pageRequest) {

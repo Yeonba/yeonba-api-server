@@ -1,18 +1,14 @@
 package yeonba.be.mypage.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.BlockedUserResponse;
@@ -23,8 +19,7 @@ import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.BlockCommand;
 import yeonba.be.user.repository.BlockQuery;
-import yeonba.be.user.repository.UserQuery;
-import yeonba.be.util.PasswordEncryptor;
+import yeonba.be.user.repository.user.UserQuery;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +29,6 @@ public class MyPageService {
     private final UserQuery userQuery;
     private final BlockQuery blockQuery;
     private final BlockCommand blockCommand;
-    private final PasswordEncryptor passwordEncryptor;
 
     @Value("${S3_BUCKET_NAME}")
     private String bucketName;
@@ -69,22 +63,6 @@ public class MyPageService {
         // validatedUser.updateProfile(request);
     }
 
-    @Transactional
-    public void changePassword(UserChangePasswordRequest request, long userId) {
-
-        User user = userQuery.findById(userId);
-
-        String encryptedOldPassword = passwordEncryptor
-            .encrypt(request.getOldPassword(), user.getSalt());
-
-        comparePasswords(request, user, encryptedOldPassword);
-
-        String encryptedNewPassword = passwordEncryptor
-            .encrypt(request.getNewPassword(), user.getSalt());
-
-        user.changePassword(encryptedNewPassword);
-    }
-
     public void updateProfilePhotos(List<MultipartFile> profilePhotos, MultipartFile realTimePhoto,
         long userId) {
 
@@ -95,7 +73,6 @@ public class MyPageService {
         uploadProfilePhotos(profilePhotos, user);
     }
 
-    @Transactional(readOnly = true)
     public BlockedUsersResponse getBlockedUsers(long userId) {
 
         User user = userQuery.findById(userId);
@@ -132,11 +109,7 @@ public class MyPageService {
     public void deleteUser(long userId) {
 
         User user = userQuery.findById(userId);
-
-        // 탈퇴 취소 가능 기간
-        int recovableDays = 1;
-        LocalDateTime willDeleteTime = LocalDateTime.now().plusDays(recovableDays);
-        user.delete(willDeleteTime);
+        user.delete();
     }
 
     /**
@@ -149,7 +122,8 @@ public class MyPageService {
         // TODO: 회의 후 확장자 제한 로직 추가, 확장자 검증 후 업로드 시작
         // validateFileExtension(profilePhoto);
 
-        for (int profilePhotoIdx = 0; profilePhotoIdx < profilePhotos.size(); profilePhotoIdx++) {
+        for (int profilePhotoIdx = 0; profilePhotoIdx < profilePhotos.size();
+            profilePhotoIdx++) {
 
             MultipartFile profilePhoto = profilePhotos.get(profilePhotoIdx);
 
@@ -170,32 +144,5 @@ public class MyPageService {
                     "Failed to upload file: " + profilePhoto.getOriginalFilename(), e);
             }
         }
-    }
-
-    /**
-     * 기존 비밀번호가 올바른지 검증 새 비밀번호와 새 비밀번호 확인 값이 일치하는지 검증
-     */
-    private void comparePasswords(UserChangePasswordRequest request,
-        User user,
-        String encryptedOldPassword) {
-
-        if (!user.getEncryptedPassword().equalsIgnoreCase(encryptedOldPassword)) {
-            throw new IllegalArgumentException("기존 비밀번호가 틀렸습니다.");
-        }
-
-        if (!StringUtils.equals(request.getNewPassword(), request.getNewPasswordConfirmation())) {
-            throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인 값이 일치하지 않습니다.");
-        }
-    }
-
-    /**
-     * 매일 자정에 삭제된 사용자를 숨김 처리한다.
-     */
-    @Scheduled(cron = "0 0 0 * * *")
-    @Transactional
-    public void hideDeletedUser() {
-
-        userQuery.findWillDeleteUsers()
-            .forEach(User::hideUserInfo);
     }
 }

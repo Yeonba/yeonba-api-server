@@ -3,7 +3,7 @@ package yeonba.be.util;
 import java.security.SecureRandom;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.commons.codec.binary.Base64;
+import org.apache.tomcat.util.codec.binary.Base64;
 
 /*
 - 32바이트 길이의 salt만으로 대부분의 보안적 위협은 커버 가능

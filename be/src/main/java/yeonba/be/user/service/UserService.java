@@ -26,18 +26,17 @@ import yeonba.be.user.entity.UserPreference;
 import yeonba.be.user.entity.UserRecommendation;
 import yeonba.be.user.entity.VocalRange;
 import yeonba.be.user.enums.Gender;
+import yeonba.be.user.enums.LoginType;
 import yeonba.be.user.repository.UserCommand;
-import yeonba.be.user.repository.UserQuery;
 import yeonba.be.user.repository.animal.AnimalQuery;
 import yeonba.be.user.repository.area.AreaQuery;
 import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
+import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.userrecommendation.UserRecommendationCommand;
 import yeonba.be.user.repository.userrecommendation.UserRecommendationQuery;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
-import yeonba.be.util.PasswordEncryptor;
 import yeonba.be.util.S3Service;
-import yeonba.be.util.SaltGenerator;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +59,6 @@ public class UserService {
     private final UserRecommendationQuery userRecommendationQuery;
     private final VocalRangeQuery vocalRangeQuery;
 
-    private final PasswordEncryptor passwordEncryptor;
     private final S3Service s3Service;
 
     @Transactional(readOnly = true)
@@ -85,24 +83,20 @@ public class UserService {
             isAlreadySentArrow);
     }
 
-    @Transactional
     public User saveUser(UserJoinRequest request) {
 
-        // 이미 사용 중인 이메일인지 확인
-        if (userQuery.isAlreadyUsedEmail(request.getEmail())) {
-            throw new GeneralException(JoinException.ALREADY_USED_EMAIL);
-        }
+        LoginType loginType = LoginType.from(request.getLoginType());
 
         // 이미 사용 중인 닉네임인지 확인
-        if (userQuery.isAlreadyUsedNickname(request.getNickname())) {
+        if (userQuery.validateUsedNickname(request.getNickname())) {
+
             throw new GeneralException(JoinException.ALREADY_USED_NICKNAME);
         }
 
-        // 비밀빈호, 비밀번호 확인 값 일치 확인
-        String password = request.getPassword();
-        String passwordConfirmation = request.getPasswordConfirmation();
-        if (!StringUtils.equals(password, passwordConfirmation)) {
-            throw new GeneralException(JoinException.PASSWORD_CONFIRMATION_NOT_MATCH);
+        // 이미 사용 중인 핸드폰 번호인지 확인
+        if (userQuery.validateUsedPhoneNumber(request.getPhoneNumber())) {
+
+            throw new GeneralException(JoinException.ALREADY_USED_PHONE_NUMBER);
         }
 
         // 성별 판별
@@ -112,10 +106,6 @@ public class UserService {
         LocalDate birth = request.getBirth();
         int age = Period.between(birth, LocalDate.now()).getYears();
 
-        // salt 생성 및 비밀번호 암호화
-        String salt = SaltGenerator.generateRandomSalt();
-        String encryptedPassword = passwordEncryptor.encrypt(password, salt);
-
         // 음역대, 동물상, 지역 조회
         VocalRange vocalRange = vocalRangeQuery.findBy(request.getVocalRange());
         Animal animal = animalQuery.findByName(request.getLookAlikeAnimal());
@@ -123,15 +113,14 @@ public class UserService {
 
         // 사용자 생성 및 저장
         User user = new User(
+            request.getSocialId(),
+            loginType,
             gender.genderBoolean,
             request.getName(),
             request.getNickname(),
             request.getBirth(),
             age,
             request.getHeight(),
-            request.getEmail(),
-            encryptedPassword,
-            salt,
             request.getPhoneNumber(),
             JOIN_REWARD_ARROWS,
             request.getPhotoSyncRate(),
@@ -145,7 +134,6 @@ public class UserService {
         return userCommand.save(user);
     }
 
-    @Transactional
     public void saveProfilePhotos(User user, UserJoinRequest request) {
 
         List<MultipartFile> photoFiles = request.getProfilePhotos();
@@ -159,7 +147,6 @@ public class UserService {
         user.updateProfilePhotos(profilePhotos);
     }
 
-    @Transactional
     public void saveUserPreference(User user, UserJoinRequest request) {
 
         // 선호 음역대, 동물상, 지역 조회

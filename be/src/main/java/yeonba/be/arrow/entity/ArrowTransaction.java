@@ -42,7 +42,9 @@ public class ArrowTransaction {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    public ArrowTransaction(User receiver, int arrows) {
+    public ArrowTransaction(
+        User receiver,
+        int arrows) {
 
         this.receiver = receiver;
         this.arrows = arrows;
