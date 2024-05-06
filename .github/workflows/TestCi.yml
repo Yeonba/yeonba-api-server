@@ -26,6 +26,7 @@ jobs:
 
       - name: Set fcm account key
         run: |
+          mkdir -p be/src/main/resources/fcm
           touch be/src/main/resources/fcm/fcm-account-key.json
           echo "${{ secrets.FCM_ACCOUNT_KEY }}" > be/src/main/resources/fcm/fcm-account-key.json
 
