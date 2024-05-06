@@ -24,6 +24,11 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
+      - name: Set fcm account key
+        run: |
+          touch be/src/main/resources/fcm/fcm-account-key.json
+          echo "${{ secrets.FCM_ACCOUNT_KEY }}" > be/src/main/resources/fcm/fcm-account-key.json
+
       - name: Set application properties
         run: |
           touch be/src/main/resources/application.properties
