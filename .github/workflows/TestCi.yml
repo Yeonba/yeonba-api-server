@@ -25,10 +25,12 @@ jobs:
           distribution: 'adopt'
 
       - name: Set fcm account key
+        env:
+          FCM_ACCOUNT_KEY: ${{ secrets.FCM_ACCOUNT_KEY }}
         run: |
           mkdir -p be/src/main/resources/fcm
           touch be/src/main/resources/fcm/fcm-account-key.json
-          echo "${{ secrets.FCM_ACCOUNT_KEY }}" | base64 --decode > be/src/main/resources/fcm/fcm-account-key.json
+          echo $FCM_ACCOUNT_KEY | base64 --decode > be/src/main/resources/fcm/fcm-account-key.json
 
       - name: Set application properties
         run: |
