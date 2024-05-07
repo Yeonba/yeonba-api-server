@@ -25,12 +25,12 @@ public class BlockedUserResponse {
         type = "string",
         description = "사용자 이름",
         example = "안민재")
-    private String name;
+    private String nickname;
 
     public BlockedUserResponse(User blockedUser) {
 
         this.id = blockedUser.getId();
         this.profileUrl = blockedUser.getRepresentativeProfilePhoto();
-        this.name = blockedUser.getName();
+        this.nickname = blockedUser.getNickname();
     }
 }

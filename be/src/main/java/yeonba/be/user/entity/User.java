@@ -48,9 +48,6 @@ public class User {
     private boolean gender;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
     private String nickname;
 
     @Column(nullable = false)
@@ -107,7 +104,6 @@ public class User {
         long socialId,
         LoginType loginType,
         boolean gender,
-        String name,
         String nickname,
         LocalDate birth,
         int age,
@@ -125,7 +121,6 @@ public class User {
         this.socialId = socialId;
         this.loginType = loginType;
         this.gender = gender;
-        this.name = name;
         this.nickname = nickname;
         this.birth = birth;
         this.age = age;
@@ -153,7 +148,6 @@ public class User {
     public void delete() {
 
         this.deleted = true;
-        this.name = "deleted";
         this.nickname = "deleted";
         this.age = 0;
         this.height = 0;
