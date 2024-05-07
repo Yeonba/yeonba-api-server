@@ -16,11 +16,11 @@ public class NotificationEventListener {
     @EventListener
     public void sendNotification(NotificationSendEvent sendEvent) {
 
+        notificationService.saveNotification(sendEvent);
+
         if (notificationService.canSendNotification(sendEvent.receiver(), sendEvent.type())) {
             int badge = notificationService.getBadge(sendEvent.receiver().getId());
             fcmUtil.sendNotification(sendEvent, badge);
         }
-
-        notificationService.saveNotification(sendEvent);
     }
 }
