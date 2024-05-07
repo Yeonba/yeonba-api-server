@@ -25,12 +25,6 @@ public class UserProfileDetailResponse {
 
     @Schema(
         type = "string",
-        description = "이름",
-        example = "안민재")
-    private String name;
-
-    @Schema(
-        type = "string",
         description = "생년월일",
         example = "1998-01-01")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -88,7 +82,6 @@ public class UserProfileDetailResponse {
 
         this.profilePhotoUrls = user.getProfilePhotoUrls();
         this.gender = user.getGender();
-        this.name = user.getName();
         this.birth = user.getBirth();
         this.height = user.getHeight();
         this.phoneNumber = user.getPhoneNumber();

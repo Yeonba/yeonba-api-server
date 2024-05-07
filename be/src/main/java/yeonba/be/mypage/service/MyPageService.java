@@ -41,7 +41,7 @@ public class MyPageService {
         User user = userQuery.findById(userId);
 
         return new UserSimpleProfileResponse(
-            user.getName(),
+            user.getNickname(),
             user.getRepresentativeProfilePhoto(),
             user.getArrow()
         );

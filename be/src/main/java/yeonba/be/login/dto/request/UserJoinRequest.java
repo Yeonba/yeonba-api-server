@@ -60,13 +60,6 @@ public class UserJoinRequest {
 
     @Schema(
         type = "string",
-        description = "이름",
-        example = "안민재")
-    @NotBlank(message = " 이름은 반드시 입력되어야 합니다.")
-    private String name;
-
-    @Schema(
-        type = "string",
         description = "닉네임",
         example = "존잘남")
     @Pattern(
