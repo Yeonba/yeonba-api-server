@@ -103,7 +103,6 @@ public class UserService {
             request.getSocialId(),
             loginType,
             gender.genderBoolean,
-            request.getName(),
             request.getNickname(),
             request.getBirth(),
             age,
