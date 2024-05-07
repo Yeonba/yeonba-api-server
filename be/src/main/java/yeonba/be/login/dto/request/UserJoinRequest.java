@@ -117,6 +117,7 @@ public class UserJoinRequest {
         type = "array",
         description = "프로필 사진 파일들")
     @Size(min = 2, max = 2)
+    @NotBlank(message = "프로필 사진은 반드시 2장이어야 합니다.")
     private List<MultipartFile> profilePhotos;
 
     @Schema(
