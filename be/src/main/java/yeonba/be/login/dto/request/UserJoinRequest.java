@@ -73,6 +73,7 @@ public class UserJoinRequest {
         description = "키",
         example = "180")
     @Positive(message = "키는 양의 정수여야 합니다.")
+    @NotNull(message = "키는 반드시 입력되어야 합니다.")
     private int height;
 
     @Schema(
@@ -117,7 +118,7 @@ public class UserJoinRequest {
         type = "array",
         description = "프로필 사진 파일들")
     @Size(min = 2, max = 2)
-    @NotBlank(message = "프로필 사진은 반드시 2장이어야 합니다.")
+    @NotNull(message = "프로필 사진은 반드시 2장이어야 합니다.")
     private List<MultipartFile> profilePhotos;
 
     @Schema(
@@ -127,6 +128,7 @@ public class UserJoinRequest {
     @Min(
         value = 80,
         message = "사진 싱크로율이 80퍼 이상이어야 가입할 수 있습니다.")
+    @NotNull(message = "사진 싱크로율은 반드시 입력되어야 합니다.")
     private int photoSyncRate;
 
     @Schema(
