@@ -24,6 +24,7 @@ public class WebConfig implements WebMvcConfigurer {
                 "/users/join/**",
                 "/users/login",
                 "/users/refresh",
-                "/users/nicknames/used");
+                "/users/nicknames/used",
+                "/users/phone-numbers/used");
     }
 }
