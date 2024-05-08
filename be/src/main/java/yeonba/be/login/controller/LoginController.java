@@ -16,10 +16,12 @@ import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserRefreshJwtRequest;
 import yeonba.be.login.dto.request.UserValidateUsedNicknameRequest;
+import yeonba.be.login.dto.request.UserValidateUsedPhoneNumberRequest;
 import yeonba.be.login.dto.response.UserJoinResponse;
 import yeonba.be.login.dto.response.UserLoginResponse;
 import yeonba.be.login.dto.response.UserRefrehJwtResponse;
 import yeonba.be.login.dto.response.UserValidateUsedNicknameResponse;
+import yeonba.be.login.dto.response.UserValidateUsedPhoneNumberResponse;
 import yeonba.be.login.service.LoginService;
 import yeonba.be.user.service.JoinService;
 import yeonba.be.util.CustomResponse;
@@ -71,14 +73,28 @@ public class LoginController {
             .body(new CustomResponse<>(response));
     }
 
-    @Operation(summary = "사용 중인 닉네임 확인", description = "사용 중인 닉네임인 지 검증할 수 있습니다.")
-    @ApiResponse(responseCode = "200", description = "닉네임 중복 검증 성공")
+    @Operation(summary = "사용 중인 닉네임 검증", description = "사용 중인 닉네임인 지 검증할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "사용 중인 닉네임 검증 성공")
     @GetMapping("/users/nicknames/used")
     public ResponseEntity<CustomResponse<UserValidateUsedNicknameResponse>> validateUsedNickname(
         @Valid @ParameterObject UserValidateUsedNicknameRequest request) {
 
         UserValidateUsedNicknameResponse response =
             loginService.validateUsedNickname(request);
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(response));
+    }
+
+    @Operation(summary = "사용 중인 전화번호 검증", description = "사용 중인 전화번호 검증 가능")
+    @ApiResponse(responseCode = "200", description = "사용 중인 전화번호 검증 성공")
+    @GetMapping("/users/phone-numbers/used")
+    public ResponseEntity<CustomResponse<UserValidateUsedPhoneNumberResponse>>
+    validateUsedPhoneNumber(@Valid @ParameterObject UserValidateUsedPhoneNumberRequest request) {
+
+        UserValidateUsedPhoneNumberResponse response =
+            loginService.validateUsedPhoneNumber(request);
 
         return ResponseEntity
             .ok()
