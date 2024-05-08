@@ -11,7 +11,7 @@ public class UserValidateUsedNicknameResponse {
 
     @Schema(
         type = "boolean",
-        description = "닉네임 중복 여부",
+        description = "닉네임 사용 여부",
         example = "false")
     @JsonProperty("isUsedNickname")
     private boolean usedNickname;
