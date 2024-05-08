@@ -8,8 +8,10 @@ import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserLoginRequest;
 import yeonba.be.login.dto.request.UserRefreshJwtRequest;
+import yeonba.be.login.dto.request.UserValidateUsedNicknameRequest;
 import yeonba.be.login.dto.response.UserLoginResponse;
 import yeonba.be.login.dto.response.UserRefrehJwtResponse;
+import yeonba.be.login.dto.response.UserValidateUsedNicknameResponse;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.enums.LoginType;
 import yeonba.be.user.repository.user.UserQuery;
@@ -62,5 +64,14 @@ public class LoginService {
         user.updateRefreshToken(refreshToken);
 
         return new UserRefrehJwtResponse(jwt, refreshToken);
+    }
+
+    @Transactional(readOnly = true)
+    public UserValidateUsedNicknameResponse validateUsedNickname(
+        UserValidateUsedNicknameRequest request) {
+
+        boolean usedNickname = userQuery.validateUsedNickname(request.getNickname());
+
+        return new UserValidateUsedNicknameResponse(usedNickname);
     }
 }
