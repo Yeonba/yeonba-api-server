@@ -14,6 +14,7 @@ public class UserValidateUsedNicknameRequest {
     @Parameter(
         name = "nickname",
         description = "닉네임",
+        example = "존존예녀",
         in = ParameterIn.QUERY)
     @Pattern(
         regexp = "^[a-zA-Z0-9가-힣]{1,8}$",
