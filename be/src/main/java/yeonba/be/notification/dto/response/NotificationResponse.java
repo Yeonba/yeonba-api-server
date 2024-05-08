@@ -47,9 +47,9 @@ public class NotificationResponse {
 
     @Schema(
         type = "string",
-        description = "알림 보낸 사용자 이름",
+        description = "알림 보낸 사용자 별명",
         example = "안민재")
-    private String creatorName;
+    private String creatorNickname;
 
     @Schema(
         type = "string",
@@ -67,7 +67,7 @@ public class NotificationResponse {
             notification.getContent(),
             creator.getId(),
             creator.getRepresentativeProfilePhoto(),
-            creator.getName(),
+            creator.getNickname(),
             notification.getCreatedAt()
         );
     }
