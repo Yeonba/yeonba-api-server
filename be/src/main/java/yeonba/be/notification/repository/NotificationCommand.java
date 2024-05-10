@@ -14,4 +14,9 @@ public class NotificationCommand {
 
         return notificationRepository.save(notification);
     }
+
+    public void readAllHasIdLessThanEqual(long notificationId) {
+
+        notificationRepository.readAllHasIdLessThanEqual(notificationId);
+    }
 }
