@@ -1,4 +1,4 @@
-package yeonba.be.notification.entity;
+package yeonba.be.notification.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,8 +1,8 @@
 package yeonba.be.mypage.service;
 
-import static yeonba.be.notification.entity.NotificationType.ARROW_RECEIVED;
-import static yeonba.be.notification.entity.NotificationType.CHATTING_REQUESTED;
-import static yeonba.be.notification.entity.NotificationType.CHATTING_REQUEST_ACCEPTED;
+import static yeonba.be.notification.enums.NotificationType.ARROW_RECEIVED;
+import static yeonba.be.notification.enums.NotificationType.CHATTING_REQUESTED;
+import static yeonba.be.notification.enums.NotificationType.CHATTING_REQUEST_ACCEPTED;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +29,7 @@ import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.notification.dto.response.NotificationPermissionsResponse;
 import yeonba.be.notification.entity.NotificationPermission;
-import yeonba.be.notification.entity.NotificationType;
+import yeonba.be.notification.enums.NotificationType;
 import yeonba.be.notification.repository.NotificationPermissionCommand;
 import yeonba.be.notification.repository.NotificationPermissionQuery;
 import yeonba.be.user.entity.Block;

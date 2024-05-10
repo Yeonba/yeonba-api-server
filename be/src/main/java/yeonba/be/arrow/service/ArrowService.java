@@ -13,7 +13,7 @@ import yeonba.be.arrow.repository.ArrowCommand;
 import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
-import yeonba.be.notification.entity.NotificationType;
+import yeonba.be.notification.enums.NotificationType;
 import yeonba.be.notification.event.NotificationSendEvent;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.user.UserQuery;

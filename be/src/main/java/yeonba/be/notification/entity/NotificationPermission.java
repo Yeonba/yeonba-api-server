@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import yeonba.be.notification.enums.NotificationType;
 import yeonba.be.user.entity.User;
 
 @Table(name = "notifications_permissions")

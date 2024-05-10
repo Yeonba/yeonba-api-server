@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import yeonba.be.notification.enums.NotificationType;
 import yeonba.be.user.entity.User;
 
 @Table(name = "notifications")

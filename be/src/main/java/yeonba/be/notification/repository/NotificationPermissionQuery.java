@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.NotificationException;
 import yeonba.be.notification.entity.NotificationPermission;
-import yeonba.be.notification.entity.NotificationType;
+import yeonba.be.notification.enums.NotificationType;
 import yeonba.be.user.entity.User;
 
 @Component

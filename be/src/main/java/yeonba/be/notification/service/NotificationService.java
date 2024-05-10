@@ -14,7 +14,7 @@ import yeonba.be.notification.dto.response.NotificationPageResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadExistResponse;
 import yeonba.be.notification.entity.Notification;
 import yeonba.be.notification.entity.NotificationPermission;
-import yeonba.be.notification.entity.NotificationType;
+import yeonba.be.notification.enums.NotificationType;
 import yeonba.be.notification.event.NotificationSendEvent;
 import yeonba.be.notification.repository.NotificationCommand;
 import yeonba.be.notification.repository.NotificationPermissionQuery;
