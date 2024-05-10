@@ -1,5 +1,6 @@
 package yeonba.be.notification.repository;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import yeonba.be.notification.entity.NotificationPermission;
@@ -10,8 +11,8 @@ public class NotificationPermissionCommand {
 
     private final NotificationPermissionRepository notificationPermissionRepository;
 
-    public NotificationPermission save(NotificationPermission notificationPermission) {
+    public void saveAll(List<NotificationPermission> notificationPermissions) {
 
-        return notificationPermissionRepository.save(notificationPermission);
+        notificationPermissionRepository.saveAll(notificationPermissions);
     }
 }
