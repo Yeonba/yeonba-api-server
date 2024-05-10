@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.mypage.dto.request.UserUpdateUnwantedAcquaintancesRequest;
 import yeonba.be.mypage.entity.Acquaintance;
 import yeonba.be.mypage.repository.AcquaintanceCommand;
-import yeonba.be.user.repository.UserQuery;
+import yeonba.be.user.repository.user.UserQuery;
 
 @Service
 @RequiredArgsConstructor

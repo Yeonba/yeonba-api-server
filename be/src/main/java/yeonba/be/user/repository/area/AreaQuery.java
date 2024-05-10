@@ -1,9 +1,10 @@
 package yeonba.be.user.repository.area;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
-import yeonba.be.exception.JoinException;
+import yeonba.be.exception.UserException;
 import yeonba.be.user.entity.Area;
 
 @Component
@@ -15,6 +16,11 @@ public class AreaQuery {
     public Area findByName(String name) {
 
         return areaRepository.findByName(name)
-            .orElseThrow(() -> new GeneralException(JoinException.AREA_NOT_FOUND));
+            .orElseThrow(() -> new GeneralException(UserException.AREA_NOT_FOUND));
+    }
+
+    public List<Area> findAll() {
+
+        return areaRepository.findAll();
     }
 }

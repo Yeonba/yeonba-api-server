@@ -9,7 +9,7 @@ import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.BlockCommand;
 import yeonba.be.user.repository.BlockQuery;
-import yeonba.be.user.repository.UserQuery;
+import yeonba.be.user.repository.user.UserQuery;
 
 @Service
 @RequiredArgsConstructor

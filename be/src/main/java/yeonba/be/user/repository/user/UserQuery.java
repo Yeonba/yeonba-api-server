@@ -1,4 +1,4 @@
-package yeonba.be.user.repository;
+package yeonba.be.user.repository.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,21 +18,10 @@ public class UserQuery {
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
     }
 
-    public User findByEmail(String email) {
-
-        return userRepository.findByEmail(email)
-            .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
-    }
-
     public User findByPhoneNumber(String phoneNumber) {
 
-        return userRepository.findByPhoneNumber(phoneNumber)
+        return userRepository.findByPhoneNumberAndDeletedIsFalse(phoneNumber)
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
-    }
-
-    public boolean validateUsedEmail(String email) {
-
-        return userRepository.existsByEmail(email);
     }
 
     public boolean validateUsedNickname(String nickname) {
