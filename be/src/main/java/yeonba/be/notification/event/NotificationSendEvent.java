@@ -6,7 +6,7 @@ import yeonba.be.user.entity.User;
 
 public record NotificationSendEvent(
     NotificationType type,
-    User creator,
+    User sender,
     User receiver,
     LocalDateTime createdAt) {
 
@@ -17,6 +17,6 @@ public record NotificationSendEvent(
 
     public String getNotificationMessage() {
 
-        return type.getFormattedMessage(this.creator.getNickname());
+        return type.getFormattedMessage(this.sender.getNickname());
     }
 }

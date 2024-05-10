@@ -31,7 +31,7 @@ public class FcmUtil {
                             .build()
                     )
                     .setBadge(badge)
-                    .putCustomData("creatorId", sendEvent.creator().getId())
+                    .putCustomData("senderId", sendEvent.sender().getId())
                     .putCustomData("createdAt", sendEvent.createdAt().toString())
                     .build()
             )

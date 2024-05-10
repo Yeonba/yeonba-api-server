@@ -37,19 +37,19 @@ public class NotificationResponse {
         type = "number",
         description = "알림 보낸 사용자 ID",
         example = "1")
-    private long creatorId;
+    private long senderId;
 
     @Schema(
         type = "number",
         description = "알림 보낸 사용자 대표 프로필 사진 URL",
         example = "profile-photo/1-0")
-    private String creatorProfilePhotoUrl;
+    private String senderProfilePhotoUrl;
 
     @Schema(
         type = "string",
         description = "알림 보낸 사용자 별명",
         example = "안민재")
-    private String creatorNickname;
+    private String senderNickname;
 
     @Schema(
         type = "string",
@@ -59,15 +59,15 @@ public class NotificationResponse {
 
     public static NotificationResponse from(Notification notification) {
 
-        User creator = notification.getCreator();
+        User sender = notification.getSender();
 
         return new NotificationResponse(
             notification.getId(),
             notification.getType().name(),
             notification.getContent(),
-            creator.getId(),
-            creator.getRepresentativeProfilePhoto(),
-            creator.getNickname(),
+            sender.getId(),
+            sender.getRepresentativeProfilePhoto(),
+            sender.getNickname(),
             notification.getCreatedAt()
         );
     }
