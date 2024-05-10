@@ -8,7 +8,8 @@ import yeonba.be.notification.entity.Notification;
 import yeonba.be.user.entity.User;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
+public interface NotificationRepository
+    extends JpaRepository<Notification, Long>, NotificationRepositoryCustom {
 
     long countByReceiverAndReadIsFalse(User receiver);
 
