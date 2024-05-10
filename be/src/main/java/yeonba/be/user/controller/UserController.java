@@ -69,7 +69,7 @@ public class UserController {
     }
 
     @Operation(summary = "즐겨찾기 등록", description = "다른 사용자를 자신의 즐겨찾기에 등록할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "즐겨찾기 등록 정상 처리")
+    @ApiResponse(responseCode = "200", description = "즐겨찾기 등록 정상 처리")
     @PostMapping("/favorites/{userId}")
     public ResponseEntity<CustomResponse<Void>> registerFavorite(
         @RequestAttribute("userId") long userId,
@@ -84,7 +84,7 @@ public class UserController {
     }
 
     @Operation(summary = "즐겨찾기 삭제", description = "즐겨찾기에 등록한 사용자를 삭제합니다.")
-    @ApiResponse(responseCode = "202", description = "즐겨찾기 삭제 정상 처리")
+    @ApiResponse(responseCode = "200", description = "즐겨찾기 삭제 정상 처리")
     @DeleteMapping("/favorites/{userId}")
     public ResponseEntity<CustomResponse<Void>> deleteFavorite(
         @RequestAttribute("userId") long userId,
@@ -100,7 +100,7 @@ public class UserController {
 
 
     @Operation(summary = "사용자 신고", description = "다른 사용자를 신고할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "신고 정상 처리")
+    @ApiResponse(responseCode = "200", description = "신고 정상 처리")
     @PostMapping("/users/{userId}/report")
     public ResponseEntity<CustomResponse<Void>> report(
         @RequestAttribute("userId") long userId,
@@ -119,7 +119,7 @@ public class UserController {
     }
 
     @Operation(summary = "차단하기", description = "다른 사용자를 차단할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "차단 요청 정상 처리")
+    @ApiResponse(responseCode = "200", description = "차단 요청 정상 처리")
     @PostMapping("/users/{userId}/block")
     public ResponseEntity<CustomResponse<Void>> block(
         @RequestAttribute("userId") long userId,
@@ -134,7 +134,7 @@ public class UserController {
     }
 
     @Operation(summary = "휴면 해제", description = "사용자 휴면 상태 해제")
-    @ApiResponse(responseCode = "202", description = "휴면 해제 정상 처리")
+    @ApiResponse(responseCode = "200", description = "휴면 해제 정상 처리")
     @PatchMapping("/users/activate")
     public ResponseEntity<CustomResponse<Void>> activateUser(
         @RequestAttribute("userId") long userId) {
