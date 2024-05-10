@@ -1,8 +1,6 @@
 package yeonba.be.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -21,118 +19,82 @@ import yeonba.be.util.CustomResponse;
 @RestControllerAdvice(annotations = {RestController.class})
 public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler(value = GeneralException.class)
-  public ResponseEntity<Object> handleGeneralException(
-      GeneralException exception,
-      HttpServletRequest request) {
+    @ExceptionHandler(value = GeneralException.class)
+    public ResponseEntity<Object> handleGeneralException(
+        GeneralException exception,
+        HttpServletRequest request) {
 
-    return handleExceptionInternal(
-        exception,
-        request);
-  }
+        return handleExceptionInternal(
+            exception,
+            request);
+    }
 
-  @ExceptionHandler(value = ConstraintViolationException.class)
-  public ResponseEntity<Object> handleConstraintViolationException(
-      ConstraintViolationException exception,
-      WebRequest request) {
+    private ResponseEntity<Object> handleExceptionInternal(
+        GeneralException exception,
+        HttpServletRequest request) {
 
-    String exceptionMessage = getConstraintViolationMessage(exception);
+        CustomResponse<Object> body = new CustomResponse<>(exception.getExceptionReason());
+        WebRequest webRequest = new ServletWebRequest(request);
 
-    return handleExceptionInternalConstraint(
-        exception,
-        exceptionMessage,
-        request);
-  }
+        return super.handleExceptionInternal(
+            exception,
+            body,
+            HttpHeaders.EMPTY,
+            exception.getHttpStatus(),
+            webRequest);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(
-      MethodArgumentNotValidException exception,
-      HttpHeaders headers,
-      HttpStatusCode status,
-      WebRequest request) {
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+        MethodArgumentNotValidException exception,
+        HttpHeaders headers,
+        HttpStatusCode status,
+        WebRequest request) {
 
-    Map<String, String> exceptionArgs = getMethodArgumentExceptionArgs(exception);
+        Map<String, String> exceptionArgs = getMethodArgumentExceptionArgs(exception);
 
-    return handleExceptionInternalArgs(
-        exception,
-        exceptionArgs,
-        request);
-  }
+        return handleExceptionInternalArgs(
+            exception,
+            exceptionArgs,
+            request);
+    }
 
-  private ResponseEntity<Object> handleExceptionInternal(
-      GeneralException exception,
-      HttpServletRequest request) {
+    private Map<String, String> getMethodArgumentExceptionArgs(
+        MethodArgumentNotValidException exception) {
 
-    CustomResponse<Object> body = new CustomResponse<>(exception.getExceptionReason());
-    WebRequest webRequest = new ServletWebRequest(request);
+        Map<String, String> exceptionArgs = new LinkedHashMap<>();
+        exception.getBindingResult().getFieldErrors()
+            .forEach(fieldError -> {
+                String fieldName = fieldError.getField();
+                String errorMessage = Optional
+                    .ofNullable(fieldError.getDefaultMessage())
+                    .orElse("");
+                exceptionArgs.merge(
+                    fieldName,
+                    errorMessage,
+                    (existingErrorMessage, newErrorMessage) ->
+                        existingErrorMessage
+                            .concat(", ")
+                            .concat(newErrorMessage));
+            });
 
-    return super.handleExceptionInternal(
-        exception,
-        body,
-        HttpHeaders.EMPTY,
-        exception.getHttpStatus(),
-        webRequest);
-  }
+        return exceptionArgs;
+    }
 
-  private Map<String, String> getMethodArgumentExceptionArgs(
-      MethodArgumentNotValidException exception) {
+    private ResponseEntity<Object> handleExceptionInternalArgs(
+        MethodArgumentNotValidException exception,
+        Map<String, String> exceptionArgs,
+        WebRequest request) {
 
-    Map<String, String> exceptionArgs = new LinkedHashMap<>();
-    exception.getBindingResult().getFieldErrors()
-        .forEach(fieldError -> {
-          String fieldName = fieldError.getField();
-          String errorMessage = Optional
-              .ofNullable(fieldError.getDefaultMessage())
-              .orElse("");
-          exceptionArgs.merge(
-              fieldName,
-              errorMessage,
-              (existingErrorMessage, newErrorMessage) ->
-                  existingErrorMessage
-                      .concat(", ")
-                      .concat(newErrorMessage));
-        });
+        CustomResponse<Map<String, String>> body = CustomResponse.onFailure(
+            CommonException.BAD_REQUEST.getReason(),
+            exceptionArgs);
 
-    return exceptionArgs;
-  }
-
-  private ResponseEntity<Object> handleExceptionInternalArgs(
-      MethodArgumentNotValidException exception,
-      Map<String, String> exceptionArgs,
-      WebRequest request) {
-
-    CustomResponse<Map<String, String>> body = CustomResponse.onFailure(
-        CommonException.BAD_REQUEST.getReason(),
-        exceptionArgs);
-
-    return super.handleExceptionInternal(
-        exception,
-        body,
-        HttpHeaders.EMPTY,
-        CommonException.BAD_REQUEST.getHttpStatus(),
-        request);
-  }
-
-  private String getConstraintViolationMessage(ConstraintViolationException exception) {
-
-    return exception.getConstraintViolations().stream()
-        .map(ConstraintViolation::getMessage)
-        .findFirst()
-        .orElseThrow(() -> new RuntimeException("ConstraintViolationException 추출 도중 오류 발생"));
-  }
-
-  private ResponseEntity<Object> handleExceptionInternalConstraint(
-      ConstraintViolationException exception,
-      String exceptionMessage,
-      WebRequest request) {
-
-    CustomResponse<Object> body = new CustomResponse<>(exceptionMessage);
-
-    return super.handleExceptionInternal(
-        exception,
-        body,
-        HttpHeaders.EMPTY,
-        CommonException.BAD_REQUEST.getHttpStatus(),
-        request);
-  }
+        return super.handleExceptionInternal(
+            exception,
+            body,
+            HttpHeaders.EMPTY,
+            CommonException.BAD_REQUEST.getHttpStatus(),
+            request);
+    }
 }

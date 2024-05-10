@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 @Table(name = "animals")
 @Getter
@@ -25,5 +26,10 @@ public class Animal {
 
     public Animal(String name) {
         this.name = name;
+    }
+
+    public boolean hasSameNameAs(String name) {
+
+        return StringUtils.equals(this.name, name);
     }
 }

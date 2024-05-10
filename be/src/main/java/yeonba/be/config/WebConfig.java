@@ -23,8 +23,6 @@ public class WebConfig implements WebMvcConfigurer {
                 "/error")
             .excludePathPatterns(
                 "/users/join/**",
-                "/users/email-inquiry/**",
-                "/users/pw-inquiry",
                 "/users/login",
                 "/users/refresh");
 

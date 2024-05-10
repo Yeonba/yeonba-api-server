@@ -16,6 +16,18 @@ public enum UserException implements BaseException {
         HttpStatus.BAD_REQUEST,
         "다른 로그인 방식을 이용해주세요."),
 
+    VOCAL_RANGE_NOT_FOUND(
+        HttpStatus.BAD_REQUEST,
+        "존재하지 않는 음역대입니다."),
+
+    ANIMAL_NOT_FOUND(
+        HttpStatus.BAD_REQUEST,
+        "존재하지 않는 동물상입니다."),
+
+    AREA_NOT_FOUND(
+        HttpStatus.BAD_REQUEST,
+        "존재하지 않는 지역입니다."),
+
     USER_NOT_FOUND(
         HttpStatus.BAD_REQUEST,
         "해당 사용자가 존재하지 않습니다."),
@@ -30,7 +42,19 @@ public enum UserException implements BaseException {
 
     INACTIVE_USER(
         HttpStatus.BAD_REQUEST,
-        "휴면 상태 사용자입니다. 휴면 해제가 필요합니다.");
+        "휴면 상태 사용자입니다. 휴면 해제가 필요합니다."),
+
+    USER_PREFERENCE_NOT_FOUND(
+        HttpStatus.BAD_REQUEST,
+        "해당 사용자의 선호내역이 존재하지 않습니다."),
+
+    AGE_OUT_OF_RANGE(
+        HttpStatus.BAD_REQUEST,
+        "서비스 이용이 가능한 사용자 나이는 20~40세입니다."),
+
+    LOWER_BOUND_LESS_THAN_OR_EQUAL_UPPER_BOUND(
+        HttpStatus.BAD_REQUEST,
+        "하한 값은 상한 값보다 작거나 같아야 합니다.");
 
     private final HttpStatus httpStatus;
     private final String reason;

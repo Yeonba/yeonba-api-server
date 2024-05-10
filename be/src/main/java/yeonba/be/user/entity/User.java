@@ -49,9 +49,6 @@ public class User {
     private boolean gender;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
     private String nickname;
 
     @Column(nullable = false)
@@ -108,7 +105,6 @@ public class User {
         long socialId,
         LoginType loginType,
         boolean gender,
-        String name,
         String nickname,
         LocalDate birth,
         int age,
@@ -126,7 +122,6 @@ public class User {
         this.socialId = socialId;
         this.loginType = loginType;
         this.gender = gender;
-        this.name = name;
         this.nickname = nickname;
         this.birth = birth;
         this.age = age;
@@ -154,7 +149,6 @@ public class User {
     public void delete() {
 
         this.deleted = true;
-        this.name = "deleted";
         this.nickname = "deleted";
         this.age = 0;
         this.height = 0;
@@ -236,5 +230,30 @@ public class User {
         if (this.gender == user.getGenderBoolean()) {
             throw new GeneralException(UserException.SAME_GENDER_USER);
         }
+
+    }
+
+    public void updateProfile(
+        String nickname,
+        int height,
+        LocalDate birth,
+        int age,
+        String bodyType,
+        String job,
+        String mbti,
+        VocalRange vocalRange,
+        Animal animal,
+        Area area) {
+
+        this.nickname = nickname;
+        this.height = height;
+        this.birth = birth;
+        this.age = age;
+        this.bodyType = bodyType;
+        this.job = job;
+        this.mbti = mbti;
+        this.vocalRange = vocalRange;
+        this.animal = animal;
+        this.area = area;
     }
 }
