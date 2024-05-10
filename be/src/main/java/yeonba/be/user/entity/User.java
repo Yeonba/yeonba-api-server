@@ -229,4 +229,28 @@ public class User {
 
         this.deviceToken = deviceToken;
     }
+
+    public void updateProfile(
+        String nickname,
+        int height,
+        LocalDate birth,
+        int age,
+        String bodyType,
+        String job,
+        String mbti,
+        VocalRange vocalRange,
+        Animal animal,
+        Area area) {
+
+        this.nickname = nickname;
+        this.height = height;
+        this.birth = birth;
+        this.age = age;
+        this.bodyType = bodyType;
+        this.job = job;
+        this.mbti = mbti;
+        this.vocalRange = vocalRange;
+        this.animal = animal;
+        this.area = area;
+    }
 }

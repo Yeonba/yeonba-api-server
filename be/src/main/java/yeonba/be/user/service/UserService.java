@@ -28,6 +28,7 @@ import yeonba.be.user.repository.user.UserCommand;
 import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
+import yeonba.be.util.AgeValidator;
 import yeonba.be.util.S3Service;
 
 @Service
@@ -89,12 +90,14 @@ public class UserService {
         // 성별 판별
         Gender gender = Gender.from(request.getGender());
 
-        // 나이 계산
+        // 나이 20~40세인 지 검증 & 나이 계산
         LocalDate birth = request.getBirth();
-        int age = Period.between(birth, LocalDate.now()).getYears();
+        LocalDate currentDate = LocalDate.now();
+        AgeValidator.validateAgeByBirth(birth, currentDate);
+        int age = Period.between(birth, currentDate).getYears();
 
         // 음역대, 동물상, 지역 조회
-        VocalRange vocalRange = vocalRangeQuery.findBy(request.getVocalRange());
+        VocalRange vocalRange = vocalRangeQuery.findByClassification(request.getVocalRange());
         Animal animal = animalQuery.findByName(request.getLookAlikeAnimal());
         Area area = areaQuery.findByName(request.getActivityArea());
 
@@ -137,7 +140,8 @@ public class UserService {
 
         // 선호 음역대, 동물상, 지역 조회
         Animal preferredAnimal = animalQuery.findByName(request.getPreferredAnimal());
-        VocalRange preferredVocalRange = vocalRangeQuery.findBy(request.getPreferredVocalRange());
+        VocalRange preferredVocalRange =
+            vocalRangeQuery.findByClassification(request.getPreferredVocalRange());
         Area preferredArea = areaQuery.findByName(request.getPreferredArea());
 
         UserPreference userPreference = new UserPreference(

@@ -1,18 +1,15 @@
 package yeonba.be.util;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum GlobalValidationRegex {
 
-	EMAIL("[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$"),
-	PASSWORD("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[~#@!]).{8,20}$");
+    PASSWORD("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[~#@!]).{8,20}$"),
+    VERIFICATION_CODE("^[A-Za-z0-9]{6}$"),
+    PHONE_NUMBER("^010\\d{8}$");
 
-	private final String pattern;
-
-	GlobalValidationRegex(String pattern) {
-		this.pattern = pattern;
-	}
-
-	public String getPattern() {
-
-		return pattern;
-	}
+    private final String pattern;
 }

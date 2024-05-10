@@ -23,17 +23,13 @@ public class UserPreference {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private int ageLowerBound;
+    private Integer ageLowerBound;
 
-    @Column(nullable = false)
-    private int ageUpperBound;
+    private Integer ageUpperBound;
 
-    @Column(nullable = false)
-    private int heightLowerBound;
+    private Integer heightLowerBound;
 
-    @Column(nullable = false)
-    private int heightUpperBound;
+    private Integer heightUpperBound;
 
     @Column(nullable = false)
     private String mbti;
@@ -79,5 +75,27 @@ public class UserPreference {
         this.vocalRange = vocalRange;
         this.area = area;
         this.animal = animal;
+    }
+
+    public void updatePreference(
+        Integer ageLowerBound,
+        Integer ageUpperBound,
+        Integer heightLowerBound,
+        Integer heightUpperBound,
+        String mbti,
+        String bodyType,
+        VocalRange vocalRange,
+        Animal animal,
+        Area area) {
+
+        this.ageLowerBound = ageLowerBound;
+        this.ageUpperBound = ageUpperBound;
+        this.heightLowerBound = heightLowerBound;
+        this.heightUpperBound = heightUpperBound;
+        this.mbti = mbti;
+        this.bodyType = bodyType;
+        this.vocalRange = vocalRange;
+        this.animal = animal;
+        this.area = area;
     }
 }

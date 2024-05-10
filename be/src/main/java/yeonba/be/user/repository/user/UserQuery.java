@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UserException;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.enums.LoginType;
 
 @Component
 @RequiredArgsConstructor

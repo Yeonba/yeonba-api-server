@@ -79,7 +79,7 @@ public class MyPageController {
         myPageService.updateProfilePhotos(profilePhotos, realTimePhoto, userId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
@@ -93,7 +93,7 @@ public class MyPageController {
         myPageService.updateProfile(request, userId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
@@ -121,7 +121,7 @@ public class MyPageController {
         myPageService.updateNotificationPermissions(userId, request);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
@@ -135,7 +135,7 @@ public class MyPageController {
         acquaintanceService.updateUnwantedAcquaintances(userId, request);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
@@ -162,7 +162,7 @@ public class MyPageController {
         myPageService.unblockUser(userId, blockedUserId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
@@ -176,7 +176,7 @@ public class MyPageController {
         myPageService.changeDormantStatus(userId, request);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
@@ -189,7 +189,7 @@ public class MyPageController {
         myPageService.deleteUser(userId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 }
