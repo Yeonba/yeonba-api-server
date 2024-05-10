@@ -6,13 +6,10 @@ import static yeonba.be.notification.enums.NotificationType.CHATTING_REQUEST_ACC
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,7 +31,6 @@ import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.notification.dto.response.NotificationPermissionsResponse;
 import yeonba.be.notification.entity.NotificationPermission;
 import yeonba.be.notification.enums.NotificationType;
-import yeonba.be.notification.repository.NotificationPermissionCommand;
 import yeonba.be.notification.repository.NotificationPermissionQuery;
 import yeonba.be.user.entity.Animal;
 import yeonba.be.user.entity.Area;
@@ -63,7 +59,6 @@ public class MyPageService {
     private final VocalRangeQuery vocalRangeQuery;
     private final NotificationPermissionQuery notificationPermissionQuery;
 
-    private final NotificationPermissionCommand notificationPermissionCommand;
     private final BlockCommand blockCommand;
 
     private final S3Client s3Client;
@@ -315,44 +310,16 @@ public class MyPageService {
         List<NotificationPermission> notificationPermissions =
             notificationPermissionQuery.findAllByUser(user);
 
-        // 알림 타입, 알림 동의 내역 Map 구성
-        Map<NotificationType, NotificationPermission> typePermissionMap =
-            notificationPermissions.stream()
-                .collect(Collectors.toMap(NotificationPermission::getType, Function.identity()));
+        // 알림 타입, 동의 여부 맵 구성
+        Map<NotificationType, Boolean> typePermissionStatusMap =
+            request.toNotificationTypePermissionStatusMap();
 
-        // 알림 타입, 알림 동의 상태 Map 구성
-        Map<NotificationType, Boolean> typePermissonStatusMap = new HashMap<>();
-        typePermissonStatusMap.put(ARROW_RECEIVED, request.isAllowArrowReceivedNotification());
-        typePermissonStatusMap.put(CHATTING_REQUESTED,
-            request.isAllowChattingRequestNotification());
-        typePermissonStatusMap.put(
-            CHATTING_REQUEST_ACCEPTED, request.isAllowChattingRequestAcceptedNotification());
-
-        // 알림 타입별 내역 수정 or 내역 생성 작업 수행
-        typePermissonStatusMap.forEach((type, permissionStatus) ->
-            updateOrCreateNotificationPermissionBy(typePermissionMap, user, type, permissionStatus)
-        );
-    }
-
-    private void updateOrCreateNotificationPermissionBy(
-        Map<NotificationType, NotificationPermission> typePermissonMap,
-        User user,
-        NotificationType type,
-        boolean permissionStatus) {
-
-        Optional<NotificationPermission> foundNotificationPermission =
-            Optional.ofNullable(typePermissonMap.get(type));
-
-        // 동의 내역이 존재할 경우 동의 상태 업데이트
-        if (foundNotificationPermission.isPresent()) {
-            foundNotificationPermission.get().updatePermissionStatus(permissionStatus);
-
-            return;
-        }
-
-        // 동의 내역이 존재하지 않을 시, 생성 후 저장
-        NotificationPermission notificationPermission =
-            new NotificationPermission(permissionStatus, type, user);
-        notificationPermissionCommand.save(notificationPermission);
+        // 알림 타입별 동의 내역, 동의 여부 업데이트
+        notificationPermissions.forEach(notificationPermission -> {
+            NotificationType type = notificationPermission.getType();
+            boolean permissionStatus = typePermissionStatusMap
+                .getOrDefault(type, notificationPermission.getPermissionStatus());
+            notificationPermission.updatePermissionStatus(permissionStatus);
+        });
     }
 }
