@@ -1,6 +1,5 @@
 package yeonba.be.notification.service;
 
-import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,8 +34,9 @@ public class NotificationService {
     public NotificationPageResponse getRecentlyReceivedNotificationsBy(
         long receiverId, NotificationPageRequest request) {
 
-        int pageNumber = request.getPage();
-        int size = 9;
+        // 페이지 번호는 optional, default 첫 페이지 제공
+        int pageNumber = Optional.ofNullable(request.getPage()).orElse(0);
+        int size = 45;
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
@@ -44,16 +44,16 @@ public class NotificationService {
         Page<Notification> page =
             notificationQuery.findRecentlyReceivedNotificationsBy(receiver, pageRequest);
 
-        readNotifications(page.getContent());
+        // 가장 최근에 받은 알림 ID 도출
+        long mostRecentNotificationId = page.getContent().stream()
+            .mapToLong(Notification::getId)
+            .max()
+            .orElse(Long.MAX_VALUE);
+
+        // 가장 최근에 받은 알림 포함 이전 알림 전부 읽음 처리
+        notificationCommand.readAllHasIdLessThanEqual(mostRecentNotificationId);
 
         return NotificationPageResponse.from(page);
-    }
-
-    private void readNotifications(List<Notification> notifications) {
-
-        notifications.stream()
-            .filter(notification -> !notification.isRead())
-            .forEach(Notification::read);
     }
 
     @Transactional
@@ -62,7 +62,7 @@ public class NotificationService {
         Notification notification = new Notification(
             sendEvent.getNotificationMessage(),
             sendEvent.type(),
-            sendEvent.creator(),
+            sendEvent.sender(),
             sendEvent.receiver());
         notificationCommand.save(notification);
     }
