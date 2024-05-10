@@ -1,5 +1,6 @@
 package yeonba.be.notification.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -32,13 +33,15 @@ public class NotificationPageResponse {
         type = "boolean",
         description = "첫 페이지 여부",
         example = "false")
-    private Boolean isFirst;
+    @JsonProperty("isFirst")
+    private boolean first;
 
     @Schema(
         type = "boolean",
         description = "마지막 페이지 여부",
         example = "true")
-    private Boolean isLast;
+    @JsonProperty("isLast")
+    private boolean last;
 
     public static NotificationPageResponse from(Page<Notification> page) {
 
