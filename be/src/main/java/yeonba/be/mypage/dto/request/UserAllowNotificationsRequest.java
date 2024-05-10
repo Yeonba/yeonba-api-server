@@ -2,8 +2,11 @@ package yeonba.be.mypage.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import yeonba.be.notification.enums.NotificationType;
 
 @Getter
 @NoArgsConstructor
@@ -29,4 +32,15 @@ public class UserAllowNotificationsRequest {
         example = "true")
     @NotNull(message = "요청한 채팅 수락 시 알림 동의 여부는 필수 값입니다.")
     private boolean allowChattingRequestAcceptedNotification;
+
+    public Map<NotificationType, Boolean> toNotificationTypePermissionStatusMap() {
+
+        Map<NotificationType, Boolean> map = new HashMap<>();
+        map.put(NotificationType.ARROW_RECEIVED, this.allowArrowReceivedNotification);
+        map.put(NotificationType.CHATTING_REQUESTED, this.allowChattingRequestNotification);
+        map.put(NotificationType.CHATTING_REQUEST_ACCEPTED,
+            this.allowChattingRequestAcceptedNotification);
+
+        return map;
+    }
 }
