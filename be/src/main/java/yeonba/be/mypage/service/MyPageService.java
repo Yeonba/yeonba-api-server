@@ -9,7 +9,7 @@ import java.time.Period;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,6 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import yeonba.be.exception.GeneralException;
-import yeonba.be.exception.NotificationException;
 import yeonba.be.exception.UserException;
 import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
@@ -277,29 +276,20 @@ public class MyPageService {
         List<NotificationPermission> notificationPermissions =
             notificationPermissionQuery.findAllByUser(user);
 
-        boolean arrowReceivedNotificationPermission =
-            getNotificationPermissionStatusBy(notificationPermissions, ARROW_RECEIVED);
-        boolean chattingRequestNotificationPermission =
-            getNotificationPermissionStatusBy(notificationPermissions, CHATTING_REQUESTED);
-        boolean chattingRequestAcceptedNotificationPermission =
-            getNotificationPermissionStatusBy(notificationPermissions, CHATTING_REQUEST_ACCEPTED);
+        // 알림 타입별 동의 내역 Map 형성
+        Map<NotificationType, Boolean> typePermissionStatusMap =
+            notificationPermissions.stream()
+                .collect(Collectors.toMap(
+                    NotificationPermission::getType,
+                    NotificationPermission::getPermissionStatus,
+                    (existing, replacement) -> existing
+                ));
 
+        // 회원 가입시 알림 전부 동의 처리, 기본 동의한 것으로 간주하여 응답 제공
         return new NotificationPermissionsResponse(
-            arrowReceivedNotificationPermission,
-            chattingRequestNotificationPermission,
-            chattingRequestAcceptedNotificationPermission);
-    }
-
-    private boolean getNotificationPermissionStatusBy(
-        List<NotificationPermission> notificationPermissions, NotificationType type) {
-
-        Optional<NotificationPermission> foundPermission = notificationPermissions.stream()
-            .filter(notificationPermission -> notificationPermission.hasSameTypeAs(type))
-            .findFirst();
-
-        return foundPermission.map(NotificationPermission::getPermissionStatus)
-            .orElseThrow(() ->
-                new GeneralException(NotificationException.NOTIFICATION_PERMISSION_NOT_FOUND));
+            typePermissionStatusMap.getOrDefault(ARROW_RECEIVED, true),
+            typePermissionStatusMap.getOrDefault(CHATTING_REQUESTED, true),
+            typePermissionStatusMap.getOrDefault(CHATTING_REQUEST_ACCEPTED, true));
     }
 
     @Transactional
