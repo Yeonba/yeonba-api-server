@@ -37,9 +37,8 @@ public class NotificationPermission {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public NotificationPermission(boolean permissionStatus, NotificationType type, User user) {
-
-        this.permissionStatus = permissionStatus;
+    public NotificationPermission(NotificationType type, User user) {
+        this.permissionStatus = true;
         this.type = type;
         this.user = user;
     }
