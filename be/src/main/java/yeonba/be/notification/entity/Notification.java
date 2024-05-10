@@ -42,8 +42,8 @@ public class Notification {
     private NotificationType type;
 
     @ManyToOne
-    @JoinColumn(name = "creator_id")
-    private User creator;
+    @JoinColumn(name = "sender_id")
+    private User sender;
 
     @ManyToOne
     @JoinColumn(name = "receiver_id")
@@ -55,17 +55,13 @@ public class Notification {
     public Notification(
         String content,
         NotificationType type,
-        User creator,
+        User sender,
         User receiver) {
 
         this.content = content;
         this.read = false;
         this.type = type;
-        this.creator = creator;
+        this.sender = sender;
         this.receiver = receiver;
-    }
-
-    public void read() {
-        this.read = true;
     }
 }
