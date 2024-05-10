@@ -12,12 +12,6 @@ import yeonba.be.user.entity.User;
 public class NotificationResponse {
 
     @Schema(
-        type = "number",
-        description = "알림 ID",
-        example = "1")
-    private long id;
-
-    @Schema(
         type = "string",
         description = """
             알림 타입, 다음 종류 존재
@@ -62,7 +56,6 @@ public class NotificationResponse {
         User sender = notification.getSender();
 
         return new NotificationResponse(
-            notification.getId(),
             notification.getType().name(),
             notification.getContent(),
             sender.getId(),
