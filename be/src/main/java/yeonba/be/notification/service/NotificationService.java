@@ -1,5 +1,7 @@
 package yeonba.be.notification.service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +18,7 @@ import yeonba.be.notification.entity.NotificationPermission;
 import yeonba.be.notification.enums.NotificationType;
 import yeonba.be.notification.event.NotificationSendEvent;
 import yeonba.be.notification.repository.NotificationCommand;
+import yeonba.be.notification.repository.NotificationPermissionCommand;
 import yeonba.be.notification.repository.NotificationPermissionQuery;
 import yeonba.be.notification.repository.NotificationQuery;
 import yeonba.be.user.entity.User;
@@ -26,9 +29,11 @@ import yeonba.be.user.repository.user.UserQuery;
 public class NotificationService {
 
     private final UserQuery userQuery;
-    private final NotificationCommand notificationCommand;
     private final NotificationQuery notificationQuery;
     private final NotificationPermissionQuery notificationPermissionQuery;
+
+    private final NotificationCommand notificationCommand;
+    private final NotificationPermissionCommand notificationPermissionCommand;
 
     @Transactional
     public NotificationPageResponse getRecentlyReceivedNotificationsBy(
@@ -65,6 +70,15 @@ public class NotificationService {
             sendEvent.sender(),
             sendEvent.receiver());
         notificationCommand.save(notification);
+    }
+
+    public void saveAllowedNotificationPermissions(User user) {
+
+        List<NotificationPermission> notificationPermissions =
+            Arrays.stream(NotificationType.values())
+                .map(type -> new NotificationPermission(type, user))
+                .toList();
+        notificationPermissionCommand.saveAll(notificationPermissions);
     }
 
     @Transactional(readOnly = true)
