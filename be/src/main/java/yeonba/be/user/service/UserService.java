@@ -27,10 +27,10 @@ import yeonba.be.user.entity.UserRecommendation;
 import yeonba.be.user.entity.VocalRange;
 import yeonba.be.user.enums.Gender;
 import yeonba.be.user.enums.LoginType;
-import yeonba.be.user.repository.UserCommand;
 import yeonba.be.user.repository.animal.AnimalQuery;
 import yeonba.be.user.repository.area.AreaQuery;
 import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
+import yeonba.be.user.repository.user.UserCommand;
 import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.userrecommendation.UserRecommendationCommand;
@@ -41,11 +41,6 @@ import yeonba.be.util.S3Service;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
-    private final int JOIN_REWARD_ARROWS = 30;
-    private final int DEFAULT_PAGE_SIZE = 6;
-    private final int RECOMMEND_USERS_PAGE_SIZE = 2;
-    private final int ARROWS_FOR_RECOMMEND = 5;
 
     private final ProfilePhotoCommand profilePhotoCommand;
     private final UserCommand userCommand;
@@ -112,6 +107,7 @@ public class UserService {
         Area area = areaQuery.findByName(request.getActivityArea());
 
         // 사용자 생성 및 저장
+        int joinRewardArrows = 30;
         User user = new User(
             request.getSocialId(),
             loginType,
@@ -122,7 +118,7 @@ public class UserService {
             age,
             request.getHeight(),
             request.getPhoneNumber(),
-            JOIN_REWARD_ARROWS,
+            joinRewardArrows,
             request.getPhotoSyncRate(),
             request.getBodyType(),
             request.getJob(),
@@ -170,52 +166,54 @@ public class UserService {
 
     // controller에서 type에 대해 검증, 페이지 사이즈가 6으로 같은 경우 조회 로직
     @Transactional(readOnly = true)
-    public UserQueryPageResponse findByQueryCondition(long userId, UserQueryRequest request) {
+    public UserQueryPageResponse findUsersByQueryCondition(long userId, UserQueryRequest request) {
 
         String type = request.getType();
         int page = request.getPage();
-        PageRequest pageRequest = PageRequest.of(page, DEFAULT_PAGE_SIZE);
+        int size = 6;
+        PageRequest pageRequest = PageRequest.of(page, size);
 
         if (StringUtils.equals(type, "BOOKMARKED")) {
 
-            return findAllFavorites(userId, pageRequest);
+            return findFavoritesBy(userId, pageRequest);
         }
 
         if (StringUtils.equals(type, "ARROW_RECEIVERS")) {
 
-            return findAllArrowReceivers(userId, pageRequest);
+            return findArrowReceiversBy(userId, pageRequest);
         }
 
-        return findAllArrowSenders(userId, pageRequest);
+        return findArrowSendersBy(userId, pageRequest);
     }
 
-    private UserQueryPageResponse findAllFavorites(long userId, PageRequest pageRequest) {
+    private UserQueryPageResponse findFavoritesBy(long userId, PageRequest pageRequest) {
 
-        return userQuery.findAllFavorites(userId, pageRequest);
+        return userQuery.findFavoritesBy(userId, pageRequest);
     }
 
-    private UserQueryPageResponse findAllArrowReceivers(long senderId, PageRequest pageRequest) {
+    private UserQueryPageResponse findArrowReceiversBy(long senderId, PageRequest pageRequest) {
 
-        return userQuery.findAllArrowReceivers(senderId, pageRequest);
+        return userQuery.findArrowReceiversBy(senderId, pageRequest);
     }
 
-    private UserQueryPageResponse findAllArrowSenders(long receiverId, PageRequest pageRequest) {
+    private UserQueryPageResponse findArrowSendersBy(long receiverId, PageRequest pageRequest) {
 
-        return userQuery.findAllArrowSenders(receiverId, pageRequest);
+        return userQuery.findArrowSendersBy(receiverId, pageRequest);
     }
 
     @Transactional
-    public UserQueryPageResponse findRecommendUsers(long userId, UserQueryRequest request) {
+    public UserQueryPageResponse findRecommendUsers(
+        long userId, UserQueryRequest request, LocalDate recommendDate) {
 
         User user = userQuery.findById(userId);
         int page = request.getPage();
-        PageRequest pageRequest = PageRequest.of(page, RECOMMEND_USERS_PAGE_SIZE);
-        LocalDate recommendDate = LocalDate.now();
+        int size = 2;
+        PageRequest pageRequest = PageRequest.of(page, size);
 
         // 한 번 추천받았을 경우 다음 시도부턴 화살 소모
+        int arrowsForRecommend = 5;
         if (userRecommendationQuery.isRecommendationInSameDateExistBy(user, recommendDate)) {
-
-            user.minusArrow(ARROWS_FOR_RECOMMEND);
+            user.minusArrow(arrowsForRecommend);
         }
 
         // 추천 사용자 응답 조회
@@ -224,7 +222,7 @@ public class UserService {
 
         // 추천 가능 여부 확인(추천 가능한 사용자 2명 이상)
         List<UserQueryResponse> content = response.getUsers();
-        if (content.size() < RECOMMEND_USERS_PAGE_SIZE) {
+        if (content.size() < size) {
 
             throw new GeneralException(UserException.NO_MORE_USERS_TO_RECOMMEND);
         }
