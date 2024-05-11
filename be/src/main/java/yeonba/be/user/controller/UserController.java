@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springdoc.core.annotations.ParameterObject;
@@ -36,10 +37,10 @@ public class UserController {
     private final ReportService reportService;
     private final UserService userService;
 
-    @Operation(summary = "이성(다른 사용자) 목록 조회", description = "조건에 따라 다른 사용자 프로필 목록을 조회 가능")
+    @Operation(summary = "이성(다른 사용자) 목록 조회", description = "이성 목록을 조회할 수 있다.")
     @ApiResponse(responseCode = "200", description = "이성 목록 정상 조회")
     @GetMapping("/users")
-    public ResponseEntity<CustomResponse<UserQueryPageResponse>> users(
+    public ResponseEntity<CustomResponse<UserQueryPageResponse>> getUsers(
         @RequestAttribute("userId") long userId,
         @Valid @ParameterObject UserQueryRequest request) {
 
@@ -47,11 +48,10 @@ public class UserController {
         UserQueryPageResponse response;
 
         if (StringUtils.equals(type, "RECOMMEND")) {
-
-            response = userService.findRecommendUsers(userId, request);
+            LocalDate recommendDate = LocalDate.now();
+            response = userService.findRecommendUsers(userId, request, recommendDate);
         } else {
-
-            response = userService.findByQueryCondition(userId, request);
+            response = userService.findUsersByQueryCondition(userId, request);
         }
 
         return ResponseEntity
@@ -62,7 +62,7 @@ public class UserController {
     @Operation(summary = "다른 사용자 프로필 조회", description = "다른 사용자의 프로필을 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "사용자 프로필 정상 조회")
     @GetMapping("/users/{userId}")
-    public ResponseEntity<CustomResponse<UserProfileResponse>> profile(
+    public ResponseEntity<CustomResponse<UserProfileResponse>> getTargetUserProfile(
         @RequestAttribute("userId") long userId,
         @Parameter(description = "조회대상 사용자 ID", example = "1")
         @PathVariable("userId") long targetUserId) {
