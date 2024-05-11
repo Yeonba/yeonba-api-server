@@ -37,7 +37,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<UserQueryResponse> findAllFavorites(long userId, PageRequest pageRequest) {
+    public Page<UserQueryResponse> findFavoritesBy(long userId, PageRequest pageRequest) {
 
         int limit = pageRequest.getPageSize();
         int offset = pageRequest.getPageNumber() * limit;
@@ -62,7 +62,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     @Override
-    public Page<UserQueryResponse> findAllArrowReceivers(long senderId, PageRequest pageRequest) {
+    public Page<UserQueryResponse> findArrowReceiversBy(long senderId, PageRequest pageRequest) {
 
         int limit = pageRequest.getPageSize();
         int offset = pageRequest.getPageNumber() * limit;
@@ -89,7 +89,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     @Override
-    public Page<UserQueryResponse> findAllArrowSenders(long receiverId, PageRequest pageRequest) {
+    public Page<UserQueryResponse> findArrowSendersBy(long receiverId, PageRequest pageRequest) {
 
         int limit = pageRequest.getPageSize();
         int offset = pageRequest.getPageNumber() * limit;
