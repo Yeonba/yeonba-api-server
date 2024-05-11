@@ -1,4 +1,4 @@
-package yeonba.be.user.repository;
+package yeonba.be.user.repository.user;
 
 import static yeonba.be.arrow.entity.QArrowTransaction.arrowTransaction;
 import static yeonba.be.mypage.entity.QAcquaintance.acquaintance;
@@ -31,13 +31,6 @@ import org.springframework.data.support.PageableExecutionUtils;
 import yeonba.be.user.dto.response.UserQueryResponse;
 import yeonba.be.user.entity.UserPreference;
 
-/*
-사용자 조회 로직에선 기본적으로 다음 사용자를 배제한다.
-- 휴면 상태인 사용자
-- 삭제된 사용자
-동성, 지인은 애초에 즐겨찾기 등록, 화살 보내기가 불가능하므로 연관 조회 로직에서 따로 제외하지 않는다.
- */
-
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepositoryCustom {
 
@@ -53,7 +46,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             Expressions.constant(true))
             .where(
                 isActiveAndNotDeletedUserCondition(),
-                findOneFavorite(userId).exists())
+                findOneFavoriteBy(userId).exists())
             .limit(limit)
             .offset(offset)
             .fetch();
@@ -63,12 +56,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .from(user)
             .where(
                 isActiveAndNotDeletedUserCondition(),
-                findOneFavorite(userId).exists());
+                findOneFavoriteBy(userId).exists());
 
-        return PageableExecutionUtils.getPage(
-            content,
-            pageRequest,
-            countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
     }
 
     @Override
@@ -79,11 +69,11 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         List<UserQueryResponse> content = selectUserQueryResponse(
             Expressions.as(
-                findOneFavorite(senderId).exists(),
+                findOneFavoriteBy(senderId).exists(),
                 "isFavorite"))
             .where(
                 isActiveAndNotDeletedUserCondition(),
-                findOneArrowReceiver(senderId).exists())
+                findOneArrowSentTransactionBy(senderId).exists())
             .limit(limit)
             .offset(offset)
             .fetch();
@@ -93,12 +83,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .from(user)
             .where(
                 isActiveAndNotDeletedUserCondition(),
-                findOneArrowReceiver(senderId).exists());
+                findOneArrowSentTransactionBy(senderId).exists());
 
-        return PageableExecutionUtils.getPage(
-            content,
-            pageRequest,
-            countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
     }
 
     @Override
@@ -109,11 +96,11 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         List<UserQueryResponse> content = selectUserQueryResponse(
             Expressions.as(
-                findOneFavorite(receiverId).exists(),
+                findOneFavoriteBy(receiverId).exists(),
                 "isFavorite"))
             .where(
                 isActiveAndNotDeletedUserCondition(),
-                findOneArrowSender(receiverId).exists())
+                findOneArrowReceivedTransactionBy(receiverId).exists())
             .limit(limit)
             .offset(offset)
             .fetch();
@@ -122,12 +109,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .from(user)
             .where(
                 isActiveAndNotDeletedUserCondition(),
-                findOneArrowSender(receiverId).exists());
+                findOneArrowReceivedTransactionBy(receiverId).exists());
 
-        return PageableExecutionUtils.getPage(
-            content,
-            pageRequest,
-            countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
     }
 
     @Override
@@ -161,10 +145,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .from(user)
             .where(recommendUserCondition(userId, gender, preference, recommendDate));
 
-        return PageableExecutionUtils.getPage(
-            content,
-            pageRequest,
-            countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
     }
 
     /*
@@ -188,9 +169,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         return Expressions.allOf(
             user.id.ne(userId),
             user.gender.ne(gender),
-            findOneArrowSender(userId).notExists(),
-            findOneArrowReceiver(userId).notExists(),
-            findOneFavorite(userId).notExists(),
+            findOneArrowReceivedTransactionBy(userId).notExists(),
+            findOneArrowSentTransactionBy(userId).notExists(),
+            findOneFavoriteBy(userId).notExists(),
             isUserSatisfiedPreferenceCondition(preference),
             isActiveAndNotDeletedUserCondition(),
             isNotAcquaintanceCondition(userId),
@@ -198,7 +179,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             isNotUserSearchedInDateCondition(userId, recommendDate));
     }
 
-    private JPQLQuery<Integer> findOneArrowSender(long receiverId) {
+    private JPQLQuery<Integer> findOneArrowReceivedTransactionBy(long receiverId) {
 
         return JPAExpressions.selectOne()
             .from(arrowTransaction)
@@ -207,7 +188,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 arrowTransaction.sender.id.eq(user.id));
     }
 
-    private JPQLQuery<Integer> findOneFavorite(long userId) {
+    private JPQLQuery<Integer> findOneFavoriteBy(long userId) {
 
         return JPAExpressions.selectOne()
             .from(favorite)
@@ -216,7 +197,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 favorite.favoriteUser.id.eq(user.id));
     }
 
-    private JPQLQuery<Integer> findOneArrowReceiver(long senderId) {
+    private JPQLQuery<Integer> findOneArrowSentTransactionBy(long senderId) {
 
         return JPAExpressions.selectOne()
             .from(arrowTransaction)
@@ -312,7 +293,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     private BooleanExpression isActiveAndNotDeletedUserCondition() {
 
-        return user.deletedAt.isNull()
+        return user.deleted.isFalse()
             .and(user.inactive.isFalse());
     }
 
@@ -321,7 +302,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         return JPAExpressions.selectOne()
             .from(acquaintance)
             .where(
-                acquaintance.user.id.eq(userId),
+                acquaintance.userId.eq(userId),
                 acquaintance.phoneNumber.eq(user.phoneNumber))
             .notExists();
     }

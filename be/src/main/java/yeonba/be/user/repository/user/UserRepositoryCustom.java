@@ -1,4 +1,4 @@
-package yeonba.be.user.repository;
+package yeonba.be.user.repository.user;
 
 import java.time.LocalDate;
 import org.springframework.data.domain.Page;
