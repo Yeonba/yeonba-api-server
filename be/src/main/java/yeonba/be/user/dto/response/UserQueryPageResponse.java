@@ -1,14 +1,14 @@
 package yeonba.be.user.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class UserQueryPageResponse {
 
     @Schema(
@@ -32,13 +32,15 @@ public class UserQueryPageResponse {
         type = "boolean",
         description = "첫 페이지 여부",
         example = "true")
-    private Boolean isFirstPage;
+    @JsonProperty("isFirst")
+    private boolean first;
 
     @Schema(
         type = "boolean",
         description = "마지막 페이지 여부",
         example = "false")
-    private Boolean isLastPage;
+    @JsonProperty("isLast")
+    private boolean last;
 
     public static UserQueryPageResponse from(Page<UserQueryResponse> page) {
 
