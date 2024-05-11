@@ -277,13 +277,12 @@ public class MyPageService {
             notificationPermissionQuery.findAllByUser(user);
 
         // 알림 타입별 동의 내역 Map 형성
-        Map<NotificationType, Boolean> typePermissionStatusMap =
-            notificationPermissions.stream()
-                .collect(Collectors.toMap(
-                    NotificationPermission::getType,
-                    NotificationPermission::getPermissionStatus,
-                    (existing, replacement) -> existing
-                ));
+        Map<NotificationType, Boolean> typePermissionStatusMap = notificationPermissions.stream()
+            .collect(Collectors.toMap(
+                NotificationPermission::getType,
+                NotificationPermission::getPermissionStatus,
+                (existing, replacement) -> existing
+            ));
 
         // 회원 가입시 알림 전부 동의 처리, 기본 동의한 것으로 간주하여 응답 제공
         return new NotificationPermissionsResponse(
