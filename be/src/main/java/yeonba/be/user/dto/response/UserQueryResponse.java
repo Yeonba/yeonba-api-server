@@ -1,5 +1,6 @@
 package yeonba.be.user.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -72,5 +73,6 @@ public class UserQueryResponse {
         type = "boolean",
         description = "즐겨찾기 여부",
         example = "false")
-    private Boolean isFavorite;
+    @JsonProperty("isFavorite")
+    private boolean favorite;
 }
