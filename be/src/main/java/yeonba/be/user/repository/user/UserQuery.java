@@ -41,23 +41,23 @@ public class UserQuery {
         return userRepository.existsByPhoneNumber(phoneNumber);
     }
 
-    public UserQueryPageResponse findAllFavorites(long userId, PageRequest pageRequest) {
+    public UserQueryPageResponse findFavoritesBy(long userId, PageRequest pageRequest) {
 
-        Page<UserQueryResponse> page = userRepository.findAllFavorites(userId, pageRequest);
-
-        return UserQueryPageResponse.from(page);
-    }
-
-    public UserQueryPageResponse findAllArrowReceivers(long senderId, PageRequest pageRequest) {
-
-        Page<UserQueryResponse> page = userRepository.findAllArrowReceivers(senderId, pageRequest);
+        Page<UserQueryResponse> page = userRepository.findFavoritesBy(userId, pageRequest);
 
         return UserQueryPageResponse.from(page);
     }
 
-    public UserQueryPageResponse findAllArrowSenders(long receiverId, PageRequest pageRequest) {
+    public UserQueryPageResponse findArrowReceiversBy(long senderId, PageRequest pageRequest) {
 
-        Page<UserQueryResponse> page = userRepository.findAllArrowSenders(receiverId, pageRequest);
+        Page<UserQueryResponse> page = userRepository.findArrowReceiversBy(senderId, pageRequest);
+
+        return UserQueryPageResponse.from(page);
+    }
+
+    public UserQueryPageResponse findArrowSendersBy(long receiverId, PageRequest pageRequest) {
+
+        Page<UserQueryResponse> page = userRepository.findArrowSendersBy(receiverId, pageRequest);
 
         return UserQueryPageResponse.from(page);
     }
