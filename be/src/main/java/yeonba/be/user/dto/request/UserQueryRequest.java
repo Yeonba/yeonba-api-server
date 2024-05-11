@@ -2,6 +2,7 @@ package yeonba.be.user.dto.request;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -22,7 +23,7 @@ public class UserQueryRequest {
             - 나에게 화살을 보낸 이성 : ARROW_RECEIVERS""",
         example = "RECOMMEND",
         in = ParameterIn.QUERY)
-    @NotNull(message = "조회 기준은 반드시 입력되어야 합니다.")
+    @NotBlank(message = "조회 기준은 반드시 입력되어야 합니다.")
     @Pattern(
         regexp = "\\b(RECOMMEND|BOOKMARKED|ARROW_SENDERS|ARROW_RECEIVERS)\\b",
         message = "검색 기준은 RECOMMEND, BOOKMARKED, ARROW_SENDERS, ARROW_RECEIVERS만 허용됩니다.")
