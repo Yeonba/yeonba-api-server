@@ -15,8 +15,8 @@ public class NotificationCommand {
         return notificationRepository.save(notification);
     }
 
-    public void readAllHasIdLessThanEqual(long notificationId) {
+    public void readNotificationsUpToIdBy(long receiverId, long notificationId) {
 
-        notificationRepository.readAllHasIdLessThanEqual(notificationId);
+        notificationRepository.readNotificationsUpToIdBy(receiverId, notificationId);
     }
 }
