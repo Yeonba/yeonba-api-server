@@ -5,12 +5,12 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
@@ -60,13 +60,6 @@ public class UserJoinRequest {
 
     @Schema(
         type = "string",
-        description = "이름",
-        example = "안민재")
-    @NotBlank(message = " 이름은 반드시 입력되어야 합니다.")
-    private String name;
-
-    @Schema(
-        type = "string",
         description = "닉네임",
         example = "존잘남")
     @Pattern(
@@ -79,7 +72,8 @@ public class UserJoinRequest {
         type = "number",
         description = "키",
         example = "180")
-    @Positive(message = "키는 양의 정수여야 합니다.")
+    @Range(min = 130, max = 220, message = "키는 130 ~ 220cm 내 값만 가능합니다.")
+    @NotNull(message = "키는 반드시 입력되어야 합니다.")
     private int height;
 
     @Schema(
@@ -124,6 +118,7 @@ public class UserJoinRequest {
         type = "array",
         description = "프로필 사진 파일들")
     @Size(min = 2, max = 2)
+    @NotNull(message = "프로필 사진은 반드시 2장이어야 합니다.")
     private List<MultipartFile> profilePhotos;
 
     @Schema(
@@ -133,6 +128,7 @@ public class UserJoinRequest {
     @Min(
         value = 80,
         message = "사진 싱크로율이 80퍼 이상이어야 가입할 수 있습니다.")
+    @NotNull(message = "사진 싱크로율은 반드시 입력되어야 합니다.")
     private int photoSyncRate;
 
     @Schema(
@@ -166,30 +162,30 @@ public class UserJoinRequest {
     @Schema(
         type = "number",
         description = "선호하는 나이 하한",
-        example = "22")
-    @Positive(message = "선호하는 나이 하한은 양수여야 합니다.")
-    private int preferredAgeLowerBound;
+        example = "21")
+    @Range(min = 20, max = 40, message = "선호하는 나이는 20~40 내 값만 가능합니다.")
+    private Integer preferredAgeLowerBound;
 
     @Schema(
         type = "number",
         description = "선호하는 나이 상한",
         example = "30")
-    @Positive(message = "선호하는 나이 상한은 양수여야 합니다.")
-    private int preferredAgeUpperBound;
+    @Range(min = 20, max = 40, message = "선호하는 나이는 20~40 내 값만 가능합니다.")
+    private Integer preferredAgeUpperBound;
 
     @Schema(
         type = "number",
         description = "선호하는 키 하한",
         example = "177")
-    @Positive(message = "선호하는 키 하한은 양수여야 합니다.")
-    private int preferredHeightLowerBound;
+    @Range(min = 130, max = 220, message = "선호하는 키는 130~220cm 내 값만 가능합니다.")
+    private Integer preferredHeightLowerBound;
 
     @Schema(
         type = "number",
         description = "선호하는 키 상한",
         example = "185")
-    @Positive(message = "선호하는 키 상한은 양수여야 합니다.")
-    private int preferredHeightUpperBound;
+    @Range(min = 130, max = 220, message = "선호하는 키는 130~220cm 내 값만 가능합니다.")
+    private Integer preferredHeightUpperBound;
 
     @Schema(
         type = "string",
