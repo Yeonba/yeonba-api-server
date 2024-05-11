@@ -2,6 +2,7 @@ package yeonba.be.notification.service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,7 +41,10 @@ public class NotificationService {
         long receiverId, NotificationPageRequest request) {
 
         // 페이지 번호는 optional, default 첫 페이지 제공
-        int pageNumber = Optional.ofNullable(request.getPage()).orElse(0);
+        int pageNumber = 0;
+        if (Objects.nonNull(request) && Objects.nonNull(request.getPage())) {
+            pageNumber = request.getPage();
+        }
         int size = 45;
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
@@ -56,7 +60,7 @@ public class NotificationService {
             .orElse(Long.MAX_VALUE);
 
         // 가장 최근에 받은 알림 포함 이전 알림 전부 읽음 처리
-        notificationCommand.readAllHasIdLessThanEqual(mostRecentNotificationId);
+        notificationCommand.readNotificationsUpToIdBy(receiverId, mostRecentNotificationId);
 
         return NotificationPageResponse.from(page);
     }
