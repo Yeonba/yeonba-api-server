@@ -30,7 +30,7 @@ public class NotificationController {
     public ResponseEntity<CustomResponse<NotificationPageResponse>>
     getRecentlyReceivedNotifications(
         @RequestAttribute("userId") long userId,
-        @Valid @RequestBody NotificationPageRequest request) {
+        @Valid @RequestBody(required = false) NotificationPageRequest request) {
 
         NotificationPageResponse response =
             notificationService.getRecentlyReceivedNotificationsBy(userId, request);
