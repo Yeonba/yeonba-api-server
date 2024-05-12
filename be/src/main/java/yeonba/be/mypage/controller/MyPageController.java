@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
-import yeonba.be.mypage.dto.request.UserDormantRequest;
+import yeonba.be.mypage.dto.request.UserChangeInactiveStatusRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.request.UserUpdateUnwantedAcquaintancesRequest;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
@@ -148,14 +148,14 @@ public class MyPageController {
             .body(new CustomResponse<>());
     }
 
-    @Operation(summary = "휴면 계정 전환", description = "계정의 휴면 상태를 전환할 수 있습니다.")
+    @Operation(summary = "휴면 상태 변경", description = "회원의 휴면 상태를 변경할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "휴면 상태 전환 요청 정상 처리")
-    @PatchMapping("/users/dormant")
-    public ResponseEntity<CustomResponse<Void>> dormantUser(
+    @PatchMapping("/users/inactive")
+    public ResponseEntity<CustomResponse<Void>> changeUserInactiveStatus(
         @RequestAttribute("userId") long userId,
-        @Valid @RequestBody UserDormantRequest request) {
+        @Valid @RequestBody UserChangeInactiveStatusRequest request) {
 
-        myPageService.changeDormantStatus(userId, request);
+        myPageService.changeInactiveStatus(userId, request);
 
         return ResponseEntity
             .ok()
