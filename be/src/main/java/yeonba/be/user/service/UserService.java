@@ -168,7 +168,6 @@ public class UserService {
         userPreferenceCommand.save(userPreference);
     }
 
-    // controller에서 type에 대해 검증, 페이지 사이즈가 6으로 같은 경우 조회 로직
     @Transactional(readOnly = true)
     public UserQueryPageResponse findUsersByQueryCondition(long userId, UserQueryRequest request) {
 
