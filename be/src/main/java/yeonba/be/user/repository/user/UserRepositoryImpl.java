@@ -68,9 +68,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         int offset = pageRequest.getPageNumber() * limit;
 
         List<UserQueryResponse> content = selectUserQueryResponse(
-            Expressions.as(
-                findOneFavoriteBy(senderId).exists(),
-                "isFavorite"))
+            Expressions.as(findOneFavoriteBy(senderId).exists(), "favorite"))
             .where(
                 isActiveAndNotDeletedUserCondition(),
                 findOneArrowSentTransactionBy(senderId).exists())
@@ -95,9 +93,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         int offset = pageRequest.getPageNumber() * limit;
 
         List<UserQueryResponse> content = selectUserQueryResponse(
-            Expressions.as(
-                findOneFavoriteBy(receiverId).exists(),
-                "isFavorite"))
+            Expressions.as(findOneFavoriteBy(receiverId).exists(), "favorite"))
             .where(
                 isActiveAndNotDeletedUserCondition(),
                 findOneArrowReceivedTransactionBy(receiverId).exists())
@@ -117,17 +113,12 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     @Override
     public Page<UserQueryResponse> findRecommendUsers(
         long userId,
+        boolean userGender,
         PageRequest pageRequest,
-        LocalDate recommendDate) {
+        LocalDate recommendDay) {
 
         int limit = pageRequest.getPageSize();
         int offset = pageRequest.getPageNumber() * limit;
-
-        // 추천 대상 사용자의 성별 조회
-        Boolean gender = queryFactory.select(user.gender)
-            .from(user)
-            .where(user.id.eq(userId))
-            .fetchFirst();
 
         // 추천 대상 사용자의 선호조건 조회
         UserPreference preference = queryFactory.selectFrom(userPreference)
@@ -136,14 +127,14 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         List<UserQueryResponse> content = selectUserQueryResponse(
             Expressions.constant(false))
-            .where(recommendUserCondition(userId, gender, preference, recommendDate))
+            .where(recommendUserCondition(userId, userGender, preference, recommendDay))
             .limit(limit)
             .offset(offset)
             .fetch();
 
         JPAQuery<Long> countQuery = queryFactory.select(user.count())
             .from(user)
-            .where(recommendUserCondition(userId, gender, preference, recommendDate));
+            .where(recommendUserCondition(userId, userGender, preference, recommendDay));
 
         return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
     }
@@ -164,7 +155,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         long userId,
         Boolean gender,
         UserPreference preference,
-        LocalDate recommendDate) {
+        LocalDate recommendDay) {
 
         return Expressions.allOf(
             user.id.ne(userId),
@@ -175,8 +166,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             isUserSatisfiedPreferenceCondition(preference),
             isActiveAndNotDeletedUserCondition(),
             isNotAcquaintanceCondition(userId),
-            isNotUserRecommendedInDateCondition(userId, recommendDate),
-            isNotUserSearchedInDateCondition(userId, recommendDate));
+            isNotUserRecommendedInDateCondition(userId, recommendDay),
+            isNotUserSearchedInDateCondition(userId, recommendDay));
     }
 
     private JPQLQuery<Integer> findOneArrowReceivedTransactionBy(long receiverId) {
@@ -224,10 +215,10 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     private BooleanExpression isNotUserRecommendedInDateCondition(
         long userId,
-        LocalDate recommendDate) {
+        LocalDate recommendDay) {
 
-        LocalDateTime from = recommendDate.atStartOfDay();
-        LocalDateTime to = recommendDate.atTime(LocalTime.MAX);
+        LocalDateTime from = recommendDay.atStartOfDay();
+        LocalDateTime to = recommendDay.atTime(LocalTime.MAX);
 
         return JPAExpressions.selectOne()
             .from(userRecommendation)
@@ -256,7 +247,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     /*
     응답 dto에 필요한 필드를 select하는 공통 사용 쿼리, 별도 분리
-    경우에 따라 즐겨찾기 등록 여부(isFavorite)을 상수로 주입하기에
+    경우에 따라 즐겨찾기 등록 여부(favorite)을 상수로 주입하기에
     해당 부분만 파라미터로 받도록 구성
      */
     private JPAQuery<UserQueryResponse> selectUserQueryResponse(
