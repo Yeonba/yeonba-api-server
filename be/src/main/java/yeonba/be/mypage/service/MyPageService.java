@@ -300,13 +300,12 @@ public class MyPageService {
             notificationPermissionQuery.findAllByUser(user);
 
         // 알림 타입, 동의 여부 맵 구성
-        Map<NotificationType, Boolean> typePermissionStatusMap =
-            request.toNotificationTypePermissionStatusMap();
+        Map<NotificationType, Boolean> notificationTypeToPermissionStatus = request.toNotificationTypeToPermissionStatus();
 
         // 알림 타입별 동의 내역, 동의 여부 업데이트
         notificationPermissions.forEach(notificationPermission -> {
             NotificationType type = notificationPermission.getType();
-            boolean permissionStatus = typePermissionStatusMap
+            boolean permissionStatus = notificationTypeToPermissionStatus
                 .getOrDefault(type, notificationPermission.getPermissionStatus());
             notificationPermission.updatePermissionStatus(permissionStatus);
         });
