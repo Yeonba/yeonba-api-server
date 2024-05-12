@@ -205,12 +205,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     private BooleanExpression isUserSatisfiedPreferenceCondition(UserPreference preference) {
 
         return Expressions.allOf(
-            user.age.between(
-                preference.getAgeLowerBound(),
-                preference.getAgeUpperBound()),
-            user.height.between(
-                preference.getHeightLowerBound(),
-                preference.getHeightUpperBound()),
+            user.age.between(preference.getAgeLowerBound(), preference.getAgeUpperBound()),
+            user.height.between(preference.getHeightLowerBound(), preference.getHeightUpperBound()),
             user.mbti.eq(preference.getMbti()),
             user.bodyType.eq(preference.getBodyType()),
             user.vocalRange.id.eq(preference.getVocalRange().getId()),
