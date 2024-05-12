@@ -149,7 +149,7 @@ public class MyPageController {
     }
 
     @Operation(summary = "휴면 상태 변경", description = "회원의 휴면 상태를 변경할 수 있습니다.")
-    @ApiResponse(responseCode = "200", description = "휴면 상태 전환 요청 정상 처리")
+    @ApiResponse(responseCode = "200", description = "휴면 상태 변경 요청 정상 처리")
     @PatchMapping("/users/inactive")
     public ResponseEntity<CustomResponse<Void>> changeUserInactiveStatus(
         @RequestAttribute("userId") long userId,
