@@ -31,6 +31,11 @@ public class UserQuery {
             .orElseThrow(() -> new GeneralException(UserException.USER_NOT_FOUND));
     }
 
+    public boolean validateExistsById(long userId) {
+
+        return userRepository.existsById(userId);
+    }
+
     public boolean validateUsedNickname(String nickname) {
 
         return userRepository.existsByNickname(nickname);
@@ -68,12 +73,10 @@ public class UserQuery {
     }
 
     public UserQueryPageResponse findRecommendUsers(
-        long userId,
-        PageRequest pageRequest,
-        LocalDate recommendedAt) {
+        long userId, boolean userGender, PageRequest pageRequest, LocalDate recommendDay) {
 
         Page<UserQueryResponse> page = userRepository
-            .findRecommendUsers(userId, pageRequest, recommendedAt);
+            .findRecommendUsers(userId, userGender, pageRequest, recommendDay);
 
         return UserQueryPageResponse.from(page);
     }
