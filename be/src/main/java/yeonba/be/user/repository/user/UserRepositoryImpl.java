@@ -164,13 +164,13 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         return Expressions.allOf(
             user.id.ne(userId),
             user.gender.ne(gender),
-            findOneArrowReceivedTransactionBy(userId).notExists(),
-            findOneArrowSentTransactionBy(userId).notExists(),
-            findOneFavoriteBy(userId).notExists(),
-            isUserSatisfiedPreferenceCondition(preference),
             isActiveAndNotDeletedUserCondition(),
             isNotAcquaintanceCondition(userId),
             isNotBlockedUserCondition(userId),
+            isUserSatisfiedPreferenceCondition(preference),
+            findOneArrowReceivedTransactionBy(userId).notExists(),
+            findOneArrowSentTransactionBy(userId).notExists(),
+            findOneFavoriteBy(userId).notExists(),
             isNotUserRecommendedOnDayCondition(userId, recommendDay),
             isNotUserSearchedOnDayCondition(userId, recommendDay));
     }
