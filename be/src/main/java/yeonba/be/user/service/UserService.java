@@ -3,6 +3,7 @@ package yeonba.be.user.service;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -96,7 +97,7 @@ public class UserService {
         }
 
         // 성별 판별
-        Gender gender = Gender.from(request.getGender());
+        Gender gender = Gender.of(request.getGender());
 
         // 나이 20~40세인 지 검증 & 나이 계산
         LocalDate birth = request.getBirth();
@@ -171,62 +172,50 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserQueryPageResponse findUsersByQueryCondition(long userId, UserQueryRequest request) {
 
-        String type = request.getType();
-        int page = request.getPage();
+        int page = Optional.ofNullable(request.getPage()).orElse(0);
         int size = 6;
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        if (StringUtils.equals(type, "BOOKMARKED")) {
+        // 사용자 존재 여부 검증
+        if (!userQuery.validateExistsById(userId)) {
+            throw new GeneralException(UserException.USER_NOT_FOUND);
+        }
 
-            return findFavoritesBy(userId, pageRequest);
+        String type = request.getType();
+        if (StringUtils.equals(type, "FAVORITES")) {
+
+            return userQuery.findFavoritesBy(userId, pageRequest);
         }
 
         if (StringUtils.equals(type, "ARROW_RECEIVERS")) {
 
-            return findArrowReceiversBy(userId, pageRequest);
+            return userQuery.findArrowReceiversBy(userId, pageRequest);
         }
 
-        return findArrowSendersBy(userId, pageRequest);
-    }
-
-    private UserQueryPageResponse findFavoritesBy(long userId, PageRequest pageRequest) {
-
-        return userQuery.findFavoritesBy(userId, pageRequest);
-    }
-
-    private UserQueryPageResponse findArrowReceiversBy(long senderId, PageRequest pageRequest) {
-
-        return userQuery.findArrowReceiversBy(senderId, pageRequest);
-    }
-
-    private UserQueryPageResponse findArrowSendersBy(long receiverId, PageRequest pageRequest) {
-
-        return userQuery.findArrowSendersBy(receiverId, pageRequest);
+        return userQuery.findArrowSendersBy(userId, pageRequest);
     }
 
     @Transactional
-    public UserQueryPageResponse findRecommendUsers(
-        long userId, UserQueryRequest request, LocalDate recommendDate) {
+    public UserQueryPageResponse findRecommendUsers(long userId, LocalDate recommendDay) {
 
         User user = userQuery.findById(userId);
-        int page = request.getPage();
-        int size = 2;
-        PageRequest pageRequest = PageRequest.of(page, size);
 
         // 한 번 추천받았을 경우 다음 시도부턴 화살 소모
         int arrowsForRecommend = 5;
-        if (userRecommendationQuery.isRecommendationInSameDateExistBy(user, recommendDate)) {
+        if (userRecommendationQuery.existsRecommendationForUserOnDay(user, recommendDay)) {
             user.minusArrow(arrowsForRecommend);
         }
 
-        // 추천 사용자 응답 조회
+        // 추천 사용자 응답 조회,
+        int numberOfRecommendUsers = 2;
+        boolean userGender = Gender.of(user.getGender()).genderBoolean;
+        PageRequest pageRequest = PageRequest.of(0, numberOfRecommendUsers);
         UserQueryPageResponse response = userQuery
-            .findRecommendUsers(userId, pageRequest, recommendDate);
+            .findRecommendUsers(userId, userGender, pageRequest, recommendDay);
 
         // 추천 가능 여부 확인(추천 가능한 사용자 2명 이상)
         List<UserQueryResponse> content = response.getUsers();
-        if (content.size() < size) {
-
+        if (content.size() < numberOfRecommendUsers) {
             throw new GeneralException(UserException.NO_MORE_USERS_TO_RECOMMEND);
         }
 
