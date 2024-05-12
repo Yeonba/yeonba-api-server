@@ -13,10 +13,10 @@ public class UserRecommendationQuery {
 
     private final UserRecommendationRepository userRecommendationRepository;
 
-    public boolean isRecommendationInSameDateExistBy(User user, LocalDate recommendDate) {
+    public boolean existsRecommendationForUserOnDay(User user, LocalDate recommendDay) {
 
-        LocalDateTime from = recommendDate.atStartOfDay();
-        LocalDateTime to = recommendDate.atTime(LocalTime.MAX);
+        LocalDateTime from = recommendDay.atStartOfDay();
+        LocalDateTime to = recommendDay.atTime(LocalTime.MAX);
 
         return userRecommendationRepository.existsByUserAndCreatedAtBetween(user, from, to);
     }
