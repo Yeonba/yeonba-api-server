@@ -16,7 +16,6 @@ public class UserQueryRequest {
         name = "type",
         description = """
             조회 기준
-            - 추천 이성(선호 조건 바탕) : RECOMMEND
             - 즐겨찾는 이성 : FAVORITES
             - 나에게 관심 있는 이성(나에게 화살을 보낸 이성) : ARROW_SENDERS
             - 나에게 화살을 보낸 이성 : ARROW_RECEIVERS""",
@@ -24,8 +23,8 @@ public class UserQueryRequest {
         in = ParameterIn.QUERY)
     @NotBlank(message = "조회 기준은 반드시 입력되어야 합니다.")
     @Pattern(
-        regexp = "\\b(RECOMMEND|FAVORITES|ARROW_SENDERS|ARROW_RECEIVERS)\\b",
-        message = "검색 기준은 RECOMMEND, FAVORITES, ARROW_SENDERS, ARROW_RECEIVERS만 허용됩니다.")
+        regexp = "\\b(FAVORITES|ARROW_SENDERS|ARROW_RECEIVERS)\\b",
+        message = "조회 기준은 FAVORITES, ARROW_SENDERS, ARROW_RECEIVERS만 허용됩니다.")
     private String type;
 
     @Parameter(
