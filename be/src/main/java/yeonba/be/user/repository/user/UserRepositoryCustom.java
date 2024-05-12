@@ -15,6 +15,7 @@ public interface UserRepositoryCustom {
 
     Page<UserQueryResponse> findRecommendUsers(
         long userId,
+        boolean userGender,
         PageRequest pageRequest,
-        LocalDate recommendDate);
+        LocalDate recommendDay);
 }
