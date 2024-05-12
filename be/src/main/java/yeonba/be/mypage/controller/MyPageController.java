@@ -100,11 +100,10 @@ public class MyPageController {
     @Operation(summary = "알림 동의 내역(on/off) 조회", description = "알림 동의 내역을 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "알림 동의 내역 조회 성공")
     @GetMapping("/users/notifications/permissions")
-    public ResponseEntity<CustomResponse<NotificationPermissionsResponse>>
-    getNotificationPermissions(@RequestAttribute("userId") long userId) {
+    public ResponseEntity<CustomResponse<NotificationPermissionsResponse>> getNotificationPermissions(
+        @RequestAttribute("userId") long userId) {
 
-        NotificationPermissionsResponse response =
-            myPageService.getNotificationPermissions(userId);
+        NotificationPermissionsResponse response = myPageService.getNotificationPermissions(userId);
 
         return ResponseEntity
             .ok()
