@@ -4,6 +4,7 @@ import static yeonba.be.arrow.entity.QArrowTransaction.arrowTransaction;
 import static yeonba.be.mypage.entity.QAcquaintance.acquaintance;
 import static yeonba.be.user.entity.QAnimal.animal;
 import static yeonba.be.user.entity.QArea.area;
+import static yeonba.be.user.entity.QBlock.block;
 import static yeonba.be.user.entity.QFavorite.favorite;
 import static yeonba.be.user.entity.QProfilePhoto.profilePhoto;
 import static yeonba.be.user.entity.QUser.user;
@@ -46,6 +47,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             Expressions.constant(true))
             .where(
                 isActiveAndNotDeletedUserCondition(),
+                isNotBlockedUserCondition(userId),
                 findOneFavoriteBy(userId).exists())
             .limit(limit)
             .offset(offset)
@@ -71,6 +73,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             Expressions.as(findOneFavoriteBy(senderId).exists(), "favorite"))
             .where(
                 isActiveAndNotDeletedUserCondition(),
+                isNotBlockedUserCondition(senderId),
                 findOneArrowSentTransactionBy(senderId).exists())
             .limit(limit)
             .offset(offset)
@@ -96,6 +99,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             Expressions.as(findOneFavoriteBy(receiverId).exists(), "favorite"))
             .where(
                 isActiveAndNotDeletedUserCondition(),
+                isNotBlockedUserCondition(receiverId),
                 findOneArrowReceivedTransactionBy(receiverId).exists())
             .limit(limit)
             .offset(offset)
@@ -166,8 +170,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             isUserSatisfiedPreferenceCondition(preference),
             isActiveAndNotDeletedUserCondition(),
             isNotAcquaintanceCondition(userId),
-            isNotUserRecommendedInDateCondition(userId, recommendDay),
-            isNotUserSearchedInDateCondition(userId, recommendDay));
+            isNotBlockedUserCondition(userId),
+            isNotUserRecommendedOnDayCondition(userId, recommendDay),
+            isNotUserSearchedOnDayCondition(userId, recommendDay));
     }
 
     private JPQLQuery<Integer> findOneArrowReceivedTransactionBy(long receiverId) {
@@ -213,7 +218,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             user.animal.id.eq(preference.getAnimal().getId()));
     }
 
-    private BooleanExpression isNotUserRecommendedInDateCondition(
+    private BooleanExpression isNotUserRecommendedOnDayCondition(
         long userId,
         LocalDate recommendDay) {
 
@@ -229,12 +234,12 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .notExists();
     }
 
-    private BooleanExpression isNotUserSearchedInDateCondition(
+    private BooleanExpression isNotUserSearchedOnDayCondition(
         long userId,
-        LocalDate searchDate) {
+        LocalDate searchDay) {
 
-        LocalDateTime from = searchDate.atStartOfDay();
-        LocalDateTime to = searchDate.atTime(LocalTime.MAX);
+        LocalDateTime from = searchDay.atStartOfDay();
+        LocalDateTime to = searchDay.atTime(LocalTime.MAX);
 
         return JPAExpressions.selectOne()
             .from(userSearchLog)
@@ -254,18 +259,19 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         Expression<Boolean> checkFavoriteExistsNestedQuery) {
 
         return queryFactory
-            .select(Projections.constructor(UserQueryResponse.class,
-                user.id,
-                profilePhoto.photoUrl,
-                user.nickname,
-                user.age,
-                user.arrow,
-                animal.name,
-                user.photoSyncRate,
-                area.name,
-                user.height,
-                vocalRange.classification,
-                checkFavoriteExistsNestedQuery))
+            .select(
+                Projections.constructor(UserQueryResponse.class,
+                    user.id,
+                    profilePhoto.photoUrl,
+                    user.nickname,
+                    user.age,
+                    user.arrow,
+                    animal.name,
+                    user.photoSyncRate,
+                    area.name,
+                    user.height,
+                    vocalRange.classification,
+                    checkFavoriteExistsNestedQuery))
             .from(user)
             .innerJoin(user.animal, animal)
             .innerJoin(user.area, area)
@@ -295,6 +301,17 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .where(
                 acquaintance.userId.eq(userId),
                 acquaintance.phoneNumber.eq(user.phoneNumber))
+            .notExists();
+    }
+
+    private BooleanExpression isNotBlockedUserCondition(long userId) {
+
+        return JPAExpressions.selectOne()
+            .from(block)
+            .where(
+                block.user.id.eq(userId),
+                block.blockedUser.id.eq(user.id)
+            )
             .notExists();
     }
 }
