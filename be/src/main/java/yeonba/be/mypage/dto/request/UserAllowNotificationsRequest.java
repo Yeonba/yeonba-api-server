@@ -33,14 +33,19 @@ public class UserAllowNotificationsRequest {
     @NotNull(message = "요청한 채팅 수락 시 알림 동의 여부는 필수 값입니다.")
     private boolean allowChattingRequestAcceptedNotification;
 
-    public Map<NotificationType, Boolean> toNotificationTypePermissionStatusMap() {
+    public Map<NotificationType, Boolean> toNotificationTypeToPermissionStatus() {
 
-        Map<NotificationType, Boolean> map = new HashMap<>();
-        map.put(NotificationType.ARROW_RECEIVED, this.allowArrowReceivedNotification);
-        map.put(NotificationType.CHATTING_REQUESTED, this.allowChattingRequestNotification);
-        map.put(NotificationType.CHATTING_REQUEST_ACCEPTED,
-            this.allowChattingRequestAcceptedNotification);
+        Map<NotificationType, Boolean> notificationTypeToPermissionStatus = new HashMap<>();
+        notificationTypeToPermissionStatus
+            .put(NotificationType.ARROW_RECEIVED,
+                this.allowArrowReceivedNotification);
+        notificationTypeToPermissionStatus
+            .put(NotificationType.CHATTING_REQUESTED,
+                this.allowChattingRequestNotification);
+        notificationTypeToPermissionStatus
+            .put(NotificationType.CHATTING_REQUEST_ACCEPTED,
+                this.allowChattingRequestAcceptedNotification);
 
-        return map;
+        return notificationTypeToPermissionStatus;
     }
 }
