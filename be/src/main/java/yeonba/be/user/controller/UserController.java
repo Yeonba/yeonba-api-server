@@ -48,8 +48,8 @@ public class UserController {
         UserQueryPageResponse response;
 
         if (StringUtils.equals(type, "RECOMMEND")) {
-            LocalDate recommendDate = LocalDate.now();
-            response = userService.findRecommendUsers(userId, request, recommendDate);
+            LocalDate recommendDay = LocalDate.now();
+            response = userService.findRecommendUsers(userId, recommendDay);
         } else {
             response = userService.findUsersByQueryCondition(userId, request);
         }
