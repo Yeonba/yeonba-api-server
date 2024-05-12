@@ -15,7 +15,7 @@ public enum Gender {
         this.genderBoolean = genderBoolean;
     }
 
-    public static Gender from(String genderString) {
+    public static Gender of(String genderString) {
 
         if (StringUtils.equals(genderString, MALE.genderString)) {
 
