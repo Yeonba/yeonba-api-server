@@ -138,13 +138,6 @@ public class User {
         this.deleted = false;
     }
 
-    public void validateSameUser(User user) {
-
-        if (!this.equals(user)) {
-            throw new IllegalArgumentException("동일한 사용자가 아닙니다.");
-        }
-    }
-
     public void validateNotSameUser(User user) {
 
         if (this.equals(user)) {
