@@ -45,10 +45,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         List<UserQueryResponse> content = selectUserQueryResponse(
             Expressions.constant(true))
-            .where(
-                isActiveAndNotDeletedUserCondition(),
-                isNotBlockedUserCondition(userId),
-                findOneFavoriteBy(userId).exists())
+            .where(findFavoritesCondition(userId))
             .limit(limit)
             .offset(offset)
             .fetch();
@@ -56,11 +53,17 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         JPAQuery<Long> countQuery = queryFactory
             .select(user.count())
             .from(user)
-            .where(
-                isActiveAndNotDeletedUserCondition(),
-                findOneFavoriteBy(userId).exists());
+            .where(findFavoritesCondition(userId));
 
         return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
+    }
+
+    private BooleanExpression findFavoritesCondition(long userId) {
+
+        return Expressions.allOf(
+            isActiveAndNotDeletedUserCondition(),
+            isNotBlockedUserCondition(userId),
+            findOneFavoriteBy(userId).exists());
     }
 
     @Override
@@ -71,10 +74,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         List<UserQueryResponse> content = selectUserQueryResponse(
             Expressions.as(findOneFavoriteBy(senderId).exists(), "favorite"))
-            .where(
-                isActiveAndNotDeletedUserCondition(),
-                isNotBlockedUserCondition(senderId),
-                findOneArrowSentTransactionBy(senderId).exists())
+            .where(findArrowReceiversCondition(senderId))
             .limit(limit)
             .offset(offset)
             .fetch();
@@ -82,11 +82,17 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         JPAQuery<Long> countQuery = queryFactory
             .select(user.count())
             .from(user)
-            .where(
-                isActiveAndNotDeletedUserCondition(),
-                findOneArrowSentTransactionBy(senderId).exists());
+            .where(findArrowReceiversCondition(senderId));
 
         return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
+    }
+
+    private BooleanExpression findArrowReceiversCondition(long senderId) {
+
+        return Expressions.allOf(
+            isActiveAndNotDeletedUserCondition(),
+            isNotBlockedUserCondition(senderId),
+            findOneArrowSentTransactionBy(senderId).exists());
     }
 
     @Override
@@ -97,21 +103,24 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         List<UserQueryResponse> content = selectUserQueryResponse(
             Expressions.as(findOneFavoriteBy(receiverId).exists(), "favorite"))
-            .where(
-                isActiveAndNotDeletedUserCondition(),
-                isNotBlockedUserCondition(receiverId),
-                findOneArrowReceivedTransactionBy(receiverId).exists())
+            .where(findArrowSendersCondition(receiverId))
             .limit(limit)
             .offset(offset)
             .fetch();
 
         JPAQuery<Long> countQuery = queryFactory.select(user.count())
             .from(user)
-            .where(
-                isActiveAndNotDeletedUserCondition(),
-                findOneArrowReceivedTransactionBy(receiverId).exists());
+            .where(findArrowSendersCondition(receiverId));
 
         return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
+    }
+
+    private BooleanExpression findArrowSendersCondition(long receiverId) {
+
+        return Expressions.allOf(
+            isActiveAndNotDeletedUserCondition(),
+            isNotBlockedUserCondition(receiverId),
+            findOneArrowReceivedTransactionBy(receiverId).exists());
     }
 
     @Override
@@ -306,8 +315,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .from(block)
             .where(
                 block.user.id.eq(userId),
-                block.blockedUser.id.eq(user.id)
-            )
+                block.blockedUser.id.eq(user.id))
             .notExists();
     }
 }
