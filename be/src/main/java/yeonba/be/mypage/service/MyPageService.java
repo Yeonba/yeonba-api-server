@@ -13,6 +13,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.NotificationException;
 import yeonba.be.exception.UserException;
 import yeonba.be.mypage.dto.NotificationPermissionDetail;
 import yeonba.be.mypage.dto.request.NotificationPermissionsUpdateRequest;
@@ -24,6 +25,7 @@ import yeonba.be.mypage.dto.response.NotificationPermissionsResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.notification.entity.NotificationPermission;
+import yeonba.be.notification.enums.NotificationType;
 import yeonba.be.notification.repository.NotificationPermissionQuery;
 import yeonba.be.user.entity.Animal;
 import yeonba.be.user.entity.Area;
@@ -282,20 +284,27 @@ public class MyPageService {
         long userId,
         NotificationPermissionsUpdateRequest request) {
 
+        // 요청 동의 내역 리스트, null 값 포함 여부 검증
+        List<NotificationPermissionDetail> permissions = request.getPermissions();
+        if (permissions.contains(null)) {
+            throw new GeneralException(
+                NotificationException.REQUEST_PERMISSIONS_CAN_NOT_CONTAIN_NULL);
+        }
+
         // 사용자 및 사용자 동의 내역 목록 조회
         User user = userQuery.findById(userId);
         List<NotificationPermission> notificationPermissions =
             notificationPermissionQuery.findAllByUser(user);
 
-        List<NotificationPermissionDetail> permissions = request.getPermissions();
+        // 요청 내역과 알림 타입 일치하는 동의 내역 업데이트
+        permissions.forEach(permission -> {
+            NotificationType type = NotificationType.valueOf(permission.getType());
 
-        // 요청 내역과 타입 일치하는 알림 동의 내역 업데이트
-        permissions.forEach(permission -> notificationPermissions.forEach(
-            notificationPermission -> {
-                if (notificationPermission.hasSameTypeAs(permission.getType())) {
+            notificationPermissions.forEach(notificationPermission -> {
+                if (notificationPermission.hasSameTypeAs(type)) {
                     notificationPermission.updatePermissionStatus(permission.isPermit());
                 }
-            }
-        ));
+            });
+        });
     }
 }
