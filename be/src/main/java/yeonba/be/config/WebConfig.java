@@ -23,6 +23,8 @@ public class WebConfig implements WebMvcConfigurer {
             .excludePathPatterns(
                 "/users/join/**",
                 "/users/login",
-                "/users/refresh");
+                "/users/refresh",
+                "/users/nicknames/used",
+                "/users/phone-numbers/used");
     }
 }

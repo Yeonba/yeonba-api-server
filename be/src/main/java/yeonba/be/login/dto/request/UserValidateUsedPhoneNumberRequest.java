@@ -1,19 +1,21 @@
 package yeonba.be.login.dto.request;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-public class UserVerificationCodeRequest {
+@AllArgsConstructor
+public class UserValidateUsedPhoneNumberRequest {
 
-    @Schema(
-        type = "string",
+    @Parameter(
+        name = "phoneNumber",
         description = "전화번호",
-        example = "01011112222")
+        example = "01011112222",
+        in = ParameterIn.QUERY)
     @Pattern(
         regexp = "^010\\d{8}$",
         message = "전화번호는 11자리 010으로 시작하며 하이픈(-) 없이 0~9의 숫자로 이뤄져야 합니다.")
