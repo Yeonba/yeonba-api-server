@@ -1,7 +1,6 @@
 package yeonba.be.user.service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -156,12 +155,5 @@ public class UserService {
             preferredArea,
             preferredAnimal);
         userPreferenceCommand.save(userPreference);
-    }
-
-    @Transactional
-    public void updateLastAccessedAt(long userId, LocalDateTime accessAt) {
-
-        User user = userQuery.findById(userId);
-        user.updateLastAccessedAt(accessAt);
     }
 }
