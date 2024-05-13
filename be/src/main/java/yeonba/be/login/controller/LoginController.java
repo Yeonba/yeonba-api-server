@@ -90,8 +90,8 @@ public class LoginController {
     @Operation(summary = "사용 중인 전화번호 검증", description = "사용 중인 전화번호 검증 가능")
     @ApiResponse(responseCode = "200", description = "사용 중인 전화번호 검증 성공")
     @GetMapping("/users/phone-numbers/used")
-    public ResponseEntity<CustomResponse<UserValidateUsedPhoneNumberResponse>>
-    validateUsedPhoneNumber(@Valid @ParameterObject UserValidateUsedPhoneNumberRequest request) {
+    public ResponseEntity<CustomResponse<UserValidateUsedPhoneNumberResponse>> validateUsedPhoneNumber(
+        @Valid @ParameterObject UserValidateUsedPhoneNumberRequest request) {
 
         UserValidateUsedPhoneNumberResponse response =
             loginService.validateUsedPhoneNumber(request);
