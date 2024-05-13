@@ -1,15 +1,9 @@
 package yeonba.be.mypage.service;
 
-import static yeonba.be.notification.enums.NotificationType.ARROW_RECEIVED;
-import static yeonba.be.notification.enums.NotificationType.CHATTING_REQUESTED;
-import static yeonba.be.notification.enums.NotificationType.CHATTING_REQUEST_ACCEPTED;
-
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,16 +14,16 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UserException;
-import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
+import yeonba.be.mypage.dto.NotificationPermissionDetail;
+import yeonba.be.mypage.dto.request.NotificationPermissionsUpdateRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
+import yeonba.be.mypage.dto.response.NotificationPermissionsResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
-import yeonba.be.notification.dto.response.NotificationPermissionsResponse;
 import yeonba.be.notification.entity.NotificationPermission;
-import yeonba.be.notification.enums.NotificationType;
 import yeonba.be.notification.repository.NotificationPermissionQuery;
 import yeonba.be.user.entity.Animal;
 import yeonba.be.user.entity.Area;
@@ -276,38 +270,32 @@ public class MyPageService {
         List<NotificationPermission> notificationPermissions =
             notificationPermissionQuery.findAllByUser(user);
 
-        // 알림 타입별 동의 내역 Map 형성
-        Map<NotificationType, Boolean> typePermissionStatusMap = notificationPermissions.stream()
-            .collect(Collectors.toMap(
-                NotificationPermission::getType,
-                NotificationPermission::getPermissionStatus,
-                (existing, replacement) -> existing
-            ));
+        List<NotificationPermissionDetail> permissions = notificationPermissions.stream()
+            .map(NotificationPermissionDetail::of)
+            .toList();
 
-        // 회원 가입시 알림 전부 동의 처리, 기본 동의한 것으로 간주하여 응답 제공
-        return new NotificationPermissionsResponse(
-            typePermissionStatusMap.getOrDefault(ARROW_RECEIVED, true),
-            typePermissionStatusMap.getOrDefault(CHATTING_REQUESTED, true),
-            typePermissionStatusMap.getOrDefault(CHATTING_REQUEST_ACCEPTED, true));
+        return new NotificationPermissionsResponse(permissions);
     }
 
     @Transactional
-    public void updateNotificationPermissions(long userId, UserAllowNotificationsRequest request) {
+    public void updateNotificationPermissions(
+        long userId,
+        NotificationPermissionsUpdateRequest request) {
 
         // 사용자 및 사용자 동의 내역 목록 조회
         User user = userQuery.findById(userId);
         List<NotificationPermission> notificationPermissions =
             notificationPermissionQuery.findAllByUser(user);
 
-        // 알림 타입, 동의 여부 맵 구성
-        Map<NotificationType, Boolean> notificationTypeToPermissionStatus = request.toNotificationTypeToPermissionStatus();
+        List<NotificationPermissionDetail> permissions = request.getPermissions();
 
-        // 알림 타입별 동의 내역, 동의 여부 업데이트
-        notificationPermissions.forEach(notificationPermission -> {
-            NotificationType type = notificationPermission.getType();
-            boolean permissionStatus = notificationTypeToPermissionStatus
-                .getOrDefault(type, notificationPermission.getPermissionStatus());
-            notificationPermission.updatePermissionStatus(permissionStatus);
-        });
+        // 요청 내역과 타입 일치하는 알림 동의 내역 업데이트
+        permissions.forEach(permission -> notificationPermissions.forEach(
+            notificationPermission -> {
+                if (notificationPermission.hasSameTypeAs(permission.getType())) {
+                    notificationPermission.updatePermissionStatus(permission.isPermit());
+                }
+            }
+        ));
     }
 }
