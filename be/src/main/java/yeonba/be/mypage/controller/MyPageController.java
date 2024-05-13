@@ -20,16 +20,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
+import yeonba.be.mypage.dto.request.NotificationPermissionsUpdateRequest;
 import yeonba.be.mypage.dto.request.UserDormantRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.request.UserUpdateUnwantedAcquaintancesRequest;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
+import yeonba.be.mypage.dto.response.NotificationPermissionsResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
 import yeonba.be.mypage.service.AcquaintanceService;
 import yeonba.be.mypage.service.MyPageService;
-import yeonba.be.notification.dto.response.NotificationPermissionsResponse;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "MyPage", description = " My Page 관련 API")
@@ -115,7 +115,7 @@ public class MyPageController {
     @PatchMapping("/users/notifications/permissions")
     public ResponseEntity<CustomResponse<Void>> allowNotifications(
         @RequestAttribute("userId") long userId,
-        @Valid @RequestBody UserAllowNotificationsRequest request) {
+        @Valid @RequestBody NotificationPermissionsUpdateRequest request) {
 
         myPageService.updateNotificationPermissions(userId, request);
 
