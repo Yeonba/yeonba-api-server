@@ -18,7 +18,7 @@ public enum NotificationException implements BaseException {
 
     REQUEST_PERMISSIONS_CAN_NOT_CONTAIN_NULL(
         HttpStatus.BAD_REQUEST,
-        "요청되는 동의 여부엔 null 값이 포함될 수 없습니다.");
+        "요청되는 동의 내역들엔 null 값이 포함될 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String reason;
