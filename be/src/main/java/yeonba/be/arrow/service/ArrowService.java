@@ -6,7 +6,6 @@ import static yeonba.be.arrow.enums.ArrowTransactionType.USER_TO_USER;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +28,7 @@ public class ArrowService {
     private final ArrowQuery arrowQuery;
 
     @Transactional
-    public void dailyCheck(long userId, LocalDate dailyCheckDay) {
+    public boolean dailyCheck(long userId, LocalDate dailyCheckDay) {
 
         User dailyCheckUser = userQuery.findById(userId);
 
@@ -38,19 +37,24 @@ public class ArrowService {
             throw new GeneralException(UserException.INACTIVE_USER);
         }
 
-        // 처음 가입한 사용자는 최종 접속 일시가 null, 이 경우 출석 체크를 그냥 진행함
-        if (!Objects.isNull(dailyCheckUser.getLastAccessedAt())) {
-            dailyCheckUser.validateDailyCheck(dailyCheckDay);
+        boolean canDailyCheck = dailyCheckUser.canDailyCheckAt(dailyCheckDay);
+
+        // 출석 체크 화살 내역 저장, 사용자 화살 증가
+        if (canDailyCheck) {
+            int dailyCheckArrows = 10;
+            ArrowTransaction arrowTransaction = new ArrowTransaction(
+                DAILY_CHECK,
+                dailyCheckUser,
+                dailyCheckArrows);
+            arrowCommand.save(arrowTransaction);
+
+            dailyCheckUser.plusArrow(dailyCheckArrows);
         }
 
-        int dailyCheckArrows = 10;
-        ArrowTransaction arrowTransaction = new ArrowTransaction(
-            DAILY_CHECK,
-            dailyCheckUser,
-            dailyCheckArrows);
-        arrowCommand.save(arrowTransaction);
+        // 사용자 최종 접속 일시 갱신
+        dailyCheckUser.updateLastAccessedAt(LocalDateTime.now());
 
-        dailyCheckUser.plusArrow(dailyCheckArrows);
+        return canDailyCheck;
     }
 
     @Transactional(readOnly = true)
