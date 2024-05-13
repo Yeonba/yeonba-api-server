@@ -10,7 +10,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     private final DevAuthInterceptor devAuthInterceptor;
-    private final UpdateLastAccessedAtInterceptor updateLastAccessedAtInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -25,8 +24,5 @@ public class WebConfig implements WebMvcConfigurer {
                 "/users/join/**",
                 "/users/login",
                 "/users/refresh");
-
-        registry.addInterceptor(updateLastAccessedAtInterceptor)
-            .addPathPatterns("/daily-check");
     }
 }
