@@ -42,12 +42,18 @@ public class ArrowController {
     public ResponseEntity<CustomResponse<Void>> dailyCheck(
         @RequestAttribute("userId") long userId) {
 
-        LocalDate dailyCheckDay = LocalDate.now();
-        arrowService.dailyCheck(userId, dailyCheckDay);
-
-        return ResponseEntity
+        ResponseEntity<CustomResponse<Void>> response = ResponseEntity
             .ok()
             .body(new CustomResponse<>());
+
+        LocalDate dailyCheckDay = LocalDate.now();
+        if (!arrowService.dailyCheck(userId, dailyCheckDay)) {
+            response = ResponseEntity
+                .badRequest()
+                .body(new CustomResponse<>("이미 출석 체크한 사용자입니다."));
+        }
+
+        return response;
     }
 
     @Operation(summary = "화살 보내기", description = "다른 사용자에게 화살을 1개 보낼 수 있습니다.")
