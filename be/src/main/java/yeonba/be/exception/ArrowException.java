@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ArrowException implements BaseException {
 
-
     EXCEEDED_DAILY_AD_VIEWS(
         HttpStatus.BAD_REQUEST,
         "1일 광고 시청은 최대 3회입니다."),

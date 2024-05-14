@@ -185,6 +185,7 @@ public class User {
     public void minusArrow(int arrow) {
 
         if (this.arrow < arrow) {
+
             throw new GeneralException(ArrowException.NOT_ENOUGH_ARROW_TO_SEND);
         }
 

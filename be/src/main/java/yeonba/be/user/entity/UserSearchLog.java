@@ -15,13 +15,12 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Table(name = "users_recommendations")
+@Table(name = "users_search_logs")
 @Getter
 @Entity
 @EntityListeners(value = AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserRecommendation {
-
+public class UserSearchLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,15 +30,15 @@ public class UserRecommendation {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "recommended_user_id")
-    private User recommendedUser;
+    @JoinColumn(name = "searched_user_id")
+    private User searchedUser;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
-    public UserRecommendation(User user, User recommendedUser) {
+    public UserSearchLog(User user, User searchedUser) {
 
         this.user = user;
-        this.recommendedUser = recommendedUser;
+        this.searchedUser = searchedUser;
     }
 }

@@ -54,7 +54,11 @@ public enum UserException implements BaseException {
 
     LOWER_BOUND_LESS_THAN_OR_EQUAL_UPPER_BOUND(
         HttpStatus.BAD_REQUEST,
-        "하한 값은 상한 값보다 작거나 같아야 합니다.");
+        "하한 값은 상한 값보다 작거나 같아야 합니다."),
+
+    NO_MORE_USERS_TO_RECOMMEND(
+        HttpStatus.BAD_REQUEST,
+        "더 이상 추천할 사용자가 존재하지 않습니다");
 
     private final HttpStatus httpStatus;
     private final String reason;
