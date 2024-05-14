@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UserException;
-import yeonba.be.mypage.dto.request.UserDormantRequest;
+import yeonba.be.mypage.dto.request.UserChangeInactiveStatusRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
@@ -210,10 +210,10 @@ public class MyPageService {
     }
 
     @Transactional
-    public void changeDormantStatus(long userId, UserDormantRequest request) {
+    public void changeInactiveStatus(long userId, UserChangeInactiveStatusRequest request) {
 
         User user = userQuery.findById(userId);
-        user.changeInactiveStatus(request.isStatus());
+        user.changeInactiveStatus(request.isInactive());
     }
 
     @Transactional
