@@ -3,6 +3,8 @@ package yeonba.be.arrow.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import yeonba.be.arrow.enums.ArrowTransactionType;
 import yeonba.be.user.entity.User;
 
 @Table(name = "arrows_transactions")
@@ -38,23 +41,30 @@ public class ArrowTransaction {
     @Column(nullable = false)
     private int arrows;
 
+    @Enumerated(EnumType.STRING)
+    private ArrowTransactionType type;
+
     @CreatedDate
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
     public ArrowTransaction(
+        ArrowTransactionType type,
         User receiver,
         int arrows) {
 
+        this.type = type;
         this.receiver = receiver;
         this.arrows = arrows;
     }
 
     public ArrowTransaction(
+        ArrowTransactionType type,
         User sender,
         User receiver,
         int arrows) {
 
+        this.type = type;
         this.sender = sender;
         this.receiver = receiver;
         this.arrows = arrows;
