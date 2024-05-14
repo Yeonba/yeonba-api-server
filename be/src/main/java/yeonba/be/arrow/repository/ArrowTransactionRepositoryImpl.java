@@ -1,6 +1,7 @@
 package yeonba.be.arrow.repository;
 
 import static yeonba.be.arrow.entity.QArrowTransaction.arrowTransaction;
+import static yeonba.be.arrow.enums.ArrowTransactionType.REWARDS_FOR_WATCHING_ADVERTISEMENTS;
 import static yeonba.be.user.entity.QUser.user;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -20,8 +21,9 @@ public class ArrowTransactionRepositoryImpl implements ArrowTransactionRepositor
                 queryFactory
                     .select(arrowTransaction.count())
                     .from(arrowTransaction)
-                    .innerJoin(arrowTransaction.sender, user)
+                    .innerJoin(arrowTransaction.receiver, user)
                     .where(
+                        arrowTransaction.type.eq(REWARDS_FOR_WATCHING_ADVERTISEMENTS),
                         arrowTransaction.sender.isNull(),
                         arrowTransaction.receiver.id.eq(userId),
                         arrowTransaction.createdAt.after(today)
