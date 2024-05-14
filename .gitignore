@@ -204,3 +204,5 @@ gradle-app.setting
 
 .idea
 be/src/main/resources/application.properties
+be/src/main/resources/fcm/*
+

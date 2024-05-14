@@ -16,6 +16,7 @@ import yeonba.be.exception.JoinException;
 import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.request.UserQueryRequest;
+import yeonba.be.user.dto.request.UserUpdateDeviceTokenRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
 import yeonba.be.user.dto.response.UserQueryResponse;
@@ -68,7 +69,7 @@ public class UserService {
 
         return new UserProfileResponse(
             targetUser.getProfilePhotoUrls(),
-            targetUser.getGender(),
+            targetUser.getGenderString(),
             targetUser.getNickname(),
             targetUser.getArrow(),
             targetUser.getAge(),
@@ -97,7 +98,7 @@ public class UserService {
         }
 
         // 성별 판별
-        Gender gender = Gender.of(request.getGender());
+        Gender gender = Gender.from(request.getGender());
 
         // 나이 20~40세인 지 검증 & 나이 계산
         LocalDate birth = request.getBirth();
@@ -207,7 +208,7 @@ public class UserService {
 
         // 추천 사용자 응답 조회,
         int numberOfRecommendUsers = 2;
-        boolean userGender = Gender.of(user.getGender()).genderBoolean;
+        boolean userGender = Gender.from(user.getGenderString()).genderBoolean;
         PageRequest pageRequest = PageRequest.of(0, numberOfRecommendUsers);
         UserQueryPageResponse response = userQuery
             .findRecommendUsers(userId, userGender, pageRequest, recommendDay);
@@ -231,5 +232,12 @@ public class UserService {
         userRecommendationCommand.saveAll(userRecommendations);
 
         return response;
+    }
+
+    @Transactional
+    public void updateDeviceToken(long userId, UserUpdateDeviceTokenRequest request) {
+
+        User user = userQuery.findById(userId);
+        user.updateDeviceToken(request.getDeviceToken());
     }
 }

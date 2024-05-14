@@ -11,6 +11,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.mypage.service.ReportService;
 import yeonba.be.user.dto.request.UserQueryRequest;
 import yeonba.be.user.dto.request.UserReportRequest;
+import yeonba.be.user.dto.request.UserUpdateDeviceTokenRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
 import yeonba.be.user.service.BlockService;
@@ -90,12 +92,12 @@ public class UserController {
         favoriteService.addFavorite(userId, favoriteUserId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
     @Operation(summary = "즐겨찾기 삭제", description = "즐겨찾기에 등록한 사용자를 삭제합니다.")
-    @ApiResponse(responseCode = "202", description = "즐겨찾기 삭제 정상 처리")
+    @ApiResponse(responseCode = "200", description = "즐겨찾기 삭제 정상 처리")
     @DeleteMapping("/favorites/{userId}")
     public ResponseEntity<CustomResponse<Void>> deleteFavorite(
         @RequestAttribute("userId") long userId,
@@ -105,12 +107,12 @@ public class UserController {
         favoriteService.deleteFavorite(userId, favoriteUserId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
     @Operation(summary = "사용자 신고", description = "다른 사용자를 신고할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "신고 정상 처리")
+    @ApiResponse(responseCode = "200", description = "신고 정상 처리")
     @PostMapping("/users/{userId}/report")
     public ResponseEntity<CustomResponse<Void>> report(
         @RequestAttribute("userId") long userId,
@@ -124,12 +126,12 @@ public class UserController {
             request);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
     @Operation(summary = "차단하기", description = "다른 사용자를 차단할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "차단 요청 정상 처리")
+    @ApiResponse(responseCode = "200", description = "차단 요청 정상 처리")
     @PostMapping("/users/{userId}/block")
     public ResponseEntity<CustomResponse<Void>> block(
         @RequestAttribute("userId") long userId,
@@ -139,7 +141,21 @@ public class UserController {
         blockService.block(userId, blockedUserId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
+            .body(new CustomResponse<>());
+    }
+
+    @Operation(summary = "device token 업데이트", description = "device token을 업데이트할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "device token 업데이트 성공")
+    @PatchMapping("/users/device-token")
+    public ResponseEntity<CustomResponse<Void>> updateDeviceToken(
+        @RequestAttribute("userId") long userId,
+        @Valid @RequestBody UserUpdateDeviceTokenRequest request) {
+
+        userService.updateDeviceToken(userId, request);
+
+        return ResponseEntity
+            .ok()
             .body(new CustomResponse<>());
     }
 }
