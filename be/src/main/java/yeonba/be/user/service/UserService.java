@@ -11,6 +11,7 @@ import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.JoinException;
 import yeonba.be.login.dto.request.UserJoinRequest;
+import yeonba.be.user.dto.request.UserUpdateDeviceTokenRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.entity.Animal;
 import yeonba.be.user.entity.Area;
@@ -155,5 +156,12 @@ public class UserService {
             preferredArea,
             preferredAnimal);
         userPreferenceCommand.save(userPreference);
+    }
+
+    @Transactional
+    public void updateDeviceToken(long userId, UserUpdateDeviceTokenRequest request) {
+
+        User user = userQuery.findById(userId);
+        user.updateDeviceToken(request.getDeviceToken());
     }
 }

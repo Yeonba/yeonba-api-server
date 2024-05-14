@@ -4,11 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.mypage.service.ReportService;
 import yeonba.be.user.dto.request.UserQueryRequest;
 import yeonba.be.user.dto.request.UserReportRequest;
+import yeonba.be.user.dto.request.UserUpdateDeviceTokenRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
 import yeonba.be.user.service.BlockService;
@@ -78,7 +81,7 @@ public class UserController {
         favoriteService.addFavorite(userId, favoriteUserId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
@@ -93,7 +96,7 @@ public class UserController {
         favoriteService.deleteFavorite(userId, favoriteUserId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
@@ -113,7 +116,7 @@ public class UserController {
             request);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
@@ -128,7 +131,21 @@ public class UserController {
         blockService.block(userId, blockedUserId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
+            .body(new CustomResponse<>());
+    }
+
+    @Operation(summary = "device token 업데이트", description = "device token을 업데이트할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "device token 업데이트 성공")
+    @PatchMapping("/users/device-token")
+    public ResponseEntity<CustomResponse<Void>> updateDeviceToken(
+        @RequestAttribute("userId") long userId,
+        @Valid @RequestBody UserUpdateDeviceTokenRequest request) {
+
+        userService.updateDeviceToken(userId, request);
+
+        return ResponseEntity
+            .ok()
             .body(new CustomResponse<>());
     }
 }

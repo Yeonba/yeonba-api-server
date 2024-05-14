@@ -7,6 +7,7 @@ import static yeonba.be.arrow.enums.ArrowTransactionType.USER_TO_USER;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.arrow.dto.response.UserArrowsResponse;
@@ -16,6 +17,8 @@ import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UserException;
+import yeonba.be.notification.enums.NotificationType;
+import yeonba.be.notification.event.NotificationSendEvent;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.user.UserQuery;
 
@@ -26,6 +29,7 @@ public class ArrowService {
     private final UserQuery userQuery;
     private final ArrowCommand arrowCommand;
     private final ArrowQuery arrowQuery;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public boolean dailyCheck(long userId, LocalDate dailyCheckDay) {
@@ -100,6 +104,11 @@ public class ArrowService {
 
         sender.minusArrow(sendArrow);
         receiver.plusArrow(sendArrow);
+
+        LocalDateTime createdAt = arrowTransaction.getCreatedAt();
+        NotificationSendEvent notificationSendEvent =
+            new NotificationSendEvent(NotificationType.ARROW_RECEIVED, sender, receiver, createdAt);
+        eventPublisher.publishEvent(notificationSendEvent);
     }
 
     @Transactional
