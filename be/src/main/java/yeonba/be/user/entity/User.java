@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,6 +27,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UserException;
+import yeonba.be.user.enums.Gender;
 import yeonba.be.user.enums.LoginType;
 
 @Table(name = "users")
@@ -70,6 +72,7 @@ public class User {
     @Column(nullable = false)
     private String mbti;
     private String refreshToken;
+    private String deviceToken;
 
     @ManyToOne
     @JoinColumn(name = "vocal_range_id")
@@ -141,7 +144,7 @@ public class User {
     public void validateNotSameUser(User user) {
 
         if (this.equals(user)) {
-            throw new IllegalArgumentException("동일한 사용자입니다.");
+            throw new GeneralException(UserException.SAME_USER);
         }
     }
 
@@ -154,11 +157,14 @@ public class User {
         this.phoneNumber = "deleted";
     }
 
-    public void validateDailyCheck(LocalDate dailyCheckDay) {
+    public boolean canDailyCheckAt(LocalDate dailyCheckDay) {
 
-        if (this.lastAccessedAt.isAfter(dailyCheckDay.atStartOfDay())) {
-            throw new GeneralException(ArrowException.ALREADY_CHECKED_USER);
+        if (Optional.ofNullable(this.lastAccessedAt).isEmpty()) {
+
+            return true;
         }
+
+        return this.lastAccessedAt.isBefore(dailyCheckDay.atStartOfDay());
     }
 
     public String getRepresentativeProfilePhoto() {
@@ -166,9 +172,9 @@ public class User {
         return this.profilePhotos.get(0).getPhotoUrl();
     }
 
-    public void updateLastAccessedAt(LocalDateTime accessedAt) {
+    public void updateLastAccessedAt(LocalDateTime accessAt) {
 
-        this.lastAccessedAt = accessedAt;
+        this.lastAccessedAt = accessAt;
     }
 
     public void plusArrow(int arrow) {
@@ -179,20 +185,21 @@ public class User {
     public void minusArrow(int arrow) {
 
         if (this.arrow < arrow) {
+
             throw new GeneralException(ArrowException.NOT_ENOUGH_ARROW_TO_SEND);
         }
 
         this.arrow -= arrow;
     }
 
-    public String getGender() {
+    public String getGenderString() {
 
-        if (this.gender) {
+        return Gender.genderBooleanToString(this.gender);
+    }
 
-            return "남";
-        }
+    public boolean getGenderBoolean() {
 
-        return "여";
+        return this.gender;
     }
 
     public List<String> getProfilePhotoUrls() {
@@ -219,9 +226,21 @@ public class User {
         }
     }
 
+    public void validateSameGender(User user) {
+
+        if (this.gender == user.getGenderBoolean()) {
+            throw new GeneralException(UserException.SAME_GENDER_USER);
+        }
+    }
+
     public void updateRefreshToken(String refreshToken) {
 
         this.refreshToken = refreshToken;
+    }
+
+    public void updateDeviceToken(String deviceToken) {
+
+        this.deviceToken = deviceToken;
     }
 
     public void updateProfile(

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.login.dto.response.UserJoinResponse;
+import yeonba.be.notification.service.NotificationService;
 import yeonba.be.user.entity.User;
 import yeonba.be.util.JwtUtil;
 
@@ -14,17 +15,10 @@ import yeonba.be.util.JwtUtil;
 public class JoinService {
 
     private final UserService userService;
+    private final NotificationService notificationService;
 
     private final JwtUtil jwtUtil;
 
-    /*
-    회원 가입 비즈니스 로직 과정
-    1. 사용자 엔티티 저장
-    2. 프로필 사진 엔티티 저장
-    3. 사용자 선호조건 저장
-    4. access token 및 refresh token 발급
-    5. 사용자 refresh token 업데이트
-     */
     @Transactional
     public UserJoinResponse join(UserJoinRequest request) {
 
@@ -32,6 +26,9 @@ public class JoinService {
         User user = userService.saveUser(request);
         userService.saveProfilePhotos(user, request);
         userService.saveUserPreference(user, request);
+
+        // 모든 알림 허용
+        notificationService.saveAllowedNotificationPermissions(user);
 
         // access token, refresh token 발급
         Date now = new Date();

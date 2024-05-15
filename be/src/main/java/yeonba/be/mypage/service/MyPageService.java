@@ -13,13 +13,20 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.NotificationException;
 import yeonba.be.exception.UserException;
-import yeonba.be.mypage.dto.request.UserDormantRequest;
+import yeonba.be.mypage.dto.NotificationPermissionDetail;
+import yeonba.be.mypage.dto.request.NotificationPermissionsUpdateRequest;
+import yeonba.be.mypage.dto.request.UserChangeInactiveStatusRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
+import yeonba.be.mypage.dto.response.NotificationPermissionsResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
+import yeonba.be.notification.entity.NotificationPermission;
+import yeonba.be.notification.enums.NotificationType;
+import yeonba.be.notification.repository.NotificationPermissionQuery;
 import yeonba.be.user.entity.Animal;
 import yeonba.be.user.entity.Area;
 import yeonba.be.user.entity.Block;
@@ -45,6 +52,7 @@ public class MyPageService {
     private final UserPreferenceQuery userPreferenceQuery;
     private final UserQuery userQuery;
     private final VocalRangeQuery vocalRangeQuery;
+    private final NotificationPermissionQuery notificationPermissionQuery;
 
     private final BlockCommand blockCommand;
 
@@ -210,10 +218,10 @@ public class MyPageService {
     }
 
     @Transactional
-    public void changeDormantStatus(long userId, UserDormantRequest request) {
+    public void changeInactiveStatus(long userId, UserChangeInactiveStatusRequest request) {
 
         User user = userQuery.findById(userId);
-        user.changeInactiveStatus(request.isStatus());
+        user.changeInactiveStatus(request.isInactive());
     }
 
     @Transactional
@@ -255,5 +263,48 @@ public class MyPageService {
                     "Failed to upload file: " + profilePhoto.getOriginalFilename(), e);
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    public NotificationPermissionsResponse getNotificationPermissions(long userId) {
+
+        User user = userQuery.findById(userId);
+        List<NotificationPermission> notificationPermissions =
+            notificationPermissionQuery.findAllByUser(user);
+
+        List<NotificationPermissionDetail> permissions = notificationPermissions.stream()
+            .map(NotificationPermissionDetail::of)
+            .toList();
+
+        return new NotificationPermissionsResponse(permissions);
+    }
+
+    @Transactional
+    public void updateNotificationPermissions(
+        long userId,
+        NotificationPermissionsUpdateRequest request) {
+
+        // 요청 동의 내역 리스트, null 값 포함 여부 검증
+        List<NotificationPermissionDetail> permissions = request.getPermissions();
+        if (permissions.contains(null)) {
+            throw new GeneralException(
+                NotificationException.REQUEST_PERMISSIONS_CAN_NOT_CONTAIN_NULL);
+        }
+
+        // 사용자 및 사용자 동의 내역 목록 조회
+        User user = userQuery.findById(userId);
+        List<NotificationPermission> notificationPermissions =
+            notificationPermissionQuery.findAllByUser(user);
+
+        // 요청 내역과 알림 타입 일치하는 동의 내역 업데이트
+        permissions.forEach(permission -> {
+            NotificationType type = NotificationType.valueOf(permission.getType());
+
+            notificationPermissions.forEach(notificationPermission -> {
+                if (notificationPermission.hasSameTypeAs(type)) {
+                    notificationPermission.updatePermissionStatus(permission.isPermit());
+                }
+            });
+        });
     }
 }

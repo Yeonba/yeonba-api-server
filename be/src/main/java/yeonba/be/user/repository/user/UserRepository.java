@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import yeonba.be.user.entity.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, UserRepositoryCustom {
 
     Optional<User> findByIdAndDeletedIsFalse(long userId);
 
