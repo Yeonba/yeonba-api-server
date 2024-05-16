@@ -19,7 +19,7 @@ public class UserQueryRequest {
             - 즐겨찾는 이성 : FAVORITES
             - 나에게 관심 있는 이성(나에게 화살을 보낸 이성) : ARROW_SENDERS
             - 나에게 화살을 보낸 이성 : ARROW_RECEIVERS""",
-        example = "RECOMMEND",
+        example = "FAVORITES",
         in = ParameterIn.QUERY)
     @NotBlank(message = "조회 기준은 반드시 입력되어야 합니다.")
     @Pattern(
