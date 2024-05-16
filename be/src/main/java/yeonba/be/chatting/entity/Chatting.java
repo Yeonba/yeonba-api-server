@@ -7,6 +7,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import yeonba.be.user.entity.User;
 
-@Table(name = "chattings")
+@Table(name = "chat_room")
 @Getter
 @Entity
 @EntityListeners(value = AuditingEntityListener.class)
@@ -31,19 +32,17 @@ public class Chatting {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
+    @JoinColumn(name = "sent_user_id")
+    private User sentUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User partner;
+    @JoinColumn(name = "received_user_id")
+    private User receivedUser;
+
+    private boolean active;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean deleted;
-
-    public Chatting(User user, User partner) {
-        this.user = user;
-        this.partner = partner;
-    }
+    private LocalDateTime deletedAt;
 }

@@ -21,7 +21,7 @@ public class ChattingController {
     @Operation(summary = "채팅 목록 조회", description = "자신이 참여 중인 채팅 목록을 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "참여 중인 채팅 목록 조회 성공")
     @GetMapping("/chattings")
-    public ResponseEntity<CustomResponse<List<ChattingRoomResponse>>> chattings(
+    public ResponseEntity<CustomResponse<List<ChattingRoomResponse>>> getChatMessages(
         @RequestAttribute("userId") long userId) {
 
         return ResponseEntity
