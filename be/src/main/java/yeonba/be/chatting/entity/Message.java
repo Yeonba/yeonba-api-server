@@ -29,6 +29,10 @@ public class Message {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_room_id")
+    private ChatRoom chatRoom;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sent_user_id")
     private User sentUser;
 
