@@ -19,7 +19,12 @@ public class WebConfig implements WebMvcConfigurer {
                 "/swagger-resources/**",
                 "/v2/api-docs",
                 "/webjars/**",
-                "/error");
+                "/error")
+            .excludePathPatterns(
+                "/users/join/**",
+                "/users/login",
+                "/users/refresh",
+                "/users/nicknames/used",
+                "/users/phone-numbers/used");
     }
-
 }

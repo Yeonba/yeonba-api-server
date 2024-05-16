@@ -5,12 +5,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -20,6 +21,7 @@ import yeonba.be.mypage.service.ReportService;
 import yeonba.be.user.dto.request.UserQueryRequest;
 import yeonba.be.user.dto.request.UserReportRequest;
 import yeonba.be.user.dto.request.UserSearchRequest;
+import yeonba.be.user.dto.request.UserUpdateDeviceTokenRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
 import yeonba.be.user.service.BlockService;
@@ -37,23 +39,28 @@ public class UserController {
     private final ReportService reportService;
     private final UserService userService;
 
-    @Operation(summary = "이성(다른 사용자) 목록 조회", description = "조건에 따라 다른 사용자 프로필 목록을 조회 가능")
+    @Operation(summary = "이성 목록 조회", description = "이성 목록을 조회할 수 있다.")
     @ApiResponse(responseCode = "200", description = "이성 목록 정상 조회")
     @GetMapping("/users")
-    public ResponseEntity<CustomResponse<UserQueryPageResponse>> users(
+    public ResponseEntity<CustomResponse<UserQueryPageResponse>> getUsers(
         @RequestAttribute("userId") long userId,
         @Valid @ParameterObject UserQueryRequest request) {
 
-        String type = request.getType();
-        UserQueryPageResponse response;
+        UserQueryPageResponse response = userService.findUsersByQueryCondition(userId, request);
 
-        if (StringUtils.equals(type, "RECOMMEND")) {
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(response));
+    }
 
-            response = userService.findRecommendUsers(userId, request);
-        } else {
+    @Operation(summary = "추천 이성 조회", description = "추천 이성을 조회할 수 있다.")
+    @ApiResponse(responseCode = "200", description = "추천 이성 정상 조회")
+    @GetMapping("/users/recommend")
+    public ResponseEntity<CustomResponse<UserQueryPageResponse>> getRecommendUsers(
+        @RequestAttribute("userId") long userId) {
 
-            response = userService.findByQueryCondition(userId, request);
-        }
+        LocalDate recommendDay = LocalDate.now();
+        UserQueryPageResponse response = userService.findRecommendUsers(userId, recommendDay);
 
         return ResponseEntity
             .ok()
@@ -63,7 +70,7 @@ public class UserController {
     @Operation(summary = "다른 사용자 프로필 조회", description = "다른 사용자의 프로필을 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "사용자 프로필 정상 조회")
     @GetMapping("/users/{userId}")
-    public ResponseEntity<CustomResponse<UserProfileResponse>> profile(
+    public ResponseEntity<CustomResponse<UserProfileResponse>> getTargetUserProfile(
         @RequestAttribute("userId") long userId,
         @Parameter(description = "조회대상 사용자 ID", example = "1")
         @PathVariable("userId") long targetUserId) {
@@ -86,13 +93,14 @@ public class UserController {
         favoriteService.addFavorite(userId, favoriteUserId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
     @Operation(summary = "즐겨찾기 삭제", description = "즐겨찾기에 등록한 사용자를 삭제합니다.")
-    @ApiResponse(responseCode = "202", description = "즐겨찾기 삭제 정상 처리")
+    @ApiResponse(responseCode = "200", description = "즐겨찾기 삭제 정상 처리")
     @DeleteMapping("/favorites/{userId}")
+
     public ResponseEntity<CustomResponse<Void>> deleteFavorite(
         @RequestAttribute("userId") long userId,
         @Parameter(description = "즐겨찾기에서 삭제할 사용자 ID", example = "1")
@@ -101,13 +109,14 @@ public class UserController {
         favoriteService.deleteFavorite(userId, favoriteUserId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
     @Operation(summary = "사용자 신고", description = "다른 사용자를 신고할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "신고 정상 처리")
+    @ApiResponse(responseCode = "200", description = "신고 정상 처리")
     @PostMapping("/users/{userId}/report")
+
     public ResponseEntity<CustomResponse<Void>> report(
         @RequestAttribute("userId") long userId,
         @Parameter(description = "신고 대상 사용자 ID", example = "1")
@@ -120,12 +129,12 @@ public class UserController {
             request);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
     @Operation(summary = "차단하기", description = "다른 사용자를 차단할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "차단 요청 정상 처리")
+    @ApiResponse(responseCode = "200", description = "차단 요청 정상 처리")
     @PostMapping("/users/{userId}/block")
     public ResponseEntity<CustomResponse<Void>> block(
         @RequestAttribute("userId") long userId,
@@ -135,7 +144,7 @@ public class UserController {
         blockService.block(userId, blockedUserId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
@@ -146,11 +155,24 @@ public class UserController {
         @RequestAttribute("userId") long userId,
         @Valid @ParameterObject UserSearchRequest request) {
 
-        UserQueryPageResponse response = userService
-            .findBySearchCondition(userId, request);
+        UserQueryPageResponse response = userService.findBySearchCondition(userId, request);
 
         return ResponseEntity
             .ok()
             .body(new CustomResponse<>(response));
+    }
+
+    @Operation(summary = "device token 업데이트", description = "device token을 업데이트할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "device token 업데이트 성공")
+    @PatchMapping("/users/device-token")
+    public ResponseEntity<CustomResponse<Void>> updateDeviceToken(
+        @RequestAttribute("userId") long userId,
+        @Valid @RequestBody UserUpdateDeviceTokenRequest request) {
+
+        userService.updateDeviceToken(userId, request);
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>());
     }
 }

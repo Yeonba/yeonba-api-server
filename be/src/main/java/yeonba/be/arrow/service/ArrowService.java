@@ -1,52 +1,64 @@
 package yeonba.be.arrow.service;
 
+import static yeonba.be.arrow.enums.ArrowTransactionType.DAILY_CHECK;
+import static yeonba.be.arrow.enums.ArrowTransactionType.REWARDS_FOR_WATCHING_ADVERTISEMENTS;
+import static yeonba.be.arrow.enums.ArrowTransactionType.USER_TO_USER;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import yeonba.be.arrow.dto.UserArrowsResponse;
-import yeonba.be.arrow.dto.request.ArrowSendRequest;
+import yeonba.be.arrow.dto.response.UserArrowsResponse;
 import yeonba.be.arrow.entity.ArrowTransaction;
 import yeonba.be.arrow.repository.ArrowCommand;
 import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.UserException;
+import yeonba.be.notification.enums.NotificationType;
+import yeonba.be.notification.event.NotificationSendEvent;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.repository.UserQuery;
+import yeonba.be.user.repository.user.UserQuery;
 
 @Service
 @RequiredArgsConstructor
 public class ArrowService {
 
-    private final int DAILY_CHECK_ARROW_COUNT = 10;
-    private final int ADVERTISEMENT_ARROW_COUNT = 5;
     private final UserQuery userQuery;
     private final ArrowCommand arrowCommand;
     private final ArrowQuery arrowQuery;
+    private final ApplicationEventPublisher eventPublisher;
 
-  /*
-    출석 체크는 다음 과정을 거쳐 이뤄진다.
-    1. 사용자 최종 접속 일시를 통해 이미 출석 체크하였는지 확인
-    2. 화살 송수신 내역 저장
-    3. 사용자 최종 접속 일시 갱신
-    4. 사용자 화살 개수 증가
-   */
     @Transactional
-    public void dailyCheck(long userId) {
+    public boolean dailyCheck(long userId, LocalDate dailyCheckDay) {
 
         User dailyCheckUser = userQuery.findById(userId);
 
-        LocalDateTime dailyCheckedAt = LocalDateTime.now();
-        dailyCheckUser.validateDailyCheck(dailyCheckedAt.toLocalDate());
+        // 휴면 상태 사용자는 출석 체크 불가
+        if (dailyCheckUser.isInactive()) {
+            throw new GeneralException(UserException.INACTIVE_USER);
+        }
 
-        ArrowTransaction arrowTransaction = new ArrowTransaction(
-            dailyCheckUser,
-            DAILY_CHECK_ARROW_COUNT);
-        arrowCommand.save(arrowTransaction);
+        boolean canDailyCheck = dailyCheckUser.canDailyCheckAt(dailyCheckDay);
 
-        dailyCheckUser.updateLastAccessedAt(dailyCheckedAt);
-        dailyCheckUser.plusArrow(DAILY_CHECK_ARROW_COUNT);
+        // 출석 체크 화살 내역 저장, 사용자 화살 증가
+        if (canDailyCheck) {
+            int dailyCheckArrows = 10;
+            ArrowTransaction arrowTransaction = new ArrowTransaction(
+                DAILY_CHECK,
+                dailyCheckUser,
+                dailyCheckArrows);
+            arrowCommand.save(arrowTransaction);
+
+            dailyCheckUser.plusArrow(dailyCheckArrows);
+        }
+
+        // 사용자 최종 접속 일시 갱신
+        dailyCheckUser.updateLastAccessedAt(LocalDateTime.now());
+
+        return canDailyCheck;
     }
 
     @Transactional(readOnly = true)
@@ -57,54 +69,63 @@ public class ArrowService {
         return new UserArrowsResponse(user.getArrow());
     }
 
-    /*
-    화살 보내기 비즈니스 로직은 다음 과정을 거친다.
-    1. 자기 자신에게 화살을 보내는 상황 검증
-    2. 화살을 보낸 사용자에게 또 보내는 상황 검증
-    3. 화살 내역 저장
-    4. 보내는 사용자 화살 감소, 화살이 부족할 경우 예외 발생
-    5. 받는 사용자 화살 증가
-   */
     @Transactional
-    public void sendArrow(
-        long senderId,
-        long recipientId,
-        ArrowSendRequest request) {
+    public void sendArrow(long senderId, long receiverId) {
 
         User sender = userQuery.findById(senderId);
-        User receiver = userQuery.findById(recipientId);
+        User receiver = userQuery.findById(receiverId);
 
+        // 휴면 상태에선 화살을 보낼 수 없음
+        if (sender.isInactive()) {
+            throw new GeneralException(UserException.INACTIVE_USER);
+        }
+
+        // 휴면 상태인 사용자에게 화살을 보낼 수 없음
+        if (receiver.isInactive()) {
+            throw new GeneralException(ArrowException.CAN_NOT_SEND_ARROW_TO_INACTIVE_USER);
+        }
+
+        // 자기 자신에게 화살을 보낼 수 없음
         sender.validateNotSameUser(receiver);
 
+        // 같은 성별 사용자에게 화살을 보낼 수 없음
+        sender.validateSameGender(receiver);
+
+        // 이미 화살을 보낸 사용자에게 화살을 보낼 수 없음
         if (arrowQuery.isArrowTransactionExist(sender, receiver)) {
             throw new GeneralException(ArrowException.ALREADY_SENT_ARROW_USER);
         }
 
-        int arrows = request.getArrows();
-        ArrowTransaction arrowTransaction = new ArrowTransaction(
-            sender,
-            receiver,
-            arrows);
+        // 화살은 1개만 보낼 수 있음
+        int sendArrow = 1;
+        ArrowTransaction arrowTransaction =
+            new ArrowTransaction(USER_TO_USER, sender, receiver, sendArrow);
         arrowCommand.save(arrowTransaction);
 
-        sender.minusArrow(arrows);
-        receiver.plusArrow(arrows);
+        sender.minusArrow(sendArrow);
+        receiver.plusArrow(sendArrow);
+
+        LocalDateTime createdAt = arrowTransaction.getCreatedAt();
+        NotificationSendEvent notificationSendEvent =
+            new NotificationSendEvent(NotificationType.ARROW_RECEIVED, sender, receiver, createdAt);
+        eventPublisher.publishEvent(notificationSendEvent);
     }
 
     @Transactional
-    public void chargeArrows(long userId) {
+    public void chargeArrows(long userId, LocalDate chargeDay) {
 
-        User user = userQuery.findById(userId);
+        User arrowChargeUser = userQuery.findById(userId);
 
-        LocalDateTime today = LocalDate.now().atStartOfDay();
-        arrowQuery.validateAdvertisementArrowCount(userId, today);
+        LocalDateTime chargeDayStartTime = chargeDay.atStartOfDay();
+        arrowQuery.validateAdvertisementArrowCount(userId, chargeDayStartTime);
 
+        int chargeArrows = 5;
         ArrowTransaction arrowTransaction = new ArrowTransaction(
-            user,
-            ADVERTISEMENT_ARROW_COUNT);
+            REWARDS_FOR_WATCHING_ADVERTISEMENTS,
+            arrowChargeUser,
+            chargeArrows);
 
         arrowCommand.save(arrowTransaction);
-        user.plusArrow(ADVERTISEMENT_ARROW_COUNT);
+        arrowChargeUser.plusArrow(chargeArrows);
     }
-
 }

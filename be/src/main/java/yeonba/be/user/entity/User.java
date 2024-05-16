@@ -3,6 +3,8 @@ package yeonba.be.user.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,6 +16,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,6 +26,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import yeonba.be.exception.ArrowException;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.UserException;
+import yeonba.be.user.enums.Gender;
+import yeonba.be.user.enums.LoginType;
 
 @Table(name = "users")
 @Getter
@@ -35,10 +41,13 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private boolean gender;
 
-    @Column(nullable = false)
-    private String name;
+    private long socialId;
+
+    @Enumerated(EnumType.STRING)
+    private LoginType loginType;
+
+    private boolean gender;
 
     @Column(nullable = false)
     private String nickname;
@@ -47,15 +56,6 @@ public class User {
     private LocalDate birth;
     private int age;
     private int height;
-
-    @Column(nullable = false)
-    private String email;
-
-    @Column(nullable = false)
-    private String encryptedPassword;
-
-    @Column(nullable = false)
-    private String salt;
 
     @Column(nullable = false)
     private String phoneNumber;
@@ -71,8 +71,8 @@ public class User {
 
     @Column(nullable = false)
     private String mbti;
-
     private String refreshToken;
+    private String deviceToken;
 
     @ManyToOne
     @JoinColumn(name = "vocal_range_id")
@@ -97,24 +97,20 @@ public class User {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    private LocalDateTime deletedAt;
-
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     private boolean deleted;
 
     @OneToMany(mappedBy = "blockedUser", fetch = FetchType.LAZY)
     private List<Block> blocks;
 
     public User(
+        long socialId,
+        LoginType loginType,
         boolean gender,
-        String name,
         String nickname,
         LocalDate birth,
         int age,
         int height,
-        String email,
-        String encryptedPassword,
-        String salt,
         String phoneNumber,
         int arrow,
         int photoSyncRate,
@@ -124,66 +120,51 @@ public class User {
         VocalRange vocalRange,
         Animal animal,
         Area area) {
+
+        this.socialId = socialId;
+        this.loginType = loginType;
         this.gender = gender;
-        this.name = name;
         this.nickname = nickname;
         this.birth = birth;
         this.age = age;
         this.height = height;
-        this.email = email;
-        this.encryptedPassword = encryptedPassword;
-        this.salt = salt;
         this.phoneNumber = phoneNumber;
         this.arrow = arrow;
         this.photoSyncRate = photoSyncRate;
-        this.inactive = true;
+        this.inactive = false;
         this.bodyType = bodyType;
         this.job = job;
         this.mbti = mbti;
         this.vocalRange = vocalRange;
         this.animal = animal;
         this.area = area;
-    }
-
-    public void validateSameUser(User user) {
-
-        if (!this.equals(user)) {
-            throw new IllegalArgumentException("동일한 사용자가 아닙니다.");
-        }
+        this.deleted = false;
     }
 
     public void validateNotSameUser(User user) {
 
         if (this.equals(user)) {
-            throw new IllegalArgumentException("동일한 사용자입니다.");
+            throw new GeneralException(UserException.SAME_USER);
         }
     }
 
-    public void changePassword(String encryptedNewPassword) {
+    public void delete() {
 
-        this.encryptedPassword = encryptedNewPassword;
+        this.deleted = true;
+        this.nickname = "deleted";
+        this.age = 0;
+        this.height = 0;
+        this.phoneNumber = "deleted";
     }
 
-    public void delete(LocalDateTime willDeleteTime) {
+    public boolean canDailyCheckAt(LocalDate dailyCheckDay) {
 
-        this.deletedAt = willDeleteTime;
-    }
+        if (Optional.ofNullable(this.lastAccessedAt).isEmpty()) {
 
-    /**
-     * 삭제된 사용자인지 검증
-     */
-    public void validateDeletedUser(LocalDateTime now) {
-
-        if (this.deletedAt.isAfter(now)) {
-            throw new IllegalArgumentException("삭제된 사용자입니다.");
+            return true;
         }
-    }
 
-    public void validateDailyCheck(LocalDate dailyCheckDay) {
-
-        if (this.lastAccessedAt.isAfter(dailyCheckDay.atStartOfDay())) {
-            throw new GeneralException(ArrowException.ALREADY_CHECKED_USER);
-        }
+        return this.lastAccessedAt.isBefore(dailyCheckDay.atStartOfDay());
     }
 
     public String getRepresentativeProfilePhoto() {
@@ -191,9 +172,9 @@ public class User {
         return this.profilePhotos.get(0).getPhotoUrl();
     }
 
-    public void updateLastAccessedAt(LocalDateTime accessedAt) {
+    public void updateLastAccessedAt(LocalDateTime accessAt) {
 
-        this.lastAccessedAt = accessedAt;
+        this.lastAccessedAt = accessAt;
     }
 
     public void plusArrow(int arrow) {
@@ -204,19 +185,21 @@ public class User {
     public void minusArrow(int arrow) {
 
         if (this.arrow < arrow) {
+
             throw new GeneralException(ArrowException.NOT_ENOUGH_ARROW_TO_SEND);
         }
 
         this.arrow -= arrow;
     }
 
-    public String getGender() {
-        if (this.gender) {
+    public String getGenderString() {
 
-            return "남";
-        }
+        return Gender.genderBooleanToString(this.gender);
+    }
 
-        return "여";
+    public boolean getGenderBoolean() {
+
+        return this.gender;
     }
 
     public List<String> getProfilePhotoUrls() {
@@ -231,24 +214,55 @@ public class User {
         this.inactive = inactiveStatus;
     }
 
-    public void hideUserInfo() {
-
-        this.name = "deleted";
-        this.nickname = "deleted";
-        this.age = 0;
-        this.height = 0;
-        this.email = "deleted";
-        this.phoneNumber = "deleted";
-        this.deleted = true;
+    public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
+        this.profilePhotos = profilePhotos;
     }
 
-    public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
+    public void validateRefreshToken(String refreshToken) {
 
-        this.profilePhotos = profilePhotos;
+        if (!this.refreshToken.equals(refreshToken)) {
+            throw new GeneralException(UserException.INVALID_REFRESH_TOKEN);
+        }
+    }
+
+    public void validateSameGender(User user) {
+
+        if (this.gender == user.getGenderBoolean()) {
+            throw new GeneralException(UserException.SAME_GENDER_USER);
+        }
     }
 
     public void updateRefreshToken(String refreshToken) {
 
         this.refreshToken = refreshToken;
+    }
+
+    public void updateDeviceToken(String deviceToken) {
+
+        this.deviceToken = deviceToken;
+    }
+
+    public void updateProfile(
+        String nickname,
+        int height,
+        LocalDate birth,
+        int age,
+        String bodyType,
+        String job,
+        String mbti,
+        VocalRange vocalRange,
+        Animal animal,
+        Area area) {
+
+        this.nickname = nickname;
+        this.height = height;
+        this.birth = birth;
+        this.age = age;
+        this.bodyType = bodyType;
+        this.job = job;
+        this.mbti = mbti;
+        this.vocalRange = vocalRange;
+        this.animal = animal;
+        this.area = area;
     }
 }

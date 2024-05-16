@@ -7,7 +7,7 @@ import yeonba.be.exception.FavoriteException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.Favorite;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.repository.UserQuery;
+import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.favorite.FavoriteCommand;
 import yeonba.be.user.repository.favorite.FavoriteQuery;
 

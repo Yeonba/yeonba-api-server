@@ -1,9 +1,7 @@
 package yeonba.be.util;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -21,53 +19,54 @@ public class JwtUtil {
     @Value("${JWT_SECRET}")
     private String jwtSecret;
 
-    public String generateAccessToken(User user, Date issuedAt) {
+    public String generateAccessToken(User user, Date generatedAt) {
 
-        Date expiredAt = getExpiredAt(issuedAt, ACCESS_TOKEN_DURATION);
+        Date expiredAt = getExpiredAt(generatedAt, ACCESS_TOKEN_DURATION);
 
-        return generateUserJwt(user, issuedAt, expiredAt);
+        return generateUserJwt(user, generatedAt, expiredAt);
     }
 
-    public String generateRefreshToken(User user, Date issuedAt) {
+    public String generateRefreshToken(User user, Date generatedAt) {
 
-        Date expiredAt = getExpiredAt(issuedAt, REFRESH_TOKEN_DURATION);
+        Date expiredAt = getExpiredAt(generatedAt, REFRESH_TOKEN_DURATION);
 
-        return generateUserJwt(user, issuedAt, expiredAt);
+        return generateUserJwt(user, generatedAt, expiredAt);
     }
 
-    private Date getExpiredAt(Date issuedAt, Duration duration) {
+    public long getUserIdFromToken(String token) {
 
-        Instant instant = issuedAt.toInstant()
+        Object userIdObject = Jwts.parser()
+            .setSigningKey(jwtSecret)
+            .parseClaimsJws(token)
+            .getBody()
+            .get("userId");
+
+        if (userIdObject instanceof String) {
+            return Long.parseLong((String) userIdObject);
+        } else if (userIdObject instanceof Integer) {
+            return ((Integer) userIdObject).longValue();
+        } else {
+            throw new IllegalArgumentException(
+                "Unexpected type for userId: " + userIdObject.getClass().getName());
+        }
+    }
+
+    private Date getExpiredAt(
+        Date generatedAt, Duration duration) {
+
+        Instant instant = generatedAt.toInstant()
             .plusMillis(duration.toMillis());
 
         return Date.from(instant);
     }
 
-    private String generateUserJwt(
-        User user,
-        Date issuedAt,
-        Date expiredAt) {
+    private String generateUserJwt(User user, Date issuedAt, Date generatedAt) {
 
         return Jwts.builder()
-            .setSubject(user.getEmail())
             .setIssuedAt(issuedAt)
-            .setExpiration(expiredAt)
+            .setExpiration(generatedAt)
             .claim("userId", user.getId())
             .signWith(SignatureAlgorithm.HS256, jwtSecret)
             .compact();
-    }
-
-    public void validateJwt(String jwt) {
-
-        try {
-            Jwts.parser()
-                .setSigningKey(jwtSecret)
-                .parseClaimsJws(jwt);
-
-        } catch (SignatureException e) {
-            throw new IllegalStateException("유효하지 않은 JWT 시그니처입니다.", e);
-        } catch (ExpiredJwtException e) {
-            throw new IllegalStateException("만료된 JWT입니다.", e);
-        }
     }
 }

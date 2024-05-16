@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -21,17 +20,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import yeonba.be.mypage.dto.request.UserAllowNotificationsRequest;
-import yeonba.be.mypage.dto.request.UserChangePasswordRequest;
-import yeonba.be.mypage.dto.request.UserDormantRequest;
+import yeonba.be.mypage.dto.request.NotificationPermissionsUpdateRequest;
+import yeonba.be.mypage.dto.request.UserChangeInactiveStatusRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.request.UserUpdateUnwantedAcquaintancesRequest;
-import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
-import yeonba.be.mypage.dto.response.UnwantedAcquaintanceResponse;
-import yeonba.be.mypage.dto.response.UnwantedAcquaintancesResponse;
+import yeonba.be.mypage.dto.response.NotificationPermissionsResponse;
 import yeonba.be.mypage.dto.response.UserProfileDetailResponse;
 import yeonba.be.mypage.dto.response.UserSimpleProfileResponse;
+import yeonba.be.mypage.service.AcquaintanceService;
 import yeonba.be.mypage.service.MyPageService;
 import yeonba.be.util.CustomResponse;
 
@@ -41,6 +38,7 @@ import yeonba.be.util.CustomResponse;
 public class MyPageController {
 
     private final MyPageService myPageService;
+    private final AcquaintanceService acquaintanceService;
 
     @Operation(summary = "자신의 프로필 조회", description = "사용자 자신의 프로필 정보를 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "자신의 프로필 조회 성공")
@@ -68,22 +66,8 @@ public class MyPageController {
             .body(new CustomResponse<>(response));
     }
 
-    @Operation(summary = "비밀번호 수정", description = "자신의 비밀번호를 수정할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "비밀번호 수정 완료")
-    @PatchMapping("/users/password")
-    public ResponseEntity<CustomResponse<Void>> changePassword(
-        @RequestBody UserChangePasswordRequest request,
-        @RequestAttribute("userId") long userId) {
-
-        myPageService.changePassword(request, userId);
-
-        return ResponseEntity
-            .accepted()
-            .body(new CustomResponse<>());
-    }
-
     @Operation(summary = "자신의 프로필 사진 수정", description = "자신의 프로필 사진을 수정할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "자신의 프로필 사진 수정 정상 처리")
+    @ApiResponse(responseCode = "200", description = "자신의 프로필 사진 수정 정상 처리")
     @PutMapping(path = "/users/profile-photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CustomResponse<Void>> updateProfilePhotos(
         @RequestAttribute("userId") long userId,
@@ -95,12 +79,12 @@ public class MyPageController {
         myPageService.updateProfilePhotos(profilePhotos, realTimePhoto, userId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
     @Operation(summary = "자신의 프로필 수정", description = "자신의 프로필 정보를 수정할 수 있습니다.")
-    @ApiResponse(responseCode = "204", description = "자신의 프로필 수정 요청 정상 처리")
+    @ApiResponse(responseCode = "200", description = "자신의 프로필 수정 요청 정상 처리")
     @PatchMapping("/users/profiles")
     public ResponseEntity<CustomResponse<Void>> updateProfile(
         @Valid @RequestBody UserUpdateProfileRequest request,
@@ -109,56 +93,48 @@ public class MyPageController {
         myPageService.updateProfile(request, userId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
-    @Operation(
-        summary = "알림 on/off 설정",
-        description = "알림별로 on/off를 설정할 수 있습니다."
-    )
-    @ApiResponse(
-        responseCode = "204",
-        description = "알림 on/off 설정 정상 처리"
-    )
-    @PatchMapping("/user/notifications")
-    public ResponseEntity<CustomResponse<Void>> allowNotifications(
-        @RequestBody UserAllowNotificationsRequest request) {
+    @Operation(summary = "알림 동의 내역(on/off) 조회", description = "알림 동의 내역을 조회할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "알림 동의 내역 조회 성공")
+    @GetMapping("/users/notifications/permissions")
+    public ResponseEntity<CustomResponse<NotificationPermissionsResponse>> getNotificationPermissions(
+        @RequestAttribute("userId") long userId) {
 
-        return ResponseEntity
-            .accepted()
-            .body(new CustomResponse<>());
-    }
-
-    @Operation(summary = "만나고 싶지 않은 지인 목록 조회", description = "만나고 싶지 않은 지인 목록을 조회합니다.")
-    @GetMapping("/users/unwanted-acquaintances")
-    public ResponseEntity<CustomResponse<UnwantedAcquaintancesResponse>> getUnwantedAcquaintances() {
-
-        List<UnwantedAcquaintanceResponse> sampleUnwantedAcquaintances = Arrays.asList(
-            new UnwantedAcquaintanceResponse("01012345678", "안민재"),
-            new UnwantedAcquaintanceResponse("01087654321", "김민재")
-        );
+        NotificationPermissionsResponse response = myPageService.getNotificationPermissions(userId);
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(
-                new UnwantedAcquaintancesResponse(sampleUnwantedAcquaintances)));
+            .body(new CustomResponse<>(response));
     }
 
-    @Operation(
-        summary = "만나고 싶지 않은 지인 목록 수정",
-        description = "만나고 싶지 않은 지인 목록을 수정합니다."
-    )
-    @ApiResponse(
-        responseCode = "202",
-        description = "지인 목록 수정 정상 처리"
-    )
-    @PutMapping("/users/unwanted-acquaintances")
-    public ResponseEntity<CustomResponse<Void>> updateUnwantedAcquaintances(
-        @RequestBody UserUpdateUnwantedAcquaintancesRequest request) {
+    @Operation(summary = "알림 on/off 설정", description = "알림별로 on/off를 설정할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "알림 on/off 설정 정상 처리")
+    @PatchMapping("/users/notifications/permissions")
+    public ResponseEntity<CustomResponse<Void>> allowNotifications(
+        @RequestAttribute("userId") long userId,
+        @Valid @RequestBody NotificationPermissionsUpdateRequest request) {
+
+        myPageService.updateNotificationPermissions(userId, request);
 
         return ResponseEntity
-            .accepted()
+            .ok()
+            .body(new CustomResponse<>());
+    }
+
+    @Operation(summary = "만나고 싶지 않은 지인 목록 수정", description = "만나고 싶지 않은 지인을 추가합니다.")
+    @ApiResponse(responseCode = "200", description = "지인 목록 추가 정상 처리")
+    @PutMapping("/users/unwanted-acquaintances")
+    public ResponseEntity<CustomResponse<Void>> updateUnwantedAcquaintances(
+        @RequestAttribute("userId") long userId,
+        @RequestBody UserUpdateUnwantedAcquaintancesRequest request) {
+
+        acquaintanceService.updateUnwantedAcquaintances(userId, request);
+
+        return ResponseEntity
+            .ok()
             .body(new CustomResponse<>());
     }
 
@@ -176,7 +152,7 @@ public class MyPageController {
     }
 
     @Operation(summary = "차단 해제", description = "차단한 사용자를 해제할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "차단 해제 정상 처리")
+    @ApiResponse(responseCode = "200", description = "차단 해제 정상 처리")
     @DeleteMapping("/users/{userId}/block")
     public ResponseEntity<CustomResponse<Void>> unblockUser(
         @RequestAttribute("userId") long userId,
@@ -185,26 +161,26 @@ public class MyPageController {
         myPageService.unblockUser(userId, blockedUserId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
-    @Operation(summary = "휴면 계정 전환", description = "계정의 휴면 상태를 전환할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "휴면 상태 전환 요청 정상 처리")
-    @PatchMapping("/users/dormant")
-    public ResponseEntity<CustomResponse<Void>> dormantUser(
+    @Operation(summary = "휴면 상태 변경", description = "회원의 휴면 상태를 변경할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "휴면 상태 변경 요청 정상 처리")
+    @PatchMapping("/users/inactive")
+    public ResponseEntity<CustomResponse<Void>> changeUserInactiveStatus(
         @RequestAttribute("userId") long userId,
-        @Valid @RequestBody UserDormantRequest request) {
+        @Valid @RequestBody UserChangeInactiveStatusRequest request) {
 
-        myPageService.changeDormantStatus(userId, request);
+        myPageService.changeInactiveStatus(userId, request);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 
-    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 할 수 있습니다.")
-    @ApiResponse(responseCode = "202", description = "계정 탈퇴 요청 정상 처리")
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 할 수 있습니다. 즉시 탈퇴 처리됩니다.")
+    @ApiResponse(responseCode = "200", description = "계정 탈퇴 요청 정상 처리")
     @DeleteMapping("/users")
     public ResponseEntity<CustomResponse<Void>> deleteUser(
         @RequestAttribute("userId") long userId) {
@@ -212,7 +188,7 @@ public class MyPageController {
         myPageService.deleteUser(userId);
 
         return ResponseEntity
-            .accepted()
+            .ok()
             .body(new CustomResponse<>());
     }
 }

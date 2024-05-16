@@ -3,6 +3,7 @@ package yeonba.be.user.service;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -12,9 +13,11 @@ import org.springframework.web.multipart.MultipartFile;
 import yeonba.be.arrow.repository.ArrowQuery;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.JoinException;
+import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.request.UserQueryRequest;
 import yeonba.be.user.dto.request.UserSearchRequest;
+import yeonba.be.user.dto.request.UserUpdateDeviceTokenRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
 import yeonba.be.user.dto.response.UserQueryResponse;
@@ -27,27 +30,23 @@ import yeonba.be.user.entity.UserRecommendation;
 import yeonba.be.user.entity.UserSearchLog;
 import yeonba.be.user.entity.VocalRange;
 import yeonba.be.user.enums.Gender;
-import yeonba.be.user.repository.UserCommand;
-import yeonba.be.user.repository.UserQuery;
+import yeonba.be.user.enums.LoginType;
 import yeonba.be.user.repository.animal.AnimalQuery;
 import yeonba.be.user.repository.area.AreaQuery;
 import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
+import yeonba.be.user.repository.user.UserCommand;
+import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
 import yeonba.be.user.repository.userrecommendation.UserRecommendationCommand;
+import yeonba.be.user.repository.userrecommendation.UserRecommendationQuery;
 import yeonba.be.user.repository.usersearchlog.UserSearchLogCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
-import yeonba.be.util.PasswordEncryptor;
+import yeonba.be.util.AgeValidator;
 import yeonba.be.util.S3Service;
-import yeonba.be.util.SaltGenerator;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
-    private final int JOIN_REWARD_ARROWS = 30;
-    private final int DEFAULT_PAGE_SIZE = 6;
-    private final int RECOMMEND_USERS_PAGE_SIZE = 2;
-    private final int SEARCH_USERS_PAGE_SIZE = 4;
 
     private final ProfilePhotoCommand profilePhotoCommand;
     private final UserCommand userCommand;
@@ -59,9 +58,9 @@ public class UserService {
     private final AreaQuery areaQuery;
     private final ArrowQuery arrowQuery;
     private final UserQuery userQuery;
+    private final UserRecommendationQuery userRecommendationQuery;
     private final VocalRangeQuery vocalRangeQuery;
 
-    private final PasswordEncryptor passwordEncryptor;
     private final S3Service s3Service;
 
     @Transactional(readOnly = true)
@@ -74,7 +73,7 @@ public class UserService {
 
         return new UserProfileResponse(
             targetUser.getProfilePhotoUrls(),
-            targetUser.getGender(),
+            targetUser.getGenderString(),
             targetUser.getNickname(),
             targetUser.getArrow(),
             targetUser.getAge(),
@@ -86,55 +85,48 @@ public class UserService {
             isAlreadySentArrow);
     }
 
-    @Transactional
     public User saveUser(UserJoinRequest request) {
 
-        // 이미 사용 중인 이메일인지 확인
-        if (userQuery.isAlreadyUsedEmail(request.getEmail())) {
-            throw new GeneralException(JoinException.ALREADY_USED_EMAIL);
-        }
+        LoginType loginType = LoginType.from(request.getLoginType());
 
         // 이미 사용 중인 닉네임인지 확인
-        if (userQuery.isAlreadyUsedNickname(request.getNickname())) {
+        if (userQuery.validateUsedNickname(request.getNickname())) {
+
             throw new GeneralException(JoinException.ALREADY_USED_NICKNAME);
         }
 
-        // 비밀빈호, 비밀번호 확인 값 일치 확인
-        String password = request.getPassword();
-        String passwordConfirmation = request.getPasswordConfirmation();
-        if (!StringUtils.equals(password, passwordConfirmation)) {
-            throw new GeneralException(JoinException.PASSWORD_CONFIRMATION_NOT_MATCH);
+        // 이미 사용 중인 핸드폰 번호인지 확인
+        if (userQuery.validateUsedPhoneNumber(request.getPhoneNumber())) {
+
+            throw new GeneralException(JoinException.ALREADY_USED_PHONE_NUMBER);
         }
 
         // 성별 판별
         Gender gender = Gender.from(request.getGender());
 
-        // 나이 계산
+        // 나이 20~40세인 지 검증 & 나이 계산
         LocalDate birth = request.getBirth();
-        int age = Period.between(birth, LocalDate.now()).getYears();
-
-        // salt 생성 및 비밀번호 암호화
-        String salt = SaltGenerator.generateRandomSalt();
-        String encryptedPassword = passwordEncryptor.encrypt(password, salt);
+        LocalDate currentDate = LocalDate.now();
+        AgeValidator.validateAgeByBirth(birth, currentDate);
+        int age = Period.between(birth, currentDate).getYears();
 
         // 음역대, 동물상, 지역 조회
-        VocalRange vocalRange = vocalRangeQuery.findBy(request.getVocalRange());
+        VocalRange vocalRange = vocalRangeQuery.findByClassification(request.getVocalRange());
         Animal animal = animalQuery.findByName(request.getLookAlikeAnimal());
         Area area = areaQuery.findByName(request.getActivityArea());
 
         // 사용자 생성 및 저장
+        int joinRewardArrows = 30;
         User user = new User(
+            request.getSocialId(),
+            loginType,
             gender.genderBoolean,
-            request.getName(),
             request.getNickname(),
             request.getBirth(),
             age,
             request.getHeight(),
-            request.getEmail(),
-            encryptedPassword,
-            salt,
             request.getPhoneNumber(),
-            JOIN_REWARD_ARROWS,
+            joinRewardArrows,
             request.getPhotoSyncRate(),
             request.getBodyType(),
             request.getJob(),
@@ -146,7 +138,6 @@ public class UserService {
         return userCommand.save(user);
     }
 
-    @Transactional
     public void saveProfilePhotos(User user, UserJoinRequest request) {
 
         List<MultipartFile> photoFiles = request.getProfilePhotos();
@@ -160,12 +151,12 @@ public class UserService {
         user.updateProfilePhotos(profilePhotos);
     }
 
-    @Transactional
     public void saveUserPreference(User user, UserJoinRequest request) {
 
         // 선호 음역대, 동물상, 지역 조회
         Animal preferredAnimal = animalQuery.findByName(request.getPreferredAnimal());
-        VocalRange preferredVocalRange = vocalRangeQuery.findBy(request.getPreferredVocalRange());
+        VocalRange preferredVocalRange =
+            vocalRangeQuery.findByClassification(request.getPreferredVocalRange());
         Area preferredArea = areaQuery.findByName(request.getPreferredArea());
 
         UserPreference userPreference = new UserPreference(
@@ -182,58 +173,61 @@ public class UserService {
         userPreferenceCommand.save(userPreference);
     }
 
-    // controller에서 type에 대해 검증, 페이지 사이즈가 6으로 같은 경우 조회 로직
     @Transactional(readOnly = true)
-    public UserQueryPageResponse findByQueryCondition(long userId, UserQueryRequest request) {
+    public UserQueryPageResponse findUsersByQueryCondition(long userId, UserQueryRequest request) {
+
+        int page = Optional.ofNullable(request.getPage()).orElse(0);
+        int size = 6;
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        // 사용자 존재 여부 검증
+        if (!userQuery.validateExistsById(userId)) {
+            throw new GeneralException(UserException.USER_NOT_FOUND);
+        }
 
         String type = request.getType();
-        int page = request.getPage();
-        PageRequest pageRequest = PageRequest.of(page, DEFAULT_PAGE_SIZE);
+        if (StringUtils.equals(type, "FAVORITES")) {
 
-        if (StringUtils.equals(type, "BOOKMARKED")) {
-
-            return findAllFavorites(userId, pageRequest);
+            return userQuery.findFavoritesBy(userId, pageRequest);
         }
 
         if (StringUtils.equals(type, "ARROW_RECEIVERS")) {
 
-            return findAllArrowReceivers(userId, pageRequest);
+            return userQuery.findArrowReceiversBy(userId, pageRequest);
         }
 
-        return findAllArrowSenders(userId, pageRequest);
-    }
-
-    private UserQueryPageResponse findAllFavorites(long userId, PageRequest pageRequest) {
-
-        return userQuery.findAllFavorites(userId, pageRequest);
-    }
-
-    private UserQueryPageResponse findAllArrowReceivers(long senderId, PageRequest pageRequest) {
-
-        return userQuery.findAllArrowReceivers(senderId, pageRequest);
-    }
-
-    private UserQueryPageResponse findAllArrowSenders(long receiverId, PageRequest pageRequest) {
-
-        return userQuery.findAllArrowSenders(receiverId, pageRequest);
+        return userQuery.findArrowSendersBy(userId, pageRequest);
     }
 
     @Transactional
-    public UserQueryPageResponse findRecommendUsers(long userId, UserQueryRequest request) {
+    public UserQueryPageResponse findRecommendUsers(long userId, LocalDate recommendDay) {
 
-        int page = request.getPage();
-        PageRequest pageRequest = PageRequest.of(page, RECOMMEND_USERS_PAGE_SIZE);
-        LocalDate recommendDate = LocalDate.now();
-
-        // 응답 조회
-        UserQueryPageResponse response = userQuery
-            .findRecommendUsers(userId, pageRequest, recommendDate);
-
-        // 추천 받을 사용자 조회
         User user = userQuery.findById(userId);
 
-        // 추천될 사용자 조회
-        List<User> recommendUsers = findAllUsersInResponse(response);
+        // 한 번 추천받았을 경우 다음 시도부턴 화살 소모
+        int arrowsForRecommend = 5;
+        if (userRecommendationQuery.existsRecommendationForUserOnDay(user, recommendDay)) {
+            user.minusArrow(arrowsForRecommend);
+        }
+
+        // 추천 사용자 응답 조회,
+        int numberOfRecommendUsers = 2;
+        boolean userGender = Gender.from(user.getGenderString()).genderBoolean;
+        PageRequest pageRequest = PageRequest.of(0, numberOfRecommendUsers);
+        UserQueryPageResponse response = userQuery
+            .findRecommendUsers(userId, userGender, pageRequest, recommendDay);
+
+        // 추천 가능 여부 확인(추천 가능한 사용자 2명 이상)
+        List<UserQueryResponse> content = response.getUsers();
+        if (content.size() < numberOfRecommendUsers) {
+            throw new GeneralException(UserException.NO_MORE_USERS_TO_RECOMMEND);
+        }
+
+        // 추천 사용자 조회
+        List<Long> userIds = content.stream()
+            .map(UserQueryResponse::getId)
+            .toList();
+        List<User> recommendUsers = userQuery.findByIds(userIds);
 
         // 추천 내역 저장
         List<UserRecommendation> userRecommendations = recommendUsers.stream()
@@ -245,12 +239,20 @@ public class UserService {
     }
 
     @Transactional
+    public void updateDeviceToken(long userId, UserUpdateDeviceTokenRequest request) {
+
+        User user = userQuery.findById(userId);
+        user.updateDeviceToken(request.getDeviceToken());
+    }
+
+    @Transactional
     public UserQueryPageResponse findBySearchCondition(
         long userId,
         UserSearchRequest request) {
 
         int page = request.getPage();
-        PageRequest pageRequest = PageRequest.of(page, SEARCH_USERS_PAGE_SIZE);
+        int size = 6;
+        PageRequest pageRequest = PageRequest.of(page, size);
         LocalDate searchDate = LocalDate.now();
 
         // 응답 조회

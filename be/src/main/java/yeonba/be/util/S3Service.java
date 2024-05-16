@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import yeonba.be.user.entity.ProfilePhoto;
+import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.UtilException;
 import yeonba.be.user.entity.User;
 
 @Service
@@ -33,7 +33,8 @@ public class S3Service {
     public List<String> uploadProfilePhotos(List<MultipartFile> profilePhotos, User user) {
 
         if (!validateProfilePhotosExtensions(profilePhotos)) {
-            throw new IllegalArgumentException("jpg, jpeg, png 확장자 형식의 파일만 허용됩니다.");
+
+            throw new GeneralException(UtilException.NOT_ALLOWED_IMAGE_FILE_EXTENSION);
         }
 
         List<String> uploadedProfilePhotosUrls = new ArrayList<>();
@@ -57,32 +58,15 @@ public class S3Service {
                         profilePhoto.getSize()));
                 uploadedProfilePhotosUrls.add(key);
             } catch (Exception e) {
-                throw new IllegalStateException(
-                    String.format("Failed to upload file : %s", profilePhoto.getOriginalFilename())
-                    , e);
+
+                String message = String.format("Failed to upload file : %s",
+                    profilePhoto.getOriginalFilename());
+
+                throw new IllegalStateException(message, e);
             }
         }
 
         return uploadedProfilePhotosUrls;
-    }
-
-    public void deleteProfilePhotos(List<ProfilePhoto> profilePhotos) {
-
-        for (ProfilePhoto profilePhoto : profilePhotos) {
-            String photoUrl = profilePhoto.getPhotoUrl();
-
-            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(bucketName)
-                .key(photoUrl)
-                .build();
-
-            try {
-                s3Client.deleteObject(deleteObjectRequest);
-            } catch (Exception e) {
-                throw new IllegalStateException(
-                    String.format("Failed to delete file, key : %s", photoUrl), e);
-            }
-        }
     }
 
     private boolean validateProfilePhotosExtensions(List<MultipartFile> profilePhotos) {

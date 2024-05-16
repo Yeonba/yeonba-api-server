@@ -5,18 +5,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import yeonba.be.user.entity.User;
 
 @Table(name = "acquaintances")
 @Getter
 @Entity
+@EqualsAndHashCode(of = {"userId", "phoneNumber"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Acquaintance {
 
     @Id
@@ -24,22 +25,17 @@ public class Acquaintance {
     private Long id;
 
     @Column(nullable = false)
+    private long userId;
+
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
     private String phoneNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    public Acquaintance(
-        String name,
-        String phoneNumber,
-        User user) {
-
+    public Acquaintance(long userId, String name, String phoneNumber) {
+        this.userId = userId;
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.user = user;
     }
 }
