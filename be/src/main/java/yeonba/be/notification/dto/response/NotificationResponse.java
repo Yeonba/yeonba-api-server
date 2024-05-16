@@ -34,7 +34,7 @@ public class NotificationResponse {
     private long senderId;
 
     @Schema(
-        type = "number",
+        type = "string",
         description = "알림 보낸 사용자 대표 프로필 사진 URL",
         example = "profile-photo/1-0")
     private String senderProfilePhotoUrl;
