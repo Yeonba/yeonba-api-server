@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,11 +13,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RestController;
 import yeonba.be.chatting.dto.ChattingRoomResponse;
+import yeonba.be.chatting.service.ChatService;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "Chatting", description = "채팅 API")
 @RestController
+@RequiredArgsConstructor
 public class ChattingController {
+
+    private final ChatService chatService;
 
     @Operation(summary = "채팅 목록 조회", description = "자신이 참여 중인 채팅 목록을 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "참여 중인 채팅 목록 조회 성공")
@@ -37,7 +42,9 @@ public class ChattingController {
         @Parameter(description = "사용자 ID", example = "1")
         @PathVariable long partnerId) {
 
-        // 알림 생성
+        // TODO: 알림 생성
+
+        chatService.requestChat(userId, partnerId);
 
         return ResponseEntity
             .ok()

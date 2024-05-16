@@ -1,6 +1,5 @@
 package yeonba.be.chatting.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
@@ -25,7 +24,7 @@ import yeonba.be.user.entity.User;
 @EntityListeners(value = AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "id")
-public class Chatting {
+public class ChatRoom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,4 +44,11 @@ public class Chatting {
     private LocalDateTime createdAt;
 
     private LocalDateTime deletedAt;
+
+    public ChatRoom(User sentUser, User receivedUser) {
+
+        this.sentUser = sentUser;
+        this.receivedUser = receivedUser;
+        this.active = false;
+    }
 }

@@ -1,6 +1,7 @@
 package yeonba.be.user.repository;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import yeonba.be.exception.BlockException;
@@ -14,12 +15,9 @@ public class BlockQuery {
 
     private final BlockRepository blockRepository;
 
-    public Block findByUsers(User user, User blockedUser) {
+    public Optional<Block> findByUser(User user, User blockedUser) {
 
-        return blockRepository.findByUserAndBlockedUser(user, blockedUser)
-            .orElseThrow(
-                () -> new GeneralException(BlockException.NOT_BLOCKED_USER)
-            );
+        return blockRepository.findByUserAndBlockedUser(user, blockedUser);
     }
 
     public boolean isBlockExist(User user, User blockedUser) {
