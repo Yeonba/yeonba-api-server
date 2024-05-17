@@ -32,8 +32,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
+import yeonba.be.arrow.enums.ArrowTransactionType;
 import yeonba.be.user.dto.request.UserSearchRequest;
 import yeonba.be.user.dto.response.UserQueryResponse;
+import yeonba.be.user.entity.User;
 import yeonba.be.user.entity.UserPreference;
 
 @RequiredArgsConstructor
@@ -188,21 +190,24 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             isNotUserSearchedOnDayCondition(userId, recommendDay));
     }
 
-    public Page<UserQueryResponse> findAllBySearchCondition(
-        long userId,
+    @Override
+    public Page<UserQueryResponse> findUsersBySearchCondition(
+        User searchingUser,
         PageRequest pageRequest,
-        LocalDate searchDate,
+        LocalDate searchDay,
         UserSearchRequest request) {
+
+        long userId = searchingUser.getId();
+        boolean userGender = searchingUser.getGenderBoolean();
 
         int limit = pageRequest.getPageSize();
         int offset = pageRequest.getPageNumber() * limit;
 
-        BooleanExpression searchUserCondition = searchUserCondition(userId, request, searchDate);
+        BooleanExpression searchUserCondition =
+            searchUserCondition(userId, userGender, request, searchDay);
 
         List<UserQueryResponse> content = selectUserQueryResponse(
-            Expressions.as(
-                findOneFavoriteBy(userId).exists(),
-                "isFavorite"))
+            Expressions.as(findOneFavoriteBy(userId).exists(), "isFavorite"))
             .from(user)
             .where(searchUserCondition)
             .limit(limit)
@@ -213,15 +218,12 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .from(user)
             .where(searchUserCondition);
 
-        return PageableExecutionUtils.getPage(
-            content,
-            pageRequest,
-            countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
     }
 
     /*
     이성 검색시 제외되는 사용자
-    - 자기 자신(조회하는 사용자)
+    - 같은 성별 사용자
     - 지인
     - 차단한 사용자
     - 휴면, 삭제 상태 사용자
@@ -231,19 +233,21 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     // TODO : 채팅 이력 있는 사용자 제외 조건 추가
     private BooleanExpression searchUserCondition(
         long userId,
+        boolean userGender,
         UserSearchRequest request,
-        LocalDate searchDate) {
+        LocalDate searchDay) {
 
         BooleanBuilder searchCondition = generateSearchCondition(userId, request);
 
         return Expressions.allOf(
-                user.id.ne(userId),
+                user.gender.ne(userGender),
                 isNotAcquaintanceCondition(userId),
                 isNotBlockedUserCondition(userId),
                 isActiveAndNotDeletedUserCondition(),
                 findOneArrowReceivedTransactionBy(userId).notExists(),
                 findOneArrowSentTransactionBy(userId).notExists(),
-                isNotUserSearchedOnDayCondition(userId, searchDate))
+                isNotUserRecommendedOnDayCondition(userId, searchDay),
+                isNotUserSearchedOnDayCondition(userId, searchDay))
             .and(searchCondition);
     }
 
@@ -253,61 +257,35 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         String area = request.getArea();
         if (StringUtils.hasText(area)) {
-
             builder.and(user.area.name.eq(area));
         }
 
         String vocalRange = request.getVocalRange();
         if (StringUtils.hasText(vocalRange)) {
-
             builder.and(user.vocalRange.classification.eq(vocalRange));
         }
 
-        Integer ageLowerBound = request.getAgeLowerBound();
-        if (!Objects.isNull(ageLowerBound)) {
+        BooleanBuilder userAgeRangeCondition = generateUserAgeRangeCondition(
+            request.getAgeLowerBound(), request.getAgeUpperBound());
+        builder.and(userAgeRangeCondition);
 
-            builder.and(user.age.goe(ageLowerBound));
-        }
-
-        Integer ageUpperBound = request.getAgeUpperBound();
-        if (!Objects.isNull(ageUpperBound)) {
-
-            builder.and(user.age.loe(ageUpperBound));
-        }
-
-        Integer heightLowerBound = request.getHeightLowerBound();
-        if (!Objects.isNull(heightLowerBound)) {
-
-            builder.and(user.height.goe(heightLowerBound));
-        }
-
-        Integer heightUpperBound = request.getHeightUpperBound();
-        if (!Objects.isNull(heightUpperBound)) {
-
-            builder.and(user.height.loe(heightUpperBound));
-        }
+        BooleanBuilder userHeightRangeCondition = generateUserHeightRangeCondition(
+            request.getHeightLowerBound(), request.getHeightUpperBound());
+        builder.and(userHeightRangeCondition);
 
         Boolean includePreferredAnimal = request.getIncludePreferredAnimal();
-        if (!Objects.isNull(includePreferredAnimal) && includePreferredAnimal) {
-
+        if (Objects.nonNull(includePreferredAnimal) && includePreferredAnimal) {
             Long preferredAnimalId = queryFactory.select(userPreference.animal.id)
                 .from(userPreference)
                 .where(userPreference.user.id.eq(userId))
                 .fetchFirst();
 
-            builder.and(user.animal.id.eq(preferredAnimalId));
+            if (Objects.nonNull(preferredAnimalId)) {
+                builder.and(user.animal.id.eq(preferredAnimalId));
+            }
         }
 
         return builder;
-    }
-
-    private JPQLQuery<Integer> findOneArrowReceivedTransactionBy(long receiverId) {
-
-        return JPAExpressions.selectOne()
-            .from(arrowTransaction)
-            .where(
-                arrowTransaction.receiver.id.eq(receiverId),
-                arrowTransaction.sender.id.eq(user.id));
     }
 
     private JPQLQuery<Integer> findOneFavoriteBy(long userId) {
@@ -324,20 +302,37 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         return JPAExpressions.selectOne()
             .from(arrowTransaction)
             .where(
+                arrowTransaction.type.eq(ArrowTransactionType.USER_TO_USER),
                 arrowTransaction.sender.id.eq(senderId),
                 arrowTransaction.receiver.id.eq(user.id));
     }
 
+    private JPQLQuery<Integer> findOneArrowReceivedTransactionBy(long receiverId) {
+
+        return JPAExpressions.selectOne()
+            .from(arrowTransaction)
+            .where(
+                arrowTransaction.type.eq(ArrowTransactionType.USER_TO_USER),
+                arrowTransaction.receiver.id.eq(receiverId),
+                arrowTransaction.sender.id.eq(user.id));
+    }
+
     private BooleanExpression isUserSatisfiedPreferenceCondition(UserPreference preference) {
 
+        BooleanBuilder userAgeRangeCondition = generateUserAgeRangeCondition(
+            preference.getAgeLowerBound(), preference.getAgeUpperBound());
+
+        BooleanBuilder userHeightRangeCondition = generateUserHeightRangeCondition(
+            preference.getHeightLowerBound(), preference.getHeightUpperBound());
+
         return Expressions.allOf(
-            user.age.between(preference.getAgeLowerBound(), preference.getAgeUpperBound()),
-            user.height.between(preference.getHeightLowerBound(), preference.getHeightUpperBound()),
-            user.mbti.eq(preference.getMbti()),
-            user.bodyType.eq(preference.getBodyType()),
-            user.vocalRange.id.eq(preference.getVocalRange().getId()),
-            user.area.id.eq(preference.getArea().getId()),
-            user.animal.id.eq(preference.getAnimal().getId()));
+                user.mbti.eq(preference.getMbti()),
+                user.bodyType.eq(preference.getBodyType()),
+                user.vocalRange.id.eq(preference.getVocalRange().getId()),
+                user.area.id.eq(preference.getArea().getId()),
+                user.animal.id.eq(preference.getAnimal().getId()))
+            .and(userAgeRangeCondition)
+            .and(userHeightRangeCondition);
     }
 
     private BooleanExpression isNotUserRecommendedOnDayCondition(
@@ -373,9 +368,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     /*
-    응답 dto에 필요한 필드를 select하는 공통 사용 쿼리, 별도 분리
-    경우에 따라 즐겨찾기 등록 여부(favorite)을 상수로 주입하기에
-    해당 부분만 파라미터로 받도록 구성
+    응답 dto에 필요한 필드를 select하는 공통 사용 쿼리, 사용하는 로직에 따라
+    조회하는 사용자, 조회되는 사용자간 즐겨찾기 존재 여부를 상수로 주입, 혹은 서브 쿼리로 확인
      */
     private JPAQuery<UserQueryResponse> selectUserQueryResponse(
         Expression<Boolean> checkFavoriteExistsNestedQuery) {
@@ -434,5 +428,37 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 block.user.id.eq(userId),
                 block.blockedUser.id.eq(user.id))
             .notExists();
+    }
+
+    private BooleanBuilder generateUserAgeRangeCondition(
+        Integer ageLowerBound, Integer ageUpperBound) {
+
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        if (Objects.nonNull(ageLowerBound)) {
+            booleanBuilder.and(user.age.goe(ageLowerBound));
+        }
+
+        if (Objects.nonNull(ageUpperBound)) {
+            booleanBuilder.and(user.age.loe(ageUpperBound));
+        }
+
+        return booleanBuilder;
+    }
+
+    private BooleanBuilder generateUserHeightRangeCondition(
+        Integer heightLowerBound, Integer heightUpperBound) {
+
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        if (Objects.nonNull(heightLowerBound)) {
+            booleanBuilder.and(user.height.goe(heightLowerBound));
+        }
+
+        if (Objects.nonNull(heightUpperBound)) {
+            booleanBuilder.and(user.height.loe(heightUpperBound));
+        }
+
+        return booleanBuilder;
     }
 }
