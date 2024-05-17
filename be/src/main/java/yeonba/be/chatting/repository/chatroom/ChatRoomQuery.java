@@ -1,4 +1,4 @@
-package yeonba.be.chatting.repository;
+package yeonba.be.chatting.repository.chatroom;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +14,6 @@ public class ChatRoomQuery {
 
     public List<ChatRoom> findAllBy(User user) {
 
-        return chatRoomRepository.findAllByUserAndActive(user);
+        return chatRoomRepository.findAllByUserAndActiveIsTrue(user);
     }
 }

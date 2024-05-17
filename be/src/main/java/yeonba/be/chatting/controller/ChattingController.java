@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RestController;
-import yeonba.be.chatting.dto.response.ChattingRoomResponse;
+import yeonba.be.chatting.dto.response.ChatRoomResponse;
 import yeonba.be.chatting.service.ChatService;
 import yeonba.be.util.CustomResponse;
 
@@ -26,14 +26,14 @@ public class ChattingController {
     @Operation(summary = "채팅 목록 조회", description = "자신이 참여 중인 채팅 목록을 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "참여 중인 채팅 목록 조회 성공")
     @GetMapping("/chattings")
-    public ResponseEntity<CustomResponse<List<ChattingRoomResponse>>> getChatRooms(
+    public ResponseEntity<CustomResponse<List<ChatRoomResponse>>> getChatRooms(
         @RequestAttribute("userId") long userId) {
 
-
+        List<ChatRoomResponse> response = chatService.getChatRooms(userId);
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>());
+            .body(new CustomResponse<>(response));
     }
 
     @Operation(summary = "채팅 요청", description = "다른 사용자에게 채팅을 요청할 수 있습니다.")

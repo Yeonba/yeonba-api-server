@@ -22,7 +22,7 @@ import yeonba.be.user.entity.User;
 @Entity
 @EntityListeners(value = AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Message {
+public class ChatMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +39,10 @@ public class Message {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "received_user_id")
     private User receivedUser;
+
+    private String content;
+
+    private boolean isRead;
 
     private LocalDateTime sentAt;
 

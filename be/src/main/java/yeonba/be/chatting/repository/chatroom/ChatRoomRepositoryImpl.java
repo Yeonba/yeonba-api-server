@@ -1,4 +1,4 @@
-package yeonba.be.chatting.repository;
+package yeonba.be.chatting.repository.chatroom;
 
 
 import static yeonba.be.chatting.entity.QChatRoom.chatRoom;
@@ -15,7 +15,7 @@ public class ChatRoomRepositoryImpl implements ChatRoomRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<ChatRoom> findAllByUserAndActive(User user) {
+    public List<ChatRoom> findAllByUserAndActiveIsTrue(User user) {
 
         return queryFactory.selectFrom(chatRoom)
             .where((chatRoom.sentUser.eq(user)

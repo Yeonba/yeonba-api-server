@@ -1,4 +1,4 @@
-package yeonba.be.chatting.repository;
+package yeonba.be.chatting.repository.chatroom;
 
 import java.util.List;
 import yeonba.be.chatting.entity.ChatRoom;
@@ -6,5 +6,5 @@ import yeonba.be.user.entity.User;
 
 public interface ChatRoomRepositoryCustom {
 
-    List<ChatRoom> findAllByUserAndActive(User user);
+    List<ChatRoom> findAllByUserAndActiveIsTrue(User user);
 }

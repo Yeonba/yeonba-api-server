@@ -1,4 +1,4 @@
-package yeonba.be.chatting.repository;
+package yeonba.be.chatting.repository.chatroom;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

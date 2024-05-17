@@ -4,13 +4,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import yeonba.be.chatting.entity.ChatRoom;
 
 @Getter
 @AllArgsConstructor
-public class ChattingRoomResponse {
+public class ChatRoomResponse {
 
     @Schema(type = "number", description = "채팅방 ID", example = "1")
-    private Long id;
+    private long id;
 
     @Schema(type = "string", description = "채팅 상대 이름", example = "김민재")
     private String partnerName;

@@ -1,11 +1,15 @@
 package yeonba.be.chatting.service;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import yeonba.be.chatting.dto.response.ChatRoomResponse;
+import yeonba.be.chatting.entity.ChatMessage;
 import yeonba.be.chatting.entity.ChatRoom;
-import yeonba.be.chatting.repository.ChatRoomCommand;
-import yeonba.be.chatting.repository.ChatRoomQuery;
+import yeonba.be.chatting.repository.chatmessage.ChatMessageQuery;
+import yeonba.be.chatting.repository.chatroom.ChatRoomCommand;
+import yeonba.be.chatting.repository.chatroom.ChatRoomQuery;
 import yeonba.be.exception.BlockException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.Block;
@@ -19,14 +23,33 @@ public class ChatService {
 
     private final ChatRoomCommand chatRoomCommand;
     private final ChatRoomQuery chatRoomQuery;
+    private final ChatMessageQuery chatMessageQuery;
     private final UserQuery userQuery;
     private final BlockQuery blockQuery;
 
-    public void getChatRooms(long userId) {
+    public List<ChatRoomResponse> getChatRooms(long userId) {
 
         User user = userQuery.findById(userId);
 
-        chatRoomQuery.findAllBy(user);
+        List<ChatRoom> chatRooms = chatRoomQuery.findAllBy(user);
+
+        return chatRooms.stream()
+            .map(chatRoom -> toChatRoomResponse(chatRoom, user))
+            .toList();
+    }
+
+    private ChatRoomResponse toChatRoomResponse(ChatRoom chatRoom, User user) {
+
+        User partner = chatRoom.getSentUser().equals(user) ? chatRoom.getReceivedUser()
+            : chatRoom.getSentUser();
+
+        ChatMessage lastMessage = chatMessageQuery.findLastMessageByChatRoomId(chatRoom.getId());
+
+        return new ChatRoomResponse(chatRoom.getId(), partner.getNickname(),
+            partner.getProfilePhotos().get(0).getPhotoUrl(),
+            chatMessageQuery.countUnreadMessagesByChatRoomId(chatRoom.getId()),
+            lastMessage.getContent(),
+            lastMessage.getSentAt());
     }
 
     public void requestChat(long sentUserId, long receivedUserId) {
