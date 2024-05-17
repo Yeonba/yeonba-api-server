@@ -1,9 +1,12 @@
 package yeonba.be.notification.repository;
 
+import static yeonba.be.exception.NotificationException.NOTIFICATION_NOT_FOUND;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+import yeonba.be.exception.GeneralException;
 import yeonba.be.notification.entity.Notification;
 import yeonba.be.user.entity.User;
 
@@ -27,5 +30,11 @@ public class NotificationQuery {
         User receiver, PageRequest pageRequest) {
 
         return notificationRepository.findAllByReceiverOrderByCreatedAtDesc(receiver, pageRequest);
+    }
+
+    public Notification findById(long id) {
+
+        return notificationRepository.findById(id)
+            .orElseThrow(() -> new GeneralException(NOTIFICATION_NOT_FOUND));
     }
 }

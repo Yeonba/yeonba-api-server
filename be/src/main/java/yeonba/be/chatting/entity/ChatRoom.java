@@ -56,4 +56,9 @@ public class ChatRoom {
         this.receivedUser = receivedUser;
         this.active = false;
     }
+
+    public void activeRoom() {
+
+        this.active = true;
+    }
 }

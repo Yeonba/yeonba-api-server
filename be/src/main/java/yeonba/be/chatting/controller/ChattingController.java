@@ -44,9 +44,22 @@ public class ChattingController {
         @Parameter(description = "사용자 ID", example = "1")
         @PathVariable long partnerId) {
 
-        // TODO: 알림 생성
-
         chatService.requestChat(userId, partnerId);
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>());
+    }
+
+    @Operation(summary = "채팅 요청 수락", description = "요청받은 채팅을 수락할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "채팅 요청 수락 정상 처리")
+    @PostMapping("/notifications/{notificationId}/chat")
+    public ResponseEntity<CustomResponse<Void>> acceptRequestedChat(
+        @RequestAttribute("userId") long userId,
+        @Parameter(description = "알림 ID", example = "1")
+        @PathVariable long notificationId) {
+
+        chatService.acceptRequestedChat(userId, notificationId);
 
         return ResponseEntity
             .ok()

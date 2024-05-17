@@ -1,9 +1,12 @@
 package yeonba.be.chatting.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.chatting.dto.response.ChatRoomResponse;
 import yeonba.be.chatting.entity.ChatMessage;
 import yeonba.be.chatting.entity.ChatRoom;
@@ -13,6 +16,11 @@ import yeonba.be.chatting.repository.chatroom.ChatRoomCommand;
 import yeonba.be.chatting.repository.chatroom.ChatRoomQuery;
 import yeonba.be.exception.BlockException;
 import yeonba.be.exception.GeneralException;
+import yeonba.be.exception.NotificationException;
+import yeonba.be.notification.entity.Notification;
+import yeonba.be.notification.enums.NotificationType;
+import yeonba.be.notification.event.NotificationSendEvent;
+import yeonba.be.notification.repository.NotificationQuery;
 import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.block.BlockQuery;
@@ -28,7 +36,11 @@ public class ChatService {
     private final ChatMessageQuery chatMessageQuery;
     private final UserQuery userQuery;
     private final BlockQuery blockQuery;
+    private final NotificationQuery notificationQuey;
 
+    private final ApplicationEventPublisher eventPublisher;
+
+    @Transactional(readOnly = true)
     public List<ChatRoomResponse> getChatRooms(long userId) {
 
         User user = userQuery.findById(userId);
@@ -36,11 +48,11 @@ public class ChatService {
         List<ChatRoom> chatRooms = chatRoomQuery.findAllBy(user);
 
         return chatRooms.stream()
-            .map(chatRoom -> toChatRoomResponse(chatRoom, user))
+            .map(chatRoom -> toChatRoomResponseBy(chatRoom, user))
             .toList();
     }
 
-    private ChatRoomResponse toChatRoomResponse(ChatRoom chatRoom, User user) {
+    private ChatRoomResponse toChatRoomResponseBy(ChatRoom chatRoom, User user) {
 
         User partner = chatRoom.getSentUser().equals(user) ? chatRoom.getReceivedUser()
             : chatRoom.getSentUser();
@@ -54,22 +66,56 @@ public class ChatService {
             lastMessage.getSentAt());
     }
 
-    public void requestChat(long sentUserId, long receivedUserId) {
+    @Transactional
+    public void requestChat(long senderId, long receiverId) {
 
-        User sentUser = userQuery.findById(sentUserId);
-        User receivedUser = userQuery.findById(receivedUserId);
+        User sender = userQuery.findById(senderId);
+        User receiver = userQuery.findById(receiverId);
 
         // 차단한 사용자인지 검증
-        Optional<Block> block = blockQuery.findByUser(sentUser, receivedUser);
+        Optional<Block> block = blockQuery.findByUser(sender, receiver);
 
         if (block.isPresent()) {
             throw new GeneralException(BlockException.ALREADY_BLOCKED_USER);
         }
 
-        String enterMessage = sentUser.getNickname() + "님이 입장하셨습니다.";
+        NotificationSendEvent notificationSendEvent = new NotificationSendEvent(
+            NotificationType.CHATTING_REQUESTED, sender, receiver,
+            LocalDateTime.now());
 
-        // 채팅방 생성
-        ChatRoom chatRoom = chatRoomCommand.createChatRoom(new ChatRoom(sentUser, receivedUser));
-        chatMessageCommand.createChatMessage(new ChatMessage(chatRoom, sentUser, receivedUser, enterMessage));
+        eventPublisher.publishEvent(notificationSendEvent);
+
+        chatRoomCommand.createChatRoom(new ChatRoom(sender, receiver));
+    }
+
+    public void acceptRequestedChat(long userId, long notificationId) {
+
+        Notification notification = notificationQuey.findById(notificationId);
+
+        if (!notification.getType().isChattingRequest()) {
+
+            throw new GeneralException(NotificationException.IS_NOT_CHATTING_REQUEST_NOTIFICATION);
+        }
+
+        User sender = userQuery.findById(notification.getSender().getId());
+        User receiver = userQuery.findById(notification.getReceiver().getId());
+
+        if (receiver.equals(userQuery.findById(userId))) {
+
+            throw new GeneralException(NotificationException.NOT_YOUR_CHATTING_REQUEST_NOTIFICATION);
+        }
+
+        NotificationSendEvent notificationSendEvent = new NotificationSendEvent(
+            NotificationType.CHATTING_REQUEST_ACCEPTED, receiver, sender,
+            LocalDateTime.now());
+
+        eventPublisher.publishEvent(notificationSendEvent);
+
+        ChatRoom chatRoom = chatRoomQuery.findBy(sender, receiver);
+        chatRoom.activeRoom();
+
+        String activeRoom = "채팅방이 활상화되었습니다.";
+
+        chatMessageCommand.createChatMessage(new ChatMessage(chatRoom, sender, receiver, activeRoom));
     }
 }

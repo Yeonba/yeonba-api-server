@@ -18,4 +18,9 @@ public enum NotificationType {
 
         return String.format(this.message, username);
     }
+
+    public boolean isChattingRequest() {
+
+        return this == CHATTING_REQUESTED;
+    }
 }
