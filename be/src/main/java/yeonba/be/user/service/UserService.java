@@ -1,5 +1,7 @@
 package yeonba.be.user.service;
 
+import static yeonba.be.util.BoundsValidator.validateBounds;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -246,23 +248,25 @@ public class UserService {
     }
 
     @Transactional
-    public UserQueryPageResponse findBySearchCondition(
-        long userId,
-        UserSearchRequest request) {
+    public UserQueryPageResponse findBySearchCondition(long userId, UserSearchRequest request) {
 
-        int page = request.getPage();
+        int page = Optional.ofNullable(request.getPage()).orElse(0);
         int size = 6;
         PageRequest pageRequest = PageRequest.of(page, size);
-        LocalDate searchDate = LocalDate.now();
+        LocalDate searchDay = LocalDate.now();
+
+        // 검색하는 사용자 조회
+        User user = userQuery.findById(userId);
+
+        // 검색 나이/키 하한 <= 상한 여부 검증
+        validateBounds(request.getAgeLowerBound(), request.getAgeUpperBound());
+        validateBounds(request.getHeightLowerBound(), request.getHeightUpperBound());
 
         // 응답 조회
         UserQueryPageResponse response = userQuery
-            .findAllBySearchCondition(userId, pageRequest, searchDate, request);
+            .findUsersBySearchCondition(user, pageRequest, searchDay, request);
 
-        // 검색한 사용자 조회
-        User user = userQuery.findById(userId);
-
-        // 검색될 사용자 조회
+        // 검색된 사용자 조회
         List<User> searchingUsers = findAllUsersInResponse(response);
 
         // 검색 내역 저장
