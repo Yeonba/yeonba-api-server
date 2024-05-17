@@ -1,5 +1,6 @@
 package yeonba.be.chatting.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
@@ -42,7 +43,8 @@ public class ChatMessage {
 
     private String content;
 
-    private boolean isRead;
+    @Column(name = "is_read")
+    private boolean read;
 
     private LocalDateTime sentAt;
 
@@ -50,4 +52,13 @@ public class ChatMessage {
     private LocalDateTime createdAt;
 
     private LocalDateTime deletedAt;
+
+    public ChatMessage(ChatRoom chatRoom, User sentUser, User receivedUser, String content) {
+
+        this.chatRoom = chatRoom;
+        this.sentUser = sentUser;
+        this.receivedUser = receivedUser;
+        this.content = content;
+        this.read = false;
+    }
 }

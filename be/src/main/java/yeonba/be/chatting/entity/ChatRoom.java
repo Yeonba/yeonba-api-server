@@ -20,7 +20,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import yeonba.be.user.entity.User;
 
-@Table(name = "chat_room")
+@Table(name = "chat_rooms")
 @Getter
 @Entity
 @EntityListeners(value = AuditingEntityListener.class)

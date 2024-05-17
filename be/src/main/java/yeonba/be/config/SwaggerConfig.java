@@ -21,7 +21,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
             .components(new Components())
-            .addServersItem(new Server().url("https://api.yeonba.co.kr"))
+//            .addServersItem(new Server().url("https://api.yeonba.co.kr"))
             .info(info);
     }
 

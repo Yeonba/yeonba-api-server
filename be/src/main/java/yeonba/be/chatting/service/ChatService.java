@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import yeonba.be.chatting.dto.response.ChatRoomResponse;
 import yeonba.be.chatting.entity.ChatMessage;
 import yeonba.be.chatting.entity.ChatRoom;
+import yeonba.be.chatting.repository.chatmessage.ChatMessageCommand;
 import yeonba.be.chatting.repository.chatmessage.ChatMessageQuery;
 import yeonba.be.chatting.repository.chatroom.ChatRoomCommand;
 import yeonba.be.chatting.repository.chatroom.ChatRoomQuery;
@@ -23,6 +24,7 @@ public class ChatService {
 
     private final ChatRoomCommand chatRoomCommand;
     private final ChatRoomQuery chatRoomQuery;
+    private final ChatMessageCommand chatMessageCommand;
     private final ChatMessageQuery chatMessageQuery;
     private final UserQuery userQuery;
     private final BlockQuery blockQuery;
@@ -64,7 +66,10 @@ public class ChatService {
             throw new GeneralException(BlockException.ALREADY_BLOCKED_USER);
         }
 
+        String enterMessage = sentUser.getNickname() + "님이 입장하셨습니다.";
+
         // 채팅방 생성
-        chatRoomCommand.createChatRoom(new ChatRoom(sentUser, receivedUser));
+        ChatRoom chatRoom = chatRoomCommand.createChatRoom(new ChatRoom(sentUser, receivedUser));
+        chatMessageCommand.createChatMessage(new ChatMessage(chatRoom, sentUser, receivedUser, enterMessage));
     }
 }
