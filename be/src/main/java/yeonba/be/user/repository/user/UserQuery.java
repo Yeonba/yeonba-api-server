@@ -82,14 +82,14 @@ public class UserQuery {
         return UserQueryPageResponse.from(page);
     }
 
-    public UserQueryPageResponse findAllBySearchCondition(
-        long userId,
+    public UserQueryPageResponse findUsersBySearchCondition(
+        User user,
         PageRequest pageRequest,
-        LocalDate searchDate,
+        LocalDate searchDay,
         UserSearchRequest request) {
 
         Page<UserQueryResponse> page = userRepository
-            .findAllBySearchCondition(userId, pageRequest, searchDate, request);
+            .findUsersBySearchCondition(user, pageRequest, searchDay, request);
 
         return UserQueryPageResponse.from(page);
     }

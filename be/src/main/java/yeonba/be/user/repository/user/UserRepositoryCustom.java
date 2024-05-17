@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import yeonba.be.user.dto.request.UserSearchRequest;
 import yeonba.be.user.dto.response.UserQueryResponse;
+import yeonba.be.user.entity.User;
 
 public interface UserRepositoryCustom {
 
@@ -20,9 +21,9 @@ public interface UserRepositoryCustom {
         PageRequest pageRequest,
         LocalDate recommendDay);
 
-    Page<UserQueryResponse> findAllBySearchCondition(
-        long userId,
+    Page<UserQueryResponse> findUsersBySearchCondition(
+        User searchingUser,
         PageRequest pageRequest,
-        LocalDate searchDate,
+        LocalDate searchDay,
         UserSearchRequest request);
 }
