@@ -1,9 +1,10 @@
 package yeonba.be.mypage.service;
 
+import static yeonba.be.util.BoundsValidator.validateBounds;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -168,18 +169,6 @@ public class MyPageService {
             .filter(area -> area.hasSameNameAs(name))
             .findFirst()
             .orElseThrow(() -> new GeneralException(UserException.AREA_NOT_FOUND));
-    }
-
-    private void validateBounds(Integer lowerBound, Integer upperBound) {
-
-        if (Objects.isNull(lowerBound) || Objects.isNull(upperBound)) {
-
-            return;
-        }
-
-        if (lowerBound > upperBound) {
-            throw new GeneralException(UserException.LOWER_BOUND_LESS_THAN_OR_EQUAL_UPPER_BOUND);
-        }
     }
 
     public void updateProfilePhotos(List<MultipartFile> profilePhotos, MultipartFile realTimePhoto,
