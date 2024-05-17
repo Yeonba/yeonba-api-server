@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import yeonba.be.chatting.entity.ChatRoom;
 
 @Repository
-public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
+public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>, ChatRoomRepositoryCustom {
 
 }

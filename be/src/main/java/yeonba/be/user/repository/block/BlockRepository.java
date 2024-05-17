@@ -1,4 +1,4 @@
-package yeonba.be.user.repository;
+package yeonba.be.user.repository.block;
 
 import java.util.List;
 import java.util.Optional;

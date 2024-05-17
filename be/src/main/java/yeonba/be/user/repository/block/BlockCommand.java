@@ -1,4 +1,4 @@
-package yeonba.be.user.repository;
+package yeonba.be.user.repository.block;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

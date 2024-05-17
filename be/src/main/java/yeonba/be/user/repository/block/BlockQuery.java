@@ -1,11 +1,9 @@
-package yeonba.be.user.repository;
+package yeonba.be.user.repository.block;
 
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import yeonba.be.exception.BlockException;
-import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
 
