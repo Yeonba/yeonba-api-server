@@ -85,6 +85,7 @@ public class ChatService {
 
         eventPublisher.publishEvent(notificationSendEvent);
 
+        // 비활성화된 채팅방 생성
         chatRoomCommand.createChatRoom(new ChatRoom(sender, receiver));
     }
 
@@ -92,6 +93,7 @@ public class ChatService {
 
         Notification notification = notificationQuey.findById(notificationId);
 
+        // 채팅 요청 알림인지 검증
         if (!notification.getType().isChattingRequest()) {
 
             throw new GeneralException(NotificationException.IS_NOT_CHATTING_REQUEST_NOTIFICATION);
@@ -100,6 +102,7 @@ public class ChatService {
         User sender = userQuery.findById(notification.getSender().getId());
         User receiver = userQuery.findById(notification.getReceiver().getId());
 
+        // 본인에게 온 채팅 요청인지 검증
         if (receiver.equals(userQuery.findById(userId))) {
 
             throw new GeneralException(NotificationException.NOT_YOUR_CHATTING_REQUEST_NOTIFICATION);
@@ -111,11 +114,11 @@ public class ChatService {
 
         eventPublisher.publishEvent(notificationSendEvent);
 
+        // 채팅방 활성화
         ChatRoom chatRoom = chatRoomQuery.findBy(sender, receiver);
         chatRoom.activeRoom();
 
         String activeRoom = "채팅방이 활상화되었습니다.";
-
         chatMessageCommand.createChatMessage(new ChatMessage(chatRoom, sender, receiver, activeRoom));
     }
 }
