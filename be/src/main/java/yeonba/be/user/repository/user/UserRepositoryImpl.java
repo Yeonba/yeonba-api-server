@@ -253,6 +253,11 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         BooleanBuilder builder = new BooleanBuilder();
 
+        if (Objects.isNull(request)) {
+
+            return builder;
+        }
+
         String area = request.getArea();
         if (StringUtils.hasText(area)) {
             builder.and(user.area.name.eq(area));
