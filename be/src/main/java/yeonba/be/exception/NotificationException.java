@@ -8,6 +8,18 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum NotificationException implements BaseException {
 
+    NOTIFICATION_NOT_FOUND(
+        HttpStatus.BAD_REQUEST,
+        "해당 알림이 존재하지 않습니다."),
+
+    IS_NOT_CHATTING_REQUEST_NOTIFICATION(
+        HttpStatus.BAD_REQUEST,
+        "채팅 요청 알림이 아닙니다."),
+
+    NOT_YOUR_CHATTING_REQUEST_NOTIFICATION(
+        HttpStatus.BAD_REQUEST,
+        "해당 채팅 요청을 수락할 권한이 없습니다."),
+
     NOTIFICATION_PERMISSION_NOT_FOUND(
         HttpStatus.BAD_REQUEST,
         "해당 알림 동의 내역이 존재하지 않습니다."),

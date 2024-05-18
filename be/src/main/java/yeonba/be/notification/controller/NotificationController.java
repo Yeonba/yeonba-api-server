@@ -27,13 +27,12 @@ public class NotificationController {
     @Operation(summary = "최근 받은 알림 목록 조회", description = "최근 받은 알림 목록 조회하며 읽음 처리")
     @ApiResponse(responseCode = "200", description = "받은 알림 목록 조회 성공")
     @PatchMapping("/users/notifications")
-    public ResponseEntity<CustomResponse<NotificationPageResponse>>
-    getRecentlyReceivedNotifications(
+    public ResponseEntity<CustomResponse<NotificationPageResponse>> getRecentlyReceivedNotifications(
         @RequestAttribute("userId") long userId,
         @Valid @RequestBody(required = false) NotificationPageRequest request) {
 
-        NotificationPageResponse response =
-            notificationService.getRecentlyReceivedNotificationsBy(userId, request);
+        NotificationPageResponse response = notificationService.getRecentlyReceivedNotificationsBy(
+            userId, request);
 
         return ResponseEntity
             .ok()
@@ -43,11 +42,11 @@ public class NotificationController {
     @Operation(summary = "읽지 않은 알림 존재 여부 조회", description = "읽지 않은 알림 존재 여부 확인 가능")
     @ApiResponse(responseCode = "200", description = "읽지 않은 알림 존재 여부 확인 성공")
     @GetMapping("/users/notifications/unread/exists")
-    public ResponseEntity<CustomResponse<NotificationUnreadExistResponse>>
-    getUnreadNotificationExistence(@RequestAttribute("userId") long userId) {
+    public ResponseEntity<CustomResponse<NotificationUnreadExistResponse>> getUnreadNotificationExistence(
+        @RequestAttribute("userId") long userId) {
 
-        NotificationUnreadExistResponse response =
-            notificationService.isUnreadNotificationExist(userId);
+        NotificationUnreadExistResponse response = notificationService.isUnreadNotificationExist(
+            userId);
 
         return ResponseEntity
             .ok()
