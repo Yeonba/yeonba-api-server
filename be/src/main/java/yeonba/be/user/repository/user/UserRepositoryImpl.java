@@ -131,8 +131,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     @Override
     public Page<UserQueryResponse> findRecommendUsers(
-        long userId,
-        boolean userGender,
+        User queryingUser,
         PageRequest pageRequest,
         LocalDate recommendDay) {
 
@@ -141,27 +140,26 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         // 추천 대상 사용자의 선호조건 조회
         UserPreference preference = queryFactory.selectFrom(userPreference)
-            .where(userPreference.user.id.eq(userId))
+            .where(userPreference.user.id.eq(queryingUser.getId()))
             .fetchFirst();
 
         List<UserQueryResponse> content = selectUserQueryResponse(
             Expressions.constant(false))
-            .where(recommendUserCondition(userId, userGender, preference, recommendDay))
+            .where(recommendUserCondition(queryingUser, preference, recommendDay))
             .limit(limit)
             .offset(offset)
             .fetch();
 
         JPAQuery<Long> countQuery = queryFactory.select(user.count())
             .from(user)
-            .where(recommendUserCondition(userId, userGender, preference, recommendDay));
+            .where(recommendUserCondition(queryingUser, preference, recommendDay));
 
         return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
     }
 
     /*
     이성 추천시 배제되는 사용자
-    - 자기 자신(조회하는 사용자)
-    - 동성
+    - 같은 성별 사용자
     - 추천(선호) 조건을 만족하지 않는 사용자
     - 화살을 주고 받은 적이 있는 사용자
     - 즐겨찾기한 사용자
@@ -171,14 +169,14 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     - 추천 일자에 검색된 적 있는 사용자
      */
     private BooleanExpression recommendUserCondition(
-        long userId,
-        Boolean gender,
+        User queryingUser,
         UserPreference preference,
         LocalDate recommendDay) {
 
+        long userId = queryingUser.getId();
+
         return Expressions.allOf(
-            user.id.ne(userId),
-            user.gender.ne(gender),
+            user.gender.ne(queryingUser.getGenderBoolean()),
             isActiveAndNotDeletedUserCondition(),
             isNotAcquaintanceCondition(userId),
             isNotBlockedUserCondition(userId),

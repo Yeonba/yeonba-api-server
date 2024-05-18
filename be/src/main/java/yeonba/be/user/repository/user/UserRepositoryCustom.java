@@ -16,8 +16,7 @@ public interface UserRepositoryCustom {
     Page<UserQueryResponse> findArrowSendersBy(long receiverId, PageRequest pageRequest);
 
     Page<UserQueryResponse> findRecommendUsers(
-        long userId,
-        boolean userGender,
+        User queryingUser,
         PageRequest pageRequest,
         LocalDate recommendDay);
 

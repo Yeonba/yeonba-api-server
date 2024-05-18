@@ -74,10 +74,10 @@ public class UserQuery {
     }
 
     public UserQueryPageResponse findRecommendUsers(
-        long userId, boolean userGender, PageRequest pageRequest, LocalDate recommendDay) {
+        User user, PageRequest pageRequest, LocalDate recommendDay) {
 
         Page<UserQueryResponse> page = userRepository
-            .findRecommendUsers(userId, userGender, pageRequest, recommendDay);
+            .findRecommendUsers(user, pageRequest, recommendDay);
 
         return UserQueryPageResponse.from(page);
     }
