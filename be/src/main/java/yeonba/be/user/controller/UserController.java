@@ -55,7 +55,7 @@ public class UserController {
 
     @Operation(summary = "추천 이성 조회", description = "추천 이성을 조회할 수 있다.")
     @ApiResponse(responseCode = "200", description = "추천 이성 정상 조회")
-    @GetMapping("/users/recommend")
+    @PostMapping("/users/recommend")
     public ResponseEntity<CustomResponse<UserQueryPageResponse>> getRecommendUsers(
         @RequestAttribute("userId") long userId) {
 
@@ -150,12 +150,12 @@ public class UserController {
 
     @Operation(summary = "이성 검색", description = "이성을 검색할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "이성 검색 성공")
-    @GetMapping("/users/search")
+    @PostMapping("/users/search")
     public ResponseEntity<CustomResponse<UserQueryPageResponse>> search(
         @RequestAttribute("userId") long userId,
-        @Valid @ParameterObject UserSearchRequest request) {
+        @Valid @RequestBody UserSearchRequest request) {
 
-        UserQueryPageResponse response = userService.findBySearchCondition(userId, request);
+        UserQueryPageResponse response = userService.findUsersBySearchCondition(userId, request);
 
         return ResponseEntity
             .ok()
