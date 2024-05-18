@@ -34,11 +34,11 @@ public class ChatRoom {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sent_user_id")
-    private User sentUser;
+    private User sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "received_user_id")
-    private User receivedUser;
+    private User receiver;
 
     private boolean active;
 
@@ -50,10 +50,10 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom")
     private List<ChatMessage> chatMessages;
 
-    public ChatRoom(User sentUser, User receivedUser) {
+    public ChatRoom(User sender, User receiver) {
 
-        this.sentUser = sentUser;
-        this.receivedUser = receivedUser;
+        this.sender = sender;
+        this.receiver = receiver;
         this.active = false;
     }
 

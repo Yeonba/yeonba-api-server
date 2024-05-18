@@ -35,11 +35,11 @@ public class ChatMessage {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sent_user_id")
-    private User sentUser;
+    private User sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "received_user_id")
-    private User receivedUser;
+    private User receiver;
 
     private String content;
 
@@ -53,11 +53,11 @@ public class ChatMessage {
 
     private LocalDateTime deletedAt;
 
-    public ChatMessage(ChatRoom chatRoom, User sentUser, User receivedUser, String content) {
+    public ChatMessage(ChatRoom chatRoom, User sender, User receiver, String content) {
 
         this.chatRoom = chatRoom;
-        this.sentUser = sentUser;
-        this.receivedUser = receivedUser;
+        this.sender = sender;
+        this.receiver = receiver;
         this.content = content;
         this.read = false;
     }

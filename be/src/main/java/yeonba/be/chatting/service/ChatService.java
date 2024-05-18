@@ -54,8 +54,8 @@ public class ChatService {
 
     private ChatRoomResponse toChatRoomResponseBy(ChatRoom chatRoom, User user) {
 
-        User partner = chatRoom.getSentUser().equals(user) ? chatRoom.getReceivedUser()
-            : chatRoom.getSentUser();
+        User partner = chatRoom.getSender().equals(user) ? chatRoom.getReceiver()
+            : chatRoom.getSender();
 
         ChatMessage lastMessage = chatMessageQuery.findLastMessageByChatRoomId(chatRoom.getId());
 
