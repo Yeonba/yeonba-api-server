@@ -7,8 +7,8 @@ import yeonba.be.exception.BlockException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
-import yeonba.be.user.repository.BlockCommand;
-import yeonba.be.user.repository.BlockQuery;
+import yeonba.be.user.repository.block.BlockCommand;
+import yeonba.be.user.repository.block.BlockQuery;
 import yeonba.be.user.repository.user.UserQuery;
 
 @Service

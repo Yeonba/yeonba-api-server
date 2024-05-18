@@ -2,20 +2,16 @@ package yeonba.be.exception;
 
 import org.springframework.http.HttpStatus;
 
-public enum BlockException implements BaseException {
+public enum ChatException implements BaseException {
 
-    ALREADY_BLOCKED_USER(
+    NOT_FOUND_CHAT_ROOM(
         HttpStatus.BAD_REQUEST,
-        "이미 차단한 사용자입니다."),
-
-    NOT_BLOCKED_USER(
-        HttpStatus.BAD_REQUEST,
-        "차단한 사용자가 아닙니다.");
+        "요청된 채팅방이 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String reason;
 
-    BlockException(HttpStatus httpStatus, String reason) {
+    ChatException(HttpStatus httpStatus, String reason) {
         this.httpStatus = httpStatus;
         this.reason = reason;
     }

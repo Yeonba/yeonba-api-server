@@ -5,6 +5,7 @@ import static yeonba.be.util.BoundsValidator.validateBounds;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import yeonba.be.exception.BlockException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.NotificationException;
 import yeonba.be.exception.UserException;
@@ -34,10 +36,10 @@ import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.entity.UserPreference;
 import yeonba.be.user.entity.VocalRange;
-import yeonba.be.user.repository.BlockCommand;
-import yeonba.be.user.repository.BlockQuery;
 import yeonba.be.user.repository.animal.AnimalQuery;
 import yeonba.be.user.repository.area.AreaQuery;
+import yeonba.be.user.repository.block.BlockCommand;
+import yeonba.be.user.repository.block.BlockQuery;
 import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceQuery;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
@@ -202,8 +204,13 @@ public class MyPageService {
         User user = userQuery.findById(userId);
         User blockedUser = userQuery.findById(blockedUserId);
 
-        Block block = blockQuery.findByUsers(user, blockedUser);
-        blockCommand.delete(block);
+        Optional<Block> block = blockQuery.findByUser(user, blockedUser);
+
+        if (block.isEmpty()) {
+            throw new GeneralException(BlockException.NOT_BLOCKED_USER);
+        }
+
+        blockCommand.delete(block.get());
     }
 
     @Transactional
