@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
@@ -73,7 +72,6 @@ public class UserJoinRequest {
         type = "number",
         description = "키",
         example = "180")
-    @Positive(message = "키는 양의 정수여야 합니다.")
     @Range(min = 130, max = 220, message = "키는 130 ~ 220cm 내 값만 가능합니다.")
     @NotNull(message = "키는 반드시 입력되어야 합니다.")
     private int height;

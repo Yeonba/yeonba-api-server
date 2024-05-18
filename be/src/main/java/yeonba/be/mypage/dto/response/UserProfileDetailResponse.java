@@ -52,12 +52,12 @@ public class UserProfileDetailResponse {
         type = "number",
         description = "사진 싱크로율",
         example = "80")
-    private double photoSyncRate;
+    private int photoSyncRate;
 
     @Schema(
         type = "string",
         description = "체형",
-        example = "메른 체형")
+        example = "마른 체형")
     private String bodyType;
 
     @Schema(
