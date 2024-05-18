@@ -214,10 +214,9 @@ public class UserService {
 
         // 추천 사용자 응답 조회,
         int numberOfRecommendUsers = 2;
-        boolean userGender = Gender.from(user.getGenderString()).genderBoolean;
         PageRequest pageRequest = PageRequest.of(0, numberOfRecommendUsers);
         UserQueryPageResponse response = userQuery
-            .findRecommendUsers(userId, userGender, pageRequest, recommendDay);
+            .findRecommendUsers(user, pageRequest, recommendDay);
 
         // 추천 가능 여부 확인(추천 가능한 사용자 2명 이상)
         List<UserQueryResponse> content = response.getUsers();
@@ -226,10 +225,7 @@ public class UserService {
         }
 
         // 추천 사용자 조회
-        List<Long> userIds = content.stream()
-            .map(UserQueryResponse::getId)
-            .toList();
-        List<User> recommendUsers = userQuery.findByIds(userIds);
+        List<User> recommendUsers = findAllUsersInResponse(response);
 
         // 추천 내역 저장
         List<UserRecommendation> userRecommendations = recommendUsers.stream()
@@ -248,7 +244,8 @@ public class UserService {
     }
 
     @Transactional
-    public UserQueryPageResponse findBySearchCondition(long userId, UserSearchRequest request) {
+    public UserQueryPageResponse findUsersBySearchCondition(long userId,
+        UserSearchRequest request) {
 
         int page = Optional.ofNullable(request.getPage()).orElse(0);
         int size = 6;
