@@ -60,7 +60,7 @@ public class ChatService {
         ChatMessage lastMessage = chatMessageQuery.findLastMessageByChatRoomId(chatRoom.getId());
 
         return new ChatRoomResponse(chatRoom.getId(), partner.getNickname(),
-            partner.getProfilePhotos().get(0).getPhotoUrl(),
+            partner.getRepresentativeProfilePhoto(),
             chatMessageQuery.countUnreadMessagesByChatRoomId(chatRoom.getId()),
             lastMessage.getContent(),
             lastMessage.getSentAt());
@@ -79,14 +79,14 @@ public class ChatService {
             throw new GeneralException(BlockException.ALREADY_BLOCKED_USER);
         }
 
+        // 비활성화된 채팅방 생성
+        chatRoomCommand.createChatRoom(new ChatRoom(sender, receiver));
+
         NotificationSendEvent notificationSendEvent = new NotificationSendEvent(
             NotificationType.CHATTING_REQUESTED, sender, receiver,
             LocalDateTime.now());
 
         eventPublisher.publishEvent(notificationSendEvent);
-
-        // 비활성화된 채팅방 생성
-        chatRoomCommand.createChatRoom(new ChatRoom(sender, receiver));
     }
 
     public void acceptRequestedChat(long userId, long notificationId) {
@@ -108,17 +108,17 @@ public class ChatService {
             throw new GeneralException(NotificationException.NOT_YOUR_CHATTING_REQUEST_NOTIFICATION);
         }
 
+        // 채팅방 활성화
+        ChatRoom chatRoom = chatRoomQuery.findBy(sender, receiver);
+        chatRoom.activeRoom();
+
+        String activeRoom = "채팅방이 활성화되었습니다.";
+        chatMessageCommand.createChatMessage(new ChatMessage(chatRoom, sender, receiver, activeRoom));
+
         NotificationSendEvent notificationSendEvent = new NotificationSendEvent(
             NotificationType.CHATTING_REQUEST_ACCEPTED, receiver, sender,
             LocalDateTime.now());
 
         eventPublisher.publishEvent(notificationSendEvent);
-
-        // 채팅방 활성화
-        ChatRoom chatRoom = chatRoomQuery.findBy(sender, receiver);
-        chatRoom.activeRoom();
-
-        String activeRoom = "채팅방이 활상화되었습니다.";
-        chatMessageCommand.createChatMessage(new ChatMessage(chatRoom, sender, receiver, activeRoom));
     }
 }

@@ -18,8 +18,8 @@ public class ChatRoomRepositoryImpl implements ChatRoomRepositoryCustom {
     public List<ChatRoom> findAllByUserAndActiveIsTrue(User user) {
 
         return queryFactory.selectFrom(chatRoom)
-            .where((chatRoom.sentUser.eq(user)
-                .or(chatRoom.receivedUser.eq(user))
+            .where((chatRoom.sender.eq(user)
+                .or(chatRoom.receiver.eq(user))
                 .and(chatRoom.active.eq(true)))
             )
             .fetch();
