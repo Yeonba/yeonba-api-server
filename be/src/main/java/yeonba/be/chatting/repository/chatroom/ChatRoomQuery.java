@@ -20,9 +20,9 @@ public class ChatRoomQuery {
         return chatRoomRepository.findAllByUserAndActiveIsTrue(user);
     }
 
-    public ChatRoom findBy(User sentUser, User receivedUser) {
+    public ChatRoom findBy(User sender, User receiver) {
 
-        return chatRoomRepository.findBySentUserAndReceivedUser(sentUser, receivedUser)
+        return chatRoomRepository.findBySenderAndReceiver(sender, receiver)
             .orElseThrow(() -> new GeneralException(NOT_FOUND_CHAT_ROOM));
     }
 }
