@@ -179,7 +179,7 @@ public class UserService {
     public UserQueryPageResponse findUsersByQueryCondition(long userId, UserQueryRequest request) {
 
         int page = Optional.ofNullable(request.getPage()).orElse(0);
-        int size = 6;
+        int size = 30;
         PageRequest pageRequest = PageRequest.of(page, size);
 
         // 사용자 존재 여부 검증
@@ -248,7 +248,7 @@ public class UserService {
         UserSearchRequest request) {
 
         int page = Optional.ofNullable(request.getPage()).orElse(0);
-        int size = 6;
+        int size = 30;
         PageRequest pageRequest = PageRequest.of(page, size);
         LocalDate searchDay = LocalDate.now();
 
