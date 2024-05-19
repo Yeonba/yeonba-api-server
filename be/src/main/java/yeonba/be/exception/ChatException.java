@@ -1,7 +1,11 @@
 package yeonba.be.exception;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
+@AllArgsConstructor
 public enum ChatException implements BaseException {
 
     NOT_FOUND_CHAT_ROOM(
@@ -10,21 +14,4 @@ public enum ChatException implements BaseException {
 
     private final HttpStatus httpStatus;
     private final String reason;
-
-    ChatException(HttpStatus httpStatus, String reason) {
-        this.httpStatus = httpStatus;
-        this.reason = reason;
-    }
-
-    @Override
-    public HttpStatus getHttpStatus() {
-
-        return httpStatus;
-    }
-
-    @Override
-    public String getReason() {
-
-        return reason;
-    }
 }

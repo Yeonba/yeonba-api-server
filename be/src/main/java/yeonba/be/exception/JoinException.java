@@ -1,7 +1,11 @@
 package yeonba.be.exception;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
+@AllArgsConstructor
 public enum JoinException implements BaseException {
 
     PASSWORD_CONFIRMATION_NOT_MATCH(
@@ -18,22 +22,4 @@ public enum JoinException implements BaseException {
 
     private final HttpStatus httpStatus;
     private final String reason;
-
-    JoinException(HttpStatus httpStatus, String reason) {
-
-        this.httpStatus = httpStatus;
-        this.reason = reason;
-    }
-
-    @Override
-    public HttpStatus getHttpStatus() {
-
-        return httpStatus;
-    }
-
-    @Override
-    public String getReason() {
-
-        return reason;
-    }
 }
