@@ -178,11 +178,14 @@ public class MyPageService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void updateProfilePhotos(long userId, UserUpdateProfilePhotoRequest request) {
 
         User user = userQuery.findById(userId);
+
+        // 사진 업로드 및 사진 싱크로율 업데이트
         s3Service.uploadProfilePhotos(request.getProfilePhotos(), user);
+        user.updatePhotoSyncRate(request.getPhotoSyncRate());
     }
 
     public BlockedUsersResponse getBlockedUsers(long userId) {
