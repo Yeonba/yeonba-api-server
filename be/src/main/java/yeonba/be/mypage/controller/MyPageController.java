@@ -5,23 +5,21 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import yeonba.be.mypage.dto.request.NotificationPermissionsUpdateRequest;
 import yeonba.be.mypage.dto.request.UserChangeInactiveStatusRequest;
+import yeonba.be.mypage.dto.request.UserUpdateProfilePhotoRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.request.UserUpdateUnwantedAcquaintancesRequest;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
@@ -71,12 +69,9 @@ public class MyPageController {
     @PutMapping(path = "/users/profile-photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CustomResponse<Void>> updateProfilePhotos(
         @RequestAttribute("userId") long userId,
-        @Parameter(description = "업로드 할 새로운 프로필 사진들, 반드시 한 번에 2개씩 업로드")
-        @RequestPart("profilePhotos") @Size(min = 2, max = 2) List<MultipartFile> profilePhotos,
-        @Parameter(description = "프로필 사진과 싱크로율을 검증할 직접 찍은 사진")
-        @RequestPart("realTimePhoto") @Size(min = 1, max = 1) MultipartFile realTimePhoto) {
+        @Valid @ModelAttribute UserUpdateProfilePhotoRequest request) {
 
-        myPageService.updateProfilePhotos(profilePhotos, realTimePhoto, userId);
+        myPageService.updateProfilePhotos(userId, request);
 
         return ResponseEntity
             .ok()
@@ -87,8 +82,8 @@ public class MyPageController {
     @ApiResponse(responseCode = "200", description = "자신의 프로필 수정 요청 정상 처리")
     @PatchMapping("/users/profiles")
     public ResponseEntity<CustomResponse<Void>> updateProfile(
-        @Valid @RequestBody UserUpdateProfileRequest request,
-        @RequestAttribute("userId") long userId) {
+        @RequestAttribute("userId") long userId,
+        @Valid @RequestBody UserUpdateProfileRequest request) {
 
         myPageService.updateProfile(request, userId);
 
