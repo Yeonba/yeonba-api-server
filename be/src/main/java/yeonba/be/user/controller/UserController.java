@@ -100,7 +100,6 @@ public class UserController {
     @Operation(summary = "즐겨찾기 삭제", description = "즐겨찾기에 등록한 사용자를 삭제합니다.")
     @ApiResponse(responseCode = "200", description = "즐겨찾기 삭제 정상 처리")
     @DeleteMapping("/favorites/{userId}")
-
     public ResponseEntity<CustomResponse<Void>> deleteFavorite(
         @RequestAttribute("userId") long userId,
         @Parameter(description = "즐겨찾기에서 삭제할 사용자 ID", example = "1")
@@ -116,7 +115,6 @@ public class UserController {
     @Operation(summary = "사용자 신고", description = "다른 사용자를 신고할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "신고 정상 처리")
     @PostMapping("/users/{userId}/report")
-
     public ResponseEntity<CustomResponse<Void>> report(
         @RequestAttribute("userId") long userId,
         @Parameter(description = "신고 대상 사용자 ID", example = "1")
