@@ -151,7 +151,7 @@ public class UserController {
     @PostMapping("/users/search")
     public ResponseEntity<CustomResponse<UserQueryPageResponse>> search(
         @RequestAttribute("userId") long userId,
-        @Valid @RequestBody UserSearchRequest request) {
+        @Valid @RequestBody(required = false) UserSearchRequest request) {
 
         UserQueryPageResponse response = userService.findUsersBySearchCondition(userId, request);
 
