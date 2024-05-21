@@ -1,4 +1,4 @@
-package yeonba.be.chatting.repository.chatmessage;
+package yeonba.be.chatting.repository.chatroom;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,8 +10,8 @@ public class ChatMessageCommand {
 
     private final ChatMessageRepository chatMessageRepository;
 
-    public ChatMessage save(ChatMessage message) {
+    public ChatMessage save(ChatMessage chatMessage) {
 
-        return chatMessageRepository.save(message);
+        return chatMessageRepository.save(chatMessage);
     }
 }

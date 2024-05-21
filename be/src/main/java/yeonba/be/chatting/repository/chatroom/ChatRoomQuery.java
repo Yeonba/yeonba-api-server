@@ -15,6 +15,12 @@ public class ChatRoomQuery {
 
     private final ChatRoomRepository chatRoomRepository;
 
+    public ChatRoom findById(long id) {
+
+        return chatRoomRepository.findById(id)
+            .orElseThrow(() -> new GeneralException(NOT_FOUND_CHAT_ROOM));
+    }
+
     public List<ChatRoom> findAllBy(User user) {
 
         return chatRoomRepository.findAllByUserAndActiveIsTrue(user);

@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yeonba.be.chatting.dto.request.ChatPublishRequest;
 import yeonba.be.chatting.dto.response.ChatRoomResponse;
 import yeonba.be.chatting.entity.ChatMessage;
 import yeonba.be.chatting.entity.ChatRoom;
@@ -39,6 +41,20 @@ public class ChatService {
     private final NotificationQuery notificationQuey;
 
     private final ApplicationEventPublisher eventPublisher;
+    private final RedisChattingPublisher redisChattingPublisher;
+
+    @Transactional
+    public void publish(ChatPublishRequest request) {
+
+        ChatRoom chatRoom = chatRoomQuery.findById(request.getRoomId());
+        User sender = userQuery.findById(request.getUserId());
+        User receiver = chatRoom.getSender().equals(sender) ? chatRoom.getReceiver()
+            : chatRoom.getSender();
+
+        // TODO: 메시지 Pub/Sub과 메시지 저장 로직 비동기 처리(id, user 등 request, response 변경 가능)
+        redisChattingPublisher.publish(new ChannelTopic(String.valueOf(request.getRoomId())), request);
+        chatMessageCommand.save(new ChatMessage(chatRoom, sender, receiver, request.getContent()));
+    }
 
     @Transactional(readOnly = true)
     public List<ChatRoomResponse> getChatRooms(long userId) {
@@ -105,7 +121,8 @@ public class ChatService {
         // 본인에게 온 채팅 요청인지 검증
         if (receiver.equals(userQuery.findById(userId))) {
 
-            throw new GeneralException(NotificationException.NOT_YOUR_CHATTING_REQUEST_NOTIFICATION);
+            throw new GeneralException(
+                NotificationException.NOT_YOUR_CHATTING_REQUEST_NOTIFICATION);
         }
 
         // 채팅방 활성화
@@ -113,7 +130,8 @@ public class ChatService {
         chatRoom.activeRoom();
 
         String activeRoom = "채팅방이 활성화되었습니다.";
-        chatMessageCommand.createChatMessage(new ChatMessage(chatRoom, sender, receiver, activeRoom));
+        chatMessageCommand.save(
+            new ChatMessage(chatRoom, sender, receiver, activeRoom));
 
         NotificationSendEvent notificationSendEvent = new NotificationSendEvent(
             NotificationType.CHATTING_REQUEST_ACCEPTED, receiver, sender,
