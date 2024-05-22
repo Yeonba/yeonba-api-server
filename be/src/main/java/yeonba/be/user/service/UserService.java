@@ -35,6 +35,7 @@ import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
 import yeonba.be.user.repository.user.UserCommand;
 import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
+import yeonba.be.user.repository.userpreference.UserPreferenceQuery;
 import yeonba.be.user.repository.userrecommendation.UserRecommendationCommand;
 import yeonba.be.user.repository.userrecommendation.UserRecommendationQuery;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
@@ -54,6 +55,7 @@ public class UserService {
     private final AreaQuery areaQuery;
     private final ArrowQuery arrowQuery;
     private final UserQuery userQuery;
+    private final UserPreferenceQuery userPreferenceQuery;
     private final UserRecommendationQuery userRecommendationQuery;
     private final VocalRangeQuery vocalRangeQuery;
 
@@ -63,22 +65,13 @@ public class UserService {
     public UserProfileResponse getTargetUserProfile(long userId, long targetUserId) {
 
         User user = userQuery.findById(userId);
-        User targetUser = userQuery.findById(targetUserId);
 
+        // 조회하는 사용자 정보, 선호조건, 이전 화살 송신 여부 조회
+        User targetUser = userQuery.findById(targetUserId);
+        UserPreference targetUserPreference = userPreferenceQuery.findByUser(targetUser);
         boolean isAlreadySentArrow = arrowQuery.isArrowTransactionExist(user, targetUser);
 
-        return new UserProfileResponse(
-            targetUser.getProfilePhotoUrls(),
-            targetUser.getGenderString(),
-            targetUser.getNickname(),
-            targetUser.getArrow(),
-            targetUser.getAge(),
-            targetUser.getHeight(),
-            targetUser.getArea().getName(),
-            targetUser.getPhotoSyncRate(),
-            targetUser.getVocalRange().getClassification(),
-            targetUser.getAnimal().getName(),
-            isAlreadySentArrow);
+        return UserProfileResponse.from(targetUser, targetUserPreference, isAlreadySentArrow);
     }
 
     public User saveUser(UserJoinRequest request) {
