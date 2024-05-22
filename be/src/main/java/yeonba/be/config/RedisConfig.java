@@ -10,7 +10,6 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import yeonba.be.chatting.service.RedisChattingSubscriber;
 
@@ -25,13 +24,10 @@ public class RedisConfig {
      */
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
-        RedisConnectionFactory connectionFactory,
-        MessageListenerAdapter adapter,
-        ChannelTopic topic) {
+        RedisConnectionFactory connectionFactory) {
 
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(adapter, topic);
         return container;
     }
 
@@ -61,11 +57,5 @@ public class RedisConfig {
     public MessageListenerAdapter messageListenerAdapter(RedisChattingSubscriber subscriber) {
 
         return new MessageListenerAdapter(subscriber, "onMessage");
-    }
-
-    @Bean
-    public ChannelTopic channelTopic() {
-
-        return new ChannelTopic("global");
     }
 }

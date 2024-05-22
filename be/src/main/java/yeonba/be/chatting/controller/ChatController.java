@@ -5,7 +5,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
@@ -15,29 +21,45 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.ResponseBody;
 import yeonba.be.chatting.dto.request.ChatPublishRequest;
+import yeonba.be.chatting.dto.response.ChatMessageResponse;
 import yeonba.be.chatting.dto.response.ChatRoomResponse;
 import yeonba.be.chatting.service.ChatService;
-import yeonba.be.chatting.service.RedisChattingPublisher;
 import yeonba.be.util.CustomResponse;
 
 @Tag(name = "Chatting", description = "채팅 API")
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
 
     private final ChatService chatService;
-    private final RedisChattingPublisher redisChattingPublisher;
 
     @MessageMapping("/chat")
     public void chat(ChatPublishRequest request) {
 
+        log.info("chatting test log {}", request.getContent());
+
         chatService.publish(request);
     }
 
-    @Operation(summary = "채팅 목록 조회", description = "자신이 참여 중인 채팅 목록을 조회할 수 있습니다.")
+    @Operation(summary = "채팅 메시지 목록 조회", description = "특정 채팅방의 메시지 목록을 조회할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "채팅 메시지 목록 조회 성공")
+    @ResponseBody
+    @GetMapping("/chat-rooms/{roomId}/messages")
+    public ResponseEntity<CustomResponse<List<ChatMessageResponse>>> getChatMessages(
+        @RequestAttribute("userId") long userId,
+        @Parameter(description = "채팅방 ID", example = "1")
+        @PathVariable long roomId) {
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>(null));
+    }
+
+    @Operation(summary = "채팅방 목록 조회", description = "자신이 참여 중인 채팅 목록을 조회할 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "참여 중인 채팅 목록 조회 성공")
     @ResponseBody
-    @GetMapping("/chattings")
+    @GetMapping("/chat-rooms")
     public ResponseEntity<CustomResponse<List<ChatRoomResponse>>> getChatRooms(
         @RequestAttribute("userId") long userId) {
 

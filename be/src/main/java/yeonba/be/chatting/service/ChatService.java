@@ -6,6 +6,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.chatting.dto.request.ChatPublishRequest;
@@ -42,6 +43,8 @@ public class ChatService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final RedisChattingPublisher redisChattingPublisher;
+    private final RedisChattingSubscriber adapter;
+    private final RedisMessageListenerContainer container;
 
     @Transactional
     public void publish(ChatPublishRequest request) {
@@ -53,7 +56,7 @@ public class ChatService {
 
         // TODO: 메시지 Pub/Sub과 메시지 저장 로직 비동기 처리(id, user 등 request, response 변경 가능)
         redisChattingPublisher.publish(new ChannelTopic(String.valueOf(request.getRoomId())), request);
-        chatMessageCommand.save(new ChatMessage(chatRoom, sender, receiver, request.getContent()));
+        chatMessageCommand.save(new ChatMessage(chatRoom, sender, receiver, request.getContent(), request.getSentAt()));
     }
 
     @Transactional(readOnly = true)
@@ -129,9 +132,13 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomQuery.findBy(sender, receiver);
         chatRoom.activeRoom();
 
-        String activeRoom = "채팅방이 활성화되었습니다.";
+        String activeRoom = "채팅방이 생성되었습니다.";
+
         chatMessageCommand.save(
-            new ChatMessage(chatRoom, sender, receiver, activeRoom));
+            new ChatMessage(chatRoom, sender, receiver, activeRoom, LocalDateTime.now()));
+
+        // 메시지 수신을 위한 Redis Pub/Sub 구독
+        container.addMessageListener(adapter, new ChannelTopic(String.valueOf(chatRoom.getId())));
 
         NotificationSendEvent notificationSendEvent = new NotificationSendEvent(
             NotificationType.CHATTING_REQUEST_ACCEPTED, receiver, sender,

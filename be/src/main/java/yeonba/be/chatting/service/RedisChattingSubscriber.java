@@ -31,8 +31,10 @@ public class RedisChattingSubscriber implements MessageListener {
             // ChatMessage 객채로 맵핑
             ChatSubscribeResponse response = objectMapper.readValue(publishedMessage, ChatSubscribeResponse.class);
 
+            log.info("Chatting message received: {}", response.getContent());
+
             // Websocket 구독자에게 채팅 메시지 Send
-            messagingTemplate.convertAndSend("/chat/sub/room" + response.getRoomId(), response);
+            messagingTemplate.convertAndSend("/chat/sub/room/" + response.getRoomId(), response);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
