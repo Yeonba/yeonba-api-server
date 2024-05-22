@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -32,6 +33,7 @@ import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.block.BlockQuery;
 import yeonba.be.user.repository.user.UserQuery;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -164,6 +166,7 @@ public class ChatService {
 
         // 메시지 수신을 위한 Redis Pub/Sub 구독
         container.addMessageListener(adapter, new ChannelTopic(String.valueOf(chatRoom.getId())));
+        log.info("channel topic 생성 {}", chatRoom.getId());
 
         NotificationSendEvent notificationSendEvent = new NotificationSendEvent(
             NotificationType.CHATTING_REQUEST_ACCEPTED, receiver, sender,
