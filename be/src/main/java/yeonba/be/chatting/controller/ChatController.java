@@ -51,9 +51,11 @@ public class ChatController {
         @Parameter(description = "채팅방 ID", example = "1")
         @PathVariable long roomId) {
 
+        List<ChatMessageResponse> response = chatService.getChatMessages(userId, roomId);
+
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>(null));
+            .body(new CustomResponse<>(response));
     }
 
     @Operation(summary = "채팅방 목록 조회", description = "자신이 참여 중인 채팅 목록을 조회할 수 있습니다.")

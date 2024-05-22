@@ -10,6 +10,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.chatting.dto.request.ChatPublishRequest;
+import yeonba.be.chatting.dto.response.ChatMessageResponse;
 import yeonba.be.chatting.dto.response.ChatRoomResponse;
 import yeonba.be.chatting.entity.ChatMessage;
 import yeonba.be.chatting.entity.ChatRoom;
@@ -17,7 +18,9 @@ import yeonba.be.chatting.repository.chatmessage.ChatMessageCommand;
 import yeonba.be.chatting.repository.chatmessage.ChatMessageQuery;
 import yeonba.be.chatting.repository.chatroom.ChatRoomCommand;
 import yeonba.be.chatting.repository.chatroom.ChatRoomQuery;
+import yeonba.be.chatting.repository.chatroom.ChatRoomRepository;
 import yeonba.be.exception.BlockException;
+import yeonba.be.exception.ChatException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.NotificationException;
 import yeonba.be.notification.entity.Notification;
@@ -45,6 +48,7 @@ public class ChatService {
     private final RedisChattingPublisher redisChattingPublisher;
     private final RedisChattingSubscriber adapter;
     private final RedisMessageListenerContainer container;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Transactional
     public void publish(ChatPublishRequest request) {
@@ -55,8 +59,29 @@ public class ChatService {
             : chatRoom.getSender();
 
         // TODO: 메시지 Pub/Sub과 메시지 저장 로직 비동기 처리(id, user 등 request, response 변경 가능)
-        redisChattingPublisher.publish(new ChannelTopic(String.valueOf(request.getRoomId())), request);
-        chatMessageCommand.save(new ChatMessage(chatRoom, sender, receiver, request.getContent(), request.getSentAt()));
+        redisChattingPublisher.publish(new ChannelTopic(String.valueOf(request.getRoomId())),
+            request);
+        chatMessageCommand.save(
+            new ChatMessage(chatRoom, sender, receiver, request.getContent(), request.getSentAt()));
+    }
+
+    public List<ChatMessageResponse> getChatMessages(long userId, long roomId) {
+
+        User user = userQuery.findById(userId);
+
+        ChatRoom chatRoom = chatRoomQuery.findById(roomId);
+
+        if (!user.equals(chatRoom.getSender()) && !user.equals(chatRoom.getReceiver())) {
+            throw new GeneralException(ChatException.NOT_YOUR_CHAT_ROOM);
+        }
+
+        List<ChatMessage> chatMessages = chatMessageQuery.findAllByChatRoom(chatRoom);
+
+        return chatMessages.stream()
+            .map(chatMessage -> new ChatMessageResponse(chatMessage.getSender().getId(),
+                chatMessage.getSender().getNickname(),
+                chatMessage.getContent(), chatMessage.getSentAt()))
+            .toList();
     }
 
     @Transactional(readOnly = true)
