@@ -33,7 +33,7 @@ public class JwtUtil {
         return generateUserJwt(user, generatedAt, expiredAt);
     }
 
-    public long getUserIdFromToken(String token) {
+    public long getUserIdFromJwt(String token) {
 
         Object userIdObject = Jwts.parser()
             .setSigningKey(jwtSecret)
