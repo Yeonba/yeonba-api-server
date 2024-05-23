@@ -5,6 +5,7 @@ import static yeonba.be.util.BoundsValidator.validateBounds;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -247,17 +248,21 @@ public class UserService {
     public UserQueryPageResponse findUsersBySearchCondition(long userId,
         UserSearchRequest request) {
 
-        int page = Optional.ofNullable(request.getPage()).orElse(0);
+        int page = 0;
+        if(Objects.nonNull(request) && Objects.nonNull(request.getPage())) {
+            page = request.getPage();
+
+            // 검색 나이/키 하한 <= 상한 여부 검증
+            validateBounds(request.getAgeLowerBound(), request.getAgeUpperBound());
+            validateBounds(request.getHeightLowerBound(), request.getHeightUpperBound());
+        }
+
         int size = 30;
         PageRequest pageRequest = PageRequest.of(page, size);
         LocalDate searchDay = LocalDate.now();
 
         // 검색하는 사용자 조회
         User user = userQuery.findById(userId);
-
-        // 검색 나이/키 하한 <= 상한 여부 검증
-        validateBounds(request.getAgeLowerBound(), request.getAgeUpperBound());
-        validateBounds(request.getHeightLowerBound(), request.getHeightUpperBound());
 
         // 응답 조회
         UserQueryPageResponse response = userQuery
