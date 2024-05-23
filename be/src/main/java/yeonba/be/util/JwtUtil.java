@@ -1,11 +1,17 @@
 package yeonba.be.util;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import java.security.Key;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.Date;
+import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import yeonba.be.user.entity.User;
@@ -67,5 +73,34 @@ public class JwtUtil {
             .claim("userId", user.getId())
             .signWith(SignatureAlgorithm.HS256, jwtSecret)
             .compact();
+    }
+
+    public boolean validateTokenIsExpired(String token) {
+
+        try {
+            Jws<Claims> claimsJws = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token);
+
+            return !claimsJws.getBody().getExpiration().before(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean validateTokenIsManipulated(String token) {
+
+        try {
+            byte[] decodedSecretKey = Base64.getDecoder().decode(jwtSecret);
+            Key key = new SecretKeySpec(decodedSecretKey, 0, decodedSecretKey.length, "HmacSHA256");
+
+            Jwts.parser()
+                .setSigningKey(key) // 비밀 키를 사용하여 서명을 검증
+                .parseClaimsJws(token);
+
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
     }
 }
