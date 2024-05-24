@@ -1,7 +1,5 @@
 package yeonba.be.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -75,20 +73,7 @@ public class JwtUtil {
             .compact();
     }
 
-    public boolean validateTokenIsExpired(String token) {
-
-        try {
-            Jws<Claims> claimsJws = Jwts.parser()
-                .setSigningKey(jwtSecret)
-                .parseClaimsJws(token);
-
-            return !claimsJws.getBody().getExpiration().before(new Date());
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public boolean validateTokenIsManipulated(String token) {
+    public boolean validateToken(String token) {
 
         try {
             byte[] decodedSecretKey = Base64.getDecoder().decode(jwtSecret);

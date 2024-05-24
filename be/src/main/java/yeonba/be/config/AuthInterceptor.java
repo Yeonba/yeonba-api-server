@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.UtilException;
-import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.util.JwtUtil;
 
@@ -40,13 +39,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         String token = matcher.group(1);
 
-
-
-        if (!jwtUtil.validateTokenIsExpired(token)) {
-            throw new GeneralException(UtilException.INVALID_JWT);
-        }
-
-        if (!jwtUtil.validateTokenIsManipulated(token)) {
+        if (!jwtUtil.validateToken(token)) {
             throw new GeneralException(UtilException.INVALID_JWT);
         }
 
