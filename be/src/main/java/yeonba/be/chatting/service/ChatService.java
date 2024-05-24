@@ -44,13 +44,12 @@ public class ChatService {
     private final ChatMessageQuery chatMessageQuery;
     private final UserQuery userQuery;
     private final BlockQuery blockQuery;
-    private final NotificationQuery notificationQuey;
+    private final NotificationQuery notificationQuery;
 
     private final ApplicationEventPublisher eventPublisher;
     private final RedisChattingPublisher redisChattingPublisher;
     private final RedisChattingSubscriber adapter;
     private final RedisMessageListenerContainer container;
-    private final ChatRoomRepository chatRoomRepository;
 
     @Transactional
     public void publish(ChatPublishRequest request) {
@@ -67,6 +66,7 @@ public class ChatService {
             new ChatMessage(chatRoom, sender, receiver, request.getContent(), request.getSentAt()));
     }
 
+    @Transactional(readOnly = true)
     public List<ChatMessageResponse> getChatMessages(long userId, long roomId) {
 
         User user = userQuery.findById(userId);
@@ -135,9 +135,10 @@ public class ChatService {
         eventPublisher.publishEvent(notificationSendEvent);
     }
 
+    @Transactional
     public void acceptRequestedChat(long userId, long notificationId) {
 
-        Notification notification = notificationQuey.findById(notificationId);
+        Notification notification = notificationQuery.findById(notificationId);
 
         // 채팅 요청 알림인지 검증
         if (!notification.getType().isChattingRequest()) {

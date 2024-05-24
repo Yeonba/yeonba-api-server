@@ -20,7 +20,7 @@ public class RedisConfig {
     private final ObjectMapper objectMapper;
 
     /**
-     * redis pub/sub 메시지 처리 listender 설정
+     * redis pub/sub 메시지 처리 listener 설정
      */
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
