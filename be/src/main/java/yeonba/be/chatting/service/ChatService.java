@@ -4,9 +4,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yeonba.be.chatting.dto.request.ChatPublishRequest;
+import yeonba.be.chatting.dto.response.ChatMessageResponse;
 import yeonba.be.chatting.dto.response.ChatRoomResponse;
 import yeonba.be.chatting.entity.ChatMessage;
 import yeonba.be.chatting.entity.ChatRoom;
@@ -14,7 +19,9 @@ import yeonba.be.chatting.repository.chatmessage.ChatMessageCommand;
 import yeonba.be.chatting.repository.chatmessage.ChatMessageQuery;
 import yeonba.be.chatting.repository.chatroom.ChatRoomCommand;
 import yeonba.be.chatting.repository.chatroom.ChatRoomQuery;
+import yeonba.be.chatting.repository.chatroom.ChatRoomRepository;
 import yeonba.be.exception.BlockException;
+import yeonba.be.exception.ChatException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.NotificationException;
 import yeonba.be.notification.entity.Notification;
@@ -26,6 +33,7 @@ import yeonba.be.user.entity.User;
 import yeonba.be.user.repository.block.BlockQuery;
 import yeonba.be.user.repository.user.UserQuery;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -36,9 +44,47 @@ public class ChatService {
     private final ChatMessageQuery chatMessageQuery;
     private final UserQuery userQuery;
     private final BlockQuery blockQuery;
-    private final NotificationQuery notificationQuey;
+    private final NotificationQuery notificationQuery;
 
     private final ApplicationEventPublisher eventPublisher;
+    private final RedisChattingPublisher redisChattingPublisher;
+    private final RedisChattingSubscriber adapter;
+    private final RedisMessageListenerContainer container;
+
+    @Transactional
+    public void publish(ChatPublishRequest request) {
+
+        ChatRoom chatRoom = chatRoomQuery.findById(request.getRoomId());
+        User sender = userQuery.findById(request.getUserId());
+        User receiver = chatRoom.getSender().equals(sender) ? chatRoom.getReceiver()
+            : chatRoom.getSender();
+
+        // TODO: 메시지 Pub/Sub과 메시지 저장 로직 비동기 처리(id, user 등 request, response 변경 가능)
+        redisChattingPublisher.publish(new ChannelTopic(String.valueOf(request.getRoomId())),
+            request);
+        chatMessageCommand.save(
+            new ChatMessage(chatRoom, sender, receiver, request.getContent(), request.getSentAt()));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatMessageResponse> getChatMessages(long userId, long roomId) {
+
+        User user = userQuery.findById(userId);
+
+        ChatRoom chatRoom = chatRoomQuery.findById(roomId);
+
+        if (!user.equals(chatRoom.getSender()) && !user.equals(chatRoom.getReceiver())) {
+            throw new GeneralException(ChatException.NOT_YOUR_CHAT_ROOM);
+        }
+
+        List<ChatMessage> chatMessages = chatMessageQuery.findAllByChatRoom(chatRoom);
+
+        return chatMessages.stream()
+            .map(chatMessage -> new ChatMessageResponse(chatMessage.getSender().getId(),
+                chatMessage.getSender().getNickname(),
+                chatMessage.getContent(), chatMessage.getSentAt()))
+            .toList();
+    }
 
     @Transactional(readOnly = true)
     public List<ChatRoomResponse> getChatRooms(long userId) {
@@ -89,9 +135,10 @@ public class ChatService {
         eventPublisher.publishEvent(notificationSendEvent);
     }
 
+    @Transactional
     public void acceptRequestedChat(long userId, long notificationId) {
 
-        Notification notification = notificationQuey.findById(notificationId);
+        Notification notification = notificationQuery.findById(notificationId);
 
         // 채팅 요청 알림인지 검증
         if (!notification.getType().isChattingRequest()) {
@@ -105,15 +152,22 @@ public class ChatService {
         // 본인에게 온 채팅 요청인지 검증
         if (receiver.equals(userQuery.findById(userId))) {
 
-            throw new GeneralException(NotificationException.NOT_YOUR_CHATTING_REQUEST_NOTIFICATION);
+            throw new GeneralException(
+                NotificationException.NOT_YOUR_CHATTING_REQUEST_NOTIFICATION);
         }
 
         // 채팅방 활성화
         ChatRoom chatRoom = chatRoomQuery.findBy(sender, receiver);
         chatRoom.activeRoom();
 
-        String activeRoom = "채팅방이 활성화되었습니다.";
-        chatMessageCommand.createChatMessage(new ChatMessage(chatRoom, sender, receiver, activeRoom));
+        String activeRoom = "채팅방이 생성되었습니다.";
+
+        chatMessageCommand.save(
+            new ChatMessage(chatRoom, sender, receiver, activeRoom, LocalDateTime.now()));
+
+        // 메시지 수신을 위한 Redis Pub/Sub 구독
+        container.addMessageListener(adapter, new ChannelTopic(String.valueOf(chatRoom.getId())));
+        log.info("channel topic 생성 {}", chatRoom.getId());
 
         NotificationSendEvent notificationSendEvent = new NotificationSendEvent(
             NotificationType.CHATTING_REQUEST_ACCEPTED, receiver, sender,
