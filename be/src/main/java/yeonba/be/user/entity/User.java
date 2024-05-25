@@ -16,7 +16,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -159,12 +159,8 @@ public class User {
 
     public boolean canDailyCheckAt(LocalDate dailyCheckDay) {
 
-        if (Optional.ofNullable(this.lastAccessedAt).isEmpty()) {
-
-            return true;
-        }
-
-        return this.lastAccessedAt.isBefore(dailyCheckDay.atStartOfDay());
+        return Objects.isNull(this.lastAccessedAt)
+               || this.lastAccessedAt.isBefore(dailyCheckDay.atStartOfDay());
     }
 
     public String getRepresentativeProfilePhoto() {
