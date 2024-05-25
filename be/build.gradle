@@ -52,6 +52,12 @@ dependencies {
 
     // fcm
     implementation 'com.google.firebase:firebase-admin:9.2.0'
+
+    // h2
+    testRuntimeOnly 'com.h2database:h2'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('bootBuildImage') {
