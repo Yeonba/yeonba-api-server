@@ -9,11 +9,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yeonba.be.chatting.repository.chatroom.ChatRoomQuery;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.NotificationException;
 import yeonba.be.notification.dto.request.NotificationPageRequest;
+import yeonba.be.notification.dto.response.ChattingRequestedNotificationResponse;
 import yeonba.be.notification.dto.response.NotificationPageResponse;
+import yeonba.be.notification.dto.response.NotificationResponse;
 import yeonba.be.notification.dto.response.NotificationUnreadExistResponse;
+import yeonba.be.notification.dto.response.SimpleNotificationResponse;
 import yeonba.be.notification.entity.Notification;
 import yeonba.be.notification.entity.NotificationPermission;
 import yeonba.be.notification.enums.NotificationType;
@@ -32,6 +36,7 @@ public class NotificationService {
     private final UserQuery userQuery;
     private final NotificationQuery notificationQuery;
     private final NotificationPermissionQuery notificationPermissionQuery;
+    private final ChatRoomQuery chatRoomQuery;
 
     private final NotificationCommand notificationCommand;
     private final NotificationPermissionCommand notificationPermissionCommand;
@@ -52,9 +57,10 @@ public class NotificationService {
         User receiver = userQuery.findById(receiverId);
         Page<Notification> page =
             notificationQuery.findRecentlyReceivedNotificationsBy(receiver, pageRequest);
+        List<Notification> notifications = page.getContent();
 
         // 가장 최근에 받은 알림 ID 도출
-        long mostRecentNotificationId = page.getContent().stream()
+        long mostRecentNotificationId = notifications.stream()
             .mapToLong(Notification::getId)
             .max()
             .orElse(Long.MAX_VALUE);
@@ -62,7 +68,24 @@ public class NotificationService {
         // 가장 최근에 받은 알림 포함 이전 알림 전부 읽음 처리
         notificationCommand.readNotificationsUpToIdBy(receiverId, mostRecentNotificationId);
 
-        return NotificationPageResponse.from(page);
+        List<NotificationResponse> response = notifications.stream()
+            .map(this::toNotificationResponse)
+            .toList();
+
+        return NotificationPageResponse.from(page, response);
+    }
+
+    private NotificationResponse toNotificationResponse(Notification notification) {
+
+        if (notification.getType().isChattingRequest()) {
+
+            List<User> users = List.of(notification.getSender(), notification.getReceiver());
+            boolean canChat = !chatRoomQuery.existsBy(users);
+
+            return ChattingRequestedNotificationResponse.from(notification, canChat);
+        }
+
+        return SimpleNotificationResponse.from(notification);
     }
 
     @Transactional
