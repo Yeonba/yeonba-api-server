@@ -8,7 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import yeonba.be.config.DevAuthInterceptor;
+import yeonba.be.config.AuthInterceptor;
 import yeonba.be.exception.ExceptionAdvice;
 
 @ActiveProfiles("test")
@@ -18,7 +18,7 @@ public abstract class ControllerTestSupport {
     protected ObjectMapper objectMapper = new ObjectMapper();
 
     @MockBean
-    protected DevAuthInterceptor devAuthInterceptor;
+    protected AuthInterceptor authInterceptor;
 
     @BeforeEach
     void setUp() {
