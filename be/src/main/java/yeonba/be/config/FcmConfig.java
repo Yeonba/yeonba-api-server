@@ -19,6 +19,11 @@ public class FcmConfig {
     @Bean
     public FirebaseMessaging firebaseMessaging() throws IOException {
 
+        if (!FirebaseApp.getApps().isEmpty()) {
+
+            return FirebaseMessaging.getInstance(FirebaseApp.getInstance());
+        }
+
         ClassPathResource resource = new ClassPathResource(fcmAccountKeyPath);
 
         FirebaseOptions firebaseOptions = FirebaseOptions.builder()
