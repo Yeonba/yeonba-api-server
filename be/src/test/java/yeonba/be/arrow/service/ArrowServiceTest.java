@@ -9,7 +9,6 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,17 +47,17 @@ class ArrowServiceTest {
     private ArrowService arrowService;
 
     @Nested
-    @DisplayName("사용자 고유 번호, 출석체크일을 입력받아 ")
+    @DisplayName("사용자 고유 번호, 출석체크 일시를 입력받아 ")
     class dailyCheckTest {
 
         private long userId = 1L;
         private User dailyCheckUser;
-        private LocalDate dailyCheckDay;
+        private LocalDateTime dailyCheckAt;
 
         @BeforeEach
         void setUp() {
             dailyCheckUser = UserFixtureFactory.builder().build().getFixture();
-            dailyCheckDay = LocalDate.now();
+            dailyCheckAt = LocalDateTime.now();
         }
 
         @DisplayName("출석체크를 통해 사용자에게 화살을 10개 지급한다.")
@@ -70,14 +69,14 @@ class ArrowServiceTest {
             given(userQuery.findById(userId)).willReturn(dailyCheckUser);
 
             // when
-            boolean result = arrowService.dailyCheck(userId, dailyCheckDay);
+            boolean result = arrowService.dailyCheck(userId, dailyCheckAt);
 
             // then
             assertAll(
                 () -> assertThat(result).isTrue(),
                 () -> then(arrowCommand).should(times(1)).save(any(ArrowTransaction.class)),
                 () -> assertThat(dailyCheckUser.getArrow()).isEqualTo(userArrow + 10),
-                () -> assertThat(dailyCheckUser.getLastAccessedAt()).isNotNull()
+                () -> assertThat(dailyCheckUser.getLastAccessedAt()).isEqualTo(dailyCheckAt)
             );
         }
 
@@ -87,12 +86,12 @@ class ArrowServiceTest {
 
             // given
             int userArrow = dailyCheckUser.getArrow();
-            LocalDateTime lastAccessedAt = dailyCheckDay.atStartOfDay();
+            LocalDateTime lastAccessedAt = dailyCheckAt.plusMinutes(10);
             dailyCheckUser.updateLastAccessedAt(lastAccessedAt);
             given(userQuery.findById(userId)).willReturn(dailyCheckUser);
 
             // when
-            boolean result = arrowService.dailyCheck(userId, dailyCheckDay);
+            boolean result = arrowService.dailyCheck(userId, dailyCheckAt);
 
             // then
             assertAll(
@@ -100,7 +99,7 @@ class ArrowServiceTest {
                 () -> assertThat(dailyCheckUser.getArrow()).isEqualTo(userArrow),
                 () -> then(userQuery).should(times(1)).findById(userId),
                 () -> then(arrowCommand).should(never()).save(any(ArrowTransaction.class)),
-                () -> assertThat(dailyCheckUser.getLastAccessedAt()).isNotEqualTo(lastAccessedAt)
+                () -> assertThat(dailyCheckUser.getLastAccessedAt()).isEqualTo(dailyCheckAt)
             );
         }
 
@@ -116,7 +115,7 @@ class ArrowServiceTest {
             // when & then
             assertAll(
                 () -> assertThatThrownBy(
-                    () -> arrowService.dailyCheck(nonExistUserId, dailyCheckDay))
+                    () -> arrowService.dailyCheck(nonExistUserId, dailyCheckAt))
                     .isInstanceOf(GeneralException.class)
                     .extracting("exception")
                     .isEqualTo(UserException.USER_NOT_FOUND),
@@ -134,7 +133,7 @@ class ArrowServiceTest {
 
             // when & then
             assertAll(
-                () -> assertThatThrownBy(() -> arrowService.dailyCheck(userId, dailyCheckDay))
+                () -> assertThatThrownBy(() -> arrowService.dailyCheck(userId, dailyCheckAt))
                     .isInstanceOf(GeneralException.class)
                     .extracting("exception")
                     .isEqualTo(UserException.INACTIVE_USER),

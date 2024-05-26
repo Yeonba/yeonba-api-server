@@ -32,7 +32,7 @@ public class ArrowService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public boolean dailyCheck(long userId, LocalDate dailyCheckDay) {
+    public boolean dailyCheck(long userId, LocalDateTime dailyCheckAt) {
 
         User dailyCheckUser = userQuery.findById(userId);
 
@@ -41,7 +41,7 @@ public class ArrowService {
             throw new GeneralException(UserException.INACTIVE_USER);
         }
 
-        boolean canDailyCheck = dailyCheckUser.canDailyCheckAt(dailyCheckDay);
+        boolean canDailyCheck = dailyCheckUser.canDailyCheckAt(dailyCheckAt.toLocalDate());
 
         // 출석 체크 화살 내역 저장, 사용자 화살 증가
         if (canDailyCheck) {
@@ -56,7 +56,7 @@ public class ArrowService {
         }
 
         // 사용자 최종 접속 일시 갱신
-        dailyCheckUser.updateLastAccessedAt(LocalDateTime.now());
+        dailyCheckUser.updateLastAccessedAt(dailyCheckAt);
 
         return canDailyCheck;
     }

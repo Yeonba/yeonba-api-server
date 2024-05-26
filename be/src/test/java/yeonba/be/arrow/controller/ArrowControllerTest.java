@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,8 +43,7 @@ class ArrowControllerTest extends ControllerTestSupport {
         void dailCheck() throws Exception {
 
             // given
-            given(arrowService.dailyCheck(eq(userId), any(LocalDate.class)))
-                .willReturn(true);
+            given(arrowService.dailyCheck(eq(userId), any(LocalDateTime.class))).willReturn(true);
 
             // when & then
             mockMvc.perform(post("/daily-check")
@@ -60,8 +59,7 @@ class ArrowControllerTest extends ControllerTestSupport {
         void alreadyDailyChecked() throws Exception {
 
             // given
-            given(arrowService.dailyCheck(eq(userId), any(LocalDate.class)))
-                .willReturn(false);
+            given(arrowService.dailyCheck(eq(userId), any(LocalDateTime.class))).willReturn(false);
 
             // when & then
             mockMvc.perform(post("/daily-check")

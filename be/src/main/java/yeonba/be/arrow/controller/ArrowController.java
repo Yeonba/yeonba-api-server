@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,8 +47,8 @@ public class ArrowController {
             .ok()
             .body(new CustomResponse<>());
 
-        LocalDate dailyCheckDay = LocalDate.now();
-        if (!arrowService.dailyCheck(userId, dailyCheckDay)) {
+        LocalDateTime dailyCheckAt = LocalDateTime.now();
+        if (!arrowService.dailyCheck(userId, dailyCheckAt)) {
             response = ResponseEntity
                 .badRequest()
                 .body(new CustomResponse<>("이미 출석 체크한 사용자입니다."));
