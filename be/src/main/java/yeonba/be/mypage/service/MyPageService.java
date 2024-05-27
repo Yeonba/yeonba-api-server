@@ -35,10 +35,10 @@ import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.entity.UserPreference;
 import yeonba.be.user.entity.VocalRange;
-import yeonba.be.user.repository.block.BlockCommand;
-import yeonba.be.user.repository.block.BlockQuery;
 import yeonba.be.user.repository.animal.AnimalQuery;
 import yeonba.be.user.repository.area.AreaQuery;
+import yeonba.be.user.repository.block.BlockCommand;
+import yeonba.be.user.repository.block.BlockQuery;
 import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceQuery;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
@@ -79,8 +79,9 @@ public class MyPageService {
     public UserProfileDetailResponse getProfileDetail(long userId) {
 
         User user = userQuery.findById(userId);
+        UserPreference userPreference = userPreferenceQuery.findByUser(user);
 
-        return new UserProfileDetailResponse(user);
+        return UserProfileDetailResponse.from(user, userPreference);
     }
 
     @Transactional
