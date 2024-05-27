@@ -72,27 +72,27 @@ public class UserProfileResponse {
 
     @Schema(
         type = "number",
-        description = "선호하는 나이 하한",
+        description = "선호하는 나이 하한, null일 수 있음",
         example = "20")
-    private int preferredAgeLowerBound;
+    private Integer preferredAgeLowerBound;
 
     @Schema(
         type = "number",
-        description = "선호하는 나이 상한",
+        description = "선호하는 나이 상한, null일 수 있음",
         example = "30")
-    private int preferredAgeUpperBound;
+    private Integer preferredAgeUpperBound;
 
     @Schema(
         type = "number",
-        description = "선호하는 키 하한",
+        description = "선호하는 키 하한, null일 수 있음",
         example = "150")
-    private int preferredHeightLowerBound;
+    private Integer preferredHeightLowerBound;
 
     @Schema(
         type = "number",
-        description = "선호하는 키 상한",
+        description = "선호하는 키 상한, null일 수 있음",
         example = "180")
-    private int preferredHeightUpperBound;
+    private Integer preferredHeightUpperBound;
 
     @Schema(
         type = "string",
