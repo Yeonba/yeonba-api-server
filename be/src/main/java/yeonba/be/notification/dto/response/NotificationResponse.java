@@ -39,12 +39,6 @@ public abstract class NotificationResponse {
 
     @Schema(
         type = "string",
-        description = "알림 보낸 사용자 별명",
-        example = "안민재")
-    private String senderNickname;
-
-    @Schema(
-        type = "string",
         description = "알림 생성 일시",
         example = "2024-04-10 10:12:00.112233")
     private LocalDateTime createdAt;

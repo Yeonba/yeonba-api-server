@@ -11,11 +11,9 @@ public class SimpleNotificationResponse extends NotificationResponse {
         String content,
         long senderId,
         String senderProfilePhotoUrl,
-        String senderNickname,
         LocalDateTime createdAt) {
 
-        super(notificationType, content, senderId, senderProfilePhotoUrl, senderNickname,
-            createdAt);
+        super(notificationType, content, senderId, senderProfilePhotoUrl, createdAt);
     }
 
     public static SimpleNotificationResponse from(Notification notification) {
@@ -27,7 +25,6 @@ public class SimpleNotificationResponse extends NotificationResponse {
             notification.getContent(),
             sender.getId(),
             sender.getRepresentativeProfilePhoto(),
-            sender.getNickname(),
             notification.getCreatedAt()
         );
     }

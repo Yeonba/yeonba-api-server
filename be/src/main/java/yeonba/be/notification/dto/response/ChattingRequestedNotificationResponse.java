@@ -22,17 +22,15 @@ public class ChattingRequestedNotificationResponse extends NotificationResponse 
         String content,
         long senderId,
         String senderProfilePhotoUrl,
-        String senderNickname,
         LocalDateTime createdAt,
         boolean canChat) {
 
-        super(notificationType, content, senderId, senderProfilePhotoUrl, senderNickname,
-            createdAt);
+        super(notificationType, content, senderId, senderProfilePhotoUrl, createdAt);
         this.canChat = canChat;
     }
 
     public static ChattingRequestedNotificationResponse from(Notification notification,
-        boolean chattingPossible) {
+        boolean canChat) {
 
         User sender = notification.getSender();
 
@@ -41,9 +39,8 @@ public class ChattingRequestedNotificationResponse extends NotificationResponse 
             notification.getContent(),
             sender.getId(),
             sender.getRepresentativeProfilePhoto(),
-            sender.getNickname(),
             notification.getCreatedAt(),
-            chattingPossible
+            canChat
         );
     }
 }
