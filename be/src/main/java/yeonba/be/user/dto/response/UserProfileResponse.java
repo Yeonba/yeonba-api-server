@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import yeonba.be.user.entity.User;
+import yeonba.be.user.entity.UserPreference;
 
 @Getter
 @AllArgsConstructor
@@ -69,8 +71,68 @@ public class UserProfileResponse {
     private String lookAlikeAnimalName;
 
     @Schema(
+        type = "number",
+        description = "선호하는 나이 하한, null일 수 있음",
+        example = "20")
+    private Integer preferredAgeLowerBound;
+
+    @Schema(
+        type = "number",
+        description = "선호하는 나이 상한, null일 수 있음",
+        example = "30")
+    private Integer preferredAgeUpperBound;
+
+    @Schema(
+        type = "number",
+        description = "선호하는 키 하한, null일 수 있음",
+        example = "150")
+    private Integer preferredHeightLowerBound;
+
+    @Schema(
+        type = "number",
+        description = "선호하는 키 상한, null일 수 있음",
+        example = "180")
+    private Integer preferredHeightUpperBound;
+
+    @Schema(
+        type = "string",
+        description = "선호하는 mbti",
+        example = "ISTJ")
+    private String preferredMbti;
+
+    @Schema(
+        type = "string",
+        description = "선호하는 체형",
+        example = "마른체형")
+    private String preferredBodyType;
+
+    @Schema(
         type = "boolean",
         description = "이전 화살 전송 여부",
         example = "false")
     private boolean isAlreadySentArrow;
+
+    public static UserProfileResponse from(
+        User user, UserPreference userPreference, boolean isAlreadySentArrow) {
+
+        return new UserProfileResponse(
+            user.getProfilePhotoUrls(),
+            user.getGenderString(),
+            user.getNickname(),
+            user.getArrow(),
+            user.getAge(),
+            user.getHeight(),
+            user.getArea().getName(),
+            user.getPhotoSyncRate(),
+            user.getVocalRange().getClassification(),
+            user.getAnimal().getName(),
+            userPreference.getAgeLowerBound(),
+            userPreference.getAgeUpperBound(),
+            userPreference.getHeightLowerBound(),
+            userPreference.getHeightUpperBound(),
+            userPreference.getMbti(),
+            userPreference.getBodyType(),
+            isAlreadySentArrow
+        );
+    }
 }
