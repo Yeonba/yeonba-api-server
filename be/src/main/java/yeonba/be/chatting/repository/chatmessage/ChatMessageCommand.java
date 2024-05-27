@@ -10,7 +10,7 @@ public class ChatMessageCommand {
 
     private final ChatMessageRepository chatMessageRepository;
 
-    public ChatMessage createChatMessage(ChatMessage message) {
+    public ChatMessage save(ChatMessage message) {
 
         return chatMessageRepository.save(message);
     }
