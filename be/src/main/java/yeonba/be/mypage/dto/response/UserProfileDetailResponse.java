@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import yeonba.be.user.entity.User;
+import yeonba.be.user.entity.UserPreference;
 
 @Getter
 @AllArgsConstructor
@@ -72,17 +73,103 @@ public class UserProfileDetailResponse {
         example = "ISTP")
     private String mbti;
 
-    public UserProfileDetailResponse(User user) {
+    @Schema(
+        type = "string",
+        description = "음역대",
+        example = "고음")
+    private String vocalRange;
 
-        this.profilePhotoUrls = user.getProfilePhotoUrls();
-        this.gender = user.getGenderString();
-        this.birth = user.getBirth();
-        this.height = user.getHeight();
-        this.phoneNumber = user.getPhoneNumber();
-        this.nickname = user.getNickname();
-        this.photoSyncRate = user.getPhotoSyncRate();
-        this.bodyType = user.getBodyType();
-        this.job = user.getJob();
-        this.mbti = user.getMbti();
+    @Schema(
+        type = "string",
+        description = "닮은 동물상",
+        example = "강아지상")
+    private String lookAlikeAnimal;
+
+    @Schema(
+        type = "string",
+        description = "활동 지역",
+        example = "서울")
+    private String activityArea;
+
+    @Schema(
+        type = "string",
+        description = "선호하는 음역대",
+        example = "고음")
+    private String preferredVocalRange;
+
+    @Schema(
+        type = "string",
+        description = "선호하는 동물상",
+        example = "고양이상")
+    private String preferredAnimal;
+
+    @Schema(
+        type = "string",
+        description = "선호하는 지역",
+        example = "경기")
+    private String preferredArea;
+
+    @Schema(
+        type = "number",
+        description = "선호하는 나이 하한, nullable",
+        example = "25")
+    private Integer preferredAgeLowerBound;
+
+    @Schema(
+        type = "number",
+        description = "선호하는 나이 상한, nullable",
+        example = "30")
+    private Integer preferredAgeUpperBound;
+
+    @Schema(
+        type = "number",
+        description = "선호하는 키 하한, nullable",
+        example = "170")
+    private Integer preferredHeightLowerBound;
+
+    @Schema(
+        type = "number",
+        description = "선호하는 키 상한, nullable",
+        example = "180")
+    private Integer preferredHeightUpperBound;
+
+    @Schema(
+        type = "string",
+        description = "선호하는 MBTI",
+        example = "ISTJ")
+    private String preferredMbti;
+
+    @Schema(
+        type = "string",
+        description = "선호하는 체형",
+        example = "마른체형")
+    private String preferredBodyType;
+
+    public static UserProfileDetailResponse from(User user, UserPreference userPreference) {
+
+        return new UserProfileDetailResponse(
+            user.getProfilePhotoUrls(),
+            user.getGenderString(),
+            user.getBirth(),
+            user.getHeight(),
+            user.getPhoneNumber(),
+            user.getNickname(),
+            user.getPhotoSyncRate(),
+            user.getBodyType(),
+            user.getJob(),
+            user.getMbti(),
+            user.getVocalRange().getClassification(),
+            user.getAnimal().getName(),
+            user.getArea().getName(),
+            userPreference.getVocalRange().getClassification(),
+            userPreference.getAnimal().getName(),
+            userPreference.getArea().getName(),
+            userPreference.getAgeLowerBound(),
+            userPreference.getAgeUpperBound(),
+            userPreference.getHeightLowerBound(),
+            userPreference.getHeightUpperBound(),
+            userPreference.getMbti(),
+            userPreference.getBodyType()
+        );
     }
 }
