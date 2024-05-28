@@ -80,8 +80,9 @@ public class MyPageService {
     public UserProfileDetailResponse getProfileDetail(long userId) {
 
         User user = userQuery.findById(userId);
+        UserPreference userPreference = userPreferenceQuery.findByUser(user);
 
-        return new UserProfileDetailResponse(user);
+        return UserProfileDetailResponse.from(user, userPreference);
     }
 
     @Transactional
