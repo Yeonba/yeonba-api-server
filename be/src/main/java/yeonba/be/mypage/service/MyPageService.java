@@ -1,9 +1,10 @@
 package yeonba.be.mypage.service;
 
+import static yeonba.be.util.BoundsValidator.validateBounds;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,10 +36,10 @@ import yeonba.be.user.entity.Block;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.entity.UserPreference;
 import yeonba.be.user.entity.VocalRange;
-import yeonba.be.user.repository.block.BlockCommand;
-import yeonba.be.user.repository.block.BlockQuery;
 import yeonba.be.user.repository.animal.AnimalQuery;
 import yeonba.be.user.repository.area.AreaQuery;
+import yeonba.be.user.repository.block.BlockCommand;
+import yeonba.be.user.repository.block.BlockQuery;
 import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceQuery;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
@@ -170,18 +171,6 @@ public class MyPageService {
             .filter(area -> area.hasSameNameAs(name))
             .findFirst()
             .orElseThrow(() -> new GeneralException(UserException.AREA_NOT_FOUND));
-    }
-
-    private void validateBounds(Integer lowerBound, Integer upperBound) {
-
-        if (Objects.isNull(lowerBound) || Objects.isNull(upperBound)) {
-
-            return;
-        }
-
-        if (lowerBound > upperBound) {
-            throw new GeneralException(UserException.LOWER_BOUND_LESS_THAN_OR_EQUAL_UPPER_BOUND);
-        }
     }
 
     public void updateProfilePhotos(List<MultipartFile> profilePhotos, MultipartFile realTimePhoto,

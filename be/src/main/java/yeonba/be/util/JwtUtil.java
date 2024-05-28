@@ -50,7 +50,8 @@ public class JwtUtil {
         } else if (userIdObject instanceof Integer) {
             return ((Integer) userIdObject).longValue();
         } else {
-            throw new IllegalArgumentException("Unexpected type for userId: " + userIdObject.getClass().getName());
+            throw new IllegalArgumentException(
+                "Unexpected type for userId: " + userIdObject.getClass().getName());
         }
     }
 

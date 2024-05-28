@@ -54,10 +54,10 @@ public class UserPreference {
     private Animal animal;
 
     public UserPreference(
-        int ageLowerBound,
-        int ageUpperBound,
-        int heightLowerBound,
-        int heightUpperBound,
+        Integer ageLowerBound,
+        Integer ageUpperBound,
+        Integer heightLowerBound,
+        Integer heightUpperBound,
         String mbti,
         String bodyType,
         User user,
