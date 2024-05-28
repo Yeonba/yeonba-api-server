@@ -10,4 +10,6 @@ import yeonba.be.user.entity.User;
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>, ChatRoomRepositoryCustom {
 
     Optional<ChatRoom> findBySenderAndReceiver(User sender, User receiver);
+
+    boolean existsBySenderAndReceiver(User sender, User receiver);
 }

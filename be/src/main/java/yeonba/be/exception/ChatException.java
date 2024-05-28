@@ -4,6 +4,10 @@ import org.springframework.http.HttpStatus;
 
 public enum ChatException implements BaseException {
 
+    ALREADY_CHAT_ROOM_EXISTS(
+        HttpStatus.BAD_REQUEST,
+        "이미 채팅방이 존재합니다."),
+
     NOT_YOUR_CHAT_ROOM(
         HttpStatus.BAD_REQUEST,
         "해당 채팅방에 대한 권한이 없습니다."),

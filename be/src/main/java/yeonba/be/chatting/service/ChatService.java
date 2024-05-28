@@ -125,6 +125,10 @@ public class ChatService {
             throw new GeneralException(BlockException.ALREADY_BLOCKED_USER);
         }
 
+        if (chatRoomQuery.existsBy(sender, receiver)) {
+            throw new GeneralException(ChatException.ALREADY_CHAT_ROOM_EXISTS);
+        }
+
         // 비활성화된 채팅방 생성
         chatRoomCommand.createChatRoom(new ChatRoom(sender, receiver));
 
