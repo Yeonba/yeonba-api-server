@@ -7,6 +7,4 @@ import yeonba.be.user.entity.User;
 public interface ChatRoomRepositoryCustom {
 
     List<ChatRoom> findAllByUserAndActiveIsTrue(User user);
-
-    boolean existsBy(List<User> users);
 }

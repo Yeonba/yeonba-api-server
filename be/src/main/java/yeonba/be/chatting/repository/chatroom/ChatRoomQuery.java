@@ -31,9 +31,4 @@ public class ChatRoomQuery {
         return chatRoomRepository.findBySenderAndReceiver(sender, receiver)
             .orElseThrow(() -> new GeneralException(NOT_FOUND_CHAT_ROOM));
     }
-
-    public boolean existsBy(List<User> users) {
-
-        return chatRoomRepository.existsBy(users);
-    }
 }
