@@ -19,7 +19,6 @@ import yeonba.be.chatting.repository.chatmessage.ChatMessageCommand;
 import yeonba.be.chatting.repository.chatmessage.ChatMessageQuery;
 import yeonba.be.chatting.repository.chatroom.ChatRoomCommand;
 import yeonba.be.chatting.repository.chatroom.ChatRoomQuery;
-import yeonba.be.chatting.repository.chatroom.ChatRoomRepository;
 import yeonba.be.exception.BlockException;
 import yeonba.be.exception.ChatException;
 import yeonba.be.exception.GeneralException;
@@ -123,6 +122,13 @@ public class ChatService {
 
         if (block.isPresent()) {
             throw new GeneralException(BlockException.ALREADY_BLOCKED_USER);
+        }
+
+        // 이미 채팅 중인 사용자인 지 검증
+        boolean chatRoomExist =
+            chatRoomQuery.existsBy(sender, receiver) || chatRoomQuery.existsBy(receiver, sender);
+        if (!chatRoomExist) {
+            throw new GeneralException(ChatException.ALREADY_CHAT_USER);
         }
 
         // 비활성화된 채팅방 생성
