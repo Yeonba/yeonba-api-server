@@ -62,4 +62,8 @@ public class ChatMessage {
         this.sentAt = sentAt;
         this.read = false;
     }
+
+    public void readMessage() {
+        this.read = true;
+    }
 }

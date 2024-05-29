@@ -72,16 +72,19 @@ public class ChatService {
 
         ChatRoom chatRoom = chatRoomQuery.findById(roomId);
 
-        if (!user.equals(chatRoom.getSender()) && !user.equals(chatRoom.getReceiver())) {
-            throw new GeneralException(ChatException.NOT_YOUR_CHAT_ROOM);
-        }
+        chatRoom.validateRoom(user);
 
         List<ChatMessage> chatMessages = chatMessageQuery.findAllByChatRoom(chatRoom);
 
         return chatMessages.stream()
-            .map(chatMessage -> new ChatMessageResponse(chatMessage.getSender().getId(),
-                chatMessage.getSender().getNickname(),
-                chatMessage.getContent(), chatMessage.getSentAt()))
+            .map(chatMessage -> {
+                if (!chatMessage.isRead() && chatMessage.getReceiver().equals(user)) {
+                    chatMessage.readMessage();
+                }
+                return new ChatMessageResponse(chatMessage.getSender().getId(),
+                    chatMessage.getSender().getNickname(), chatMessage.getContent(),
+                    chatMessage.getSentAt());
+            })
             .toList();
     }
 
@@ -180,5 +183,17 @@ public class ChatService {
             LocalDateTime.now());
 
         eventPublisher.publishEvent(notificationSendEvent);
+    }
+
+    @Transactional
+    public void leaveChatRoom(long userId, long roomId) {
+
+        User user = userQuery.findById(userId);
+        ChatRoom chatRoom = chatRoomQuery.findById(roomId);
+
+        chatRoom.validateRoom(user);
+
+        chatRoomCommand.delete(chatRoom);
+        chatMessageCommand.deleteAllByChatRoom(chatRoom);
     }
 }
