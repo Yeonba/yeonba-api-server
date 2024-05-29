@@ -265,4 +265,9 @@ public class User {
         this.animal = animal;
         this.area = area;
     }
+
+    public void updatePhotoSyncRate(int photoSyncRate) {
+
+        this.photoSyncRate = photoSyncRate;
+    }
 }

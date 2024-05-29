@@ -126,8 +126,8 @@ public class UserJoinRequest {
         description = "사진 싱크로율",
         example = "80")
     @Min(
-        value = 80,
-        message = "사진 싱크로율이 80퍼 이상이어야 가입할 수 있습니다.")
+        value = 75,
+        message = "사진 싱크로율이 75퍼 이상이어야 가입할 수 있습니다.")
     @NotNull(message = "사진 싱크로율은 반드시 입력되어야 합니다.")
     private int photoSyncRate;
 
