@@ -78,7 +78,7 @@ public class ChatService {
 
         return chatMessages.stream()
             .map(chatMessage -> {
-                if (!chatMessage.isRead()) {
+                if (!chatMessage.isRead() && chatMessage.getReceiver().equals(user)) {
                     chatMessage.readMessage();
                 }
                 return new ChatMessageResponse(chatMessage.getSender().getId(),
