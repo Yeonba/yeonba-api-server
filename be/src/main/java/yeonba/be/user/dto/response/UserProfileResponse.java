@@ -1,5 +1,6 @@
 package yeonba.be.user.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -112,8 +113,15 @@ public class UserProfileResponse {
         example = "false")
     private boolean isAlreadySentArrow;
 
+    @Schema(
+        type = "boolean",
+        description = "채팅 요청 가능 여부",
+        example = "false")
+    @JsonProperty("canChat")
+    private boolean canChat;
+
     public static UserProfileResponse from(
-        User user, UserPreference userPreference, boolean isAlreadySentArrow) {
+        User user, UserPreference userPreference, boolean isAlreadySentArrow, boolean canChat) {
 
         return new UserProfileResponse(
             user.getProfilePhotoUrls(),
@@ -132,7 +140,8 @@ public class UserProfileResponse {
             userPreference.getHeightUpperBound(),
             userPreference.getMbti(),
             userPreference.getBodyType(),
-            isAlreadySentArrow
+            isAlreadySentArrow,
+            canChat
         );
     }
 }

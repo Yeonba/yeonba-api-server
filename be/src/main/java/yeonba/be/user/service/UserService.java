@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import yeonba.be.arrow.repository.ArrowQuery;
+import yeonba.be.chatting.repository.chatroom.ChatRoomQuery;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.JoinException;
 import yeonba.be.exception.UserException;
@@ -61,6 +62,7 @@ public class UserService {
     private final AnimalQuery animalQuery;
     private final AreaQuery areaQuery;
     private final ArrowQuery arrowQuery;
+    private final ChatRoomQuery chatRoomQuery;
     private final UserQuery userQuery;
     private final UserPreferenceQuery userPreferenceQuery;
     private final UserRecommendationQuery userRecommendationQuery;
@@ -77,8 +79,11 @@ public class UserService {
         User targetUser = userQuery.findById(targetUserId);
         UserPreference targetUserPreference = userPreferenceQuery.findByUser(targetUser);
         boolean isAlreadySentArrow = arrowQuery.isArrowTransactionExist(user, targetUser);
+        boolean chatRoomExist =
+            chatRoomQuery.existsBy(user, targetUser) || chatRoomQuery.existsBy(targetUser, user);
 
-        return UserProfileResponse.from(targetUser, targetUserPreference, isAlreadySentArrow);
+        return UserProfileResponse.from(targetUser, targetUserPreference, isAlreadySentArrow,
+            !chatRoomExist);
     }
 
     public User saveUser(UserJoinRequest request) {
@@ -242,7 +247,7 @@ public class UserService {
         UserSearchRequest request) {
 
         int page = 0;
-        if(Objects.nonNull(request) && Objects.nonNull(request.getPage())) {
+        if (Objects.nonNull(request) && Objects.nonNull(request.getPage())) {
             page = request.getPage();
 
             // 검색 나이/키 하한 <= 상한 여부 검증

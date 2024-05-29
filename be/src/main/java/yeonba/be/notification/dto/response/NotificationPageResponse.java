@@ -43,14 +43,11 @@ public class NotificationPageResponse {
     @JsonProperty("isLast")
     private boolean last;
 
-    public static NotificationPageResponse from(Page<Notification> page) {
-
-        List<NotificationResponse> content = page.getContent().stream()
-            .map(NotificationResponse::from)
-            .toList();
+    public static NotificationPageResponse from(Page<Notification> page,
+        List<NotificationResponse> notifications) {
 
         return new NotificationPageResponse(
-            content,
+            notifications,
             page.getTotalPages(),
             page.getTotalElements(),
             page.isFirst(),
