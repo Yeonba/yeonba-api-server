@@ -1,6 +1,5 @@
 package yeonba.be.notification.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -11,11 +10,10 @@ import yeonba.be.user.entity.User;
 public class ChattingRequestedNotificationResponse extends NotificationResponse {
 
     @Schema(
-        type = "boolean",
-        description = "채팅 가능 여부",
-        example = "false")
-    @JsonProperty("canChat")
-    private boolean canChat;
+        type = "number",
+        description = "알림 ID",
+        example = "1")
+    private long notificationId;
 
     public ChattingRequestedNotificationResponse(
         String notificationType,
@@ -23,14 +21,13 @@ public class ChattingRequestedNotificationResponse extends NotificationResponse 
         long senderId,
         String senderProfilePhotoUrl,
         LocalDateTime createdAt,
-        boolean canChat) {
+        long notificationId) {
 
         super(notificationType, content, senderId, senderProfilePhotoUrl, createdAt);
-        this.canChat = canChat;
+        this.notificationId = notificationId;
     }
 
-    public static ChattingRequestedNotificationResponse from(Notification notification,
-        boolean canChat) {
+    public static ChattingRequestedNotificationResponse from(Notification notification) {
 
         User sender = notification.getSender();
 
@@ -40,7 +37,7 @@ public class ChattingRequestedNotificationResponse extends NotificationResponse 
             sender.getId(),
             sender.getRepresentativeProfilePhoto(),
             notification.getCreatedAt(),
-            canChat
+            notification.getId()
         );
     }
 }
