@@ -18,6 +18,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import yeonba.be.exception.ChatException;
+import yeonba.be.exception.GeneralException;
 import yeonba.be.user.entity.User;
 
 @Table(name = "chat_rooms")
@@ -60,5 +62,12 @@ public class ChatRoom {
     public void activeRoom() {
 
         this.active = true;
+    }
+
+    public void validateRoom(User user) {
+
+        if (!this.sender.equals(user) && !this.receiver.equals(user)) {
+            throw new GeneralException(ChatException.NOT_YOUR_CHAT_ROOM);
+        }
     }
 }

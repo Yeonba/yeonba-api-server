@@ -14,4 +14,9 @@ public class ChatRoomCommand {
 
         return chatRoomRepository.save(chatRoom);
     }
+
+    public void delete(ChatRoom chatRoom) {
+
+        chatRoomRepository.delete(chatRoom);
+    }
 }

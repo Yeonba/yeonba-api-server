@@ -15,6 +15,7 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,8 +37,6 @@ public class ChatController {
 
     @MessageMapping("/chat")
     public void chat(ChatPublishRequest request) {
-
-        log.info("chatting test log {}", request.getContent());
 
         chatService.publish(request);
     }
@@ -98,6 +97,21 @@ public class ChatController {
         @PathVariable long notificationId) {
 
         chatService.acceptRequestedChat(userId, notificationId);
+
+        return ResponseEntity
+            .ok()
+            .body(new CustomResponse<>());
+    }
+
+    @Operation(summary = "채팅방 나가기", description = "채팅방을 나갈 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "채팅방 나가기 정상 처리")
+    @DeleteMapping("/chat-rooms/{roomId}")
+    public ResponseEntity<CustomResponse<Void>> leaveChatRoom(
+        @RequestAttribute("userId") long userId,
+        @Parameter(description = "채팅방 ID", example = "1")
+        @PathVariable long roomId) {
+
+        chatService.leaveChatRoom(userId, roomId);
 
         return ResponseEntity
             .ok()

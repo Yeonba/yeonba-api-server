@@ -14,4 +14,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     int countByChatRoomIdAndReadIsFalse(long chatRoomId);
 
     List<ChatMessage> findAllByChatRoomOrderBySentAtDesc(ChatRoom chatRoom);
+
+    void deleteAllByChatRoom(ChatRoom chatRoom);
 }

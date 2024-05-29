@@ -72,9 +72,7 @@ public class ChatService {
 
         ChatRoom chatRoom = chatRoomQuery.findById(roomId);
 
-        if (!user.equals(chatRoom.getSender()) && !user.equals(chatRoom.getReceiver())) {
-            throw new GeneralException(ChatException.NOT_YOUR_CHAT_ROOM);
-        }
+        chatRoom.validateRoom(user);
 
         List<ChatMessage> chatMessages = chatMessageQuery.findAllByChatRoom(chatRoom);
 
@@ -180,5 +178,17 @@ public class ChatService {
             LocalDateTime.now());
 
         eventPublisher.publishEvent(notificationSendEvent);
+    }
+
+    @Transactional
+    public void leaveChatRoom(long userId, long roomId) {
+
+        User user = userQuery.findById(userId);
+        ChatRoom chatRoom = chatRoomQuery.findById(roomId);
+
+        chatRoom.validateRoom(user);
+
+        chatRoomCommand.delete(chatRoom);
+        chatMessageCommand.deleteAllByChatRoom(chatRoom);
     }
 }
