@@ -127,7 +127,7 @@ public class ChatService {
         // 이미 채팅 중인 사용자인 지 검증
         boolean chatRoomExist =
             chatRoomQuery.existsBy(sender, receiver) || chatRoomQuery.existsBy(receiver, sender);
-        if (!chatRoomExist) {
+        if (chatRoomExist) {
             throw new GeneralException(ChatException.ALREADY_CHAT_USER);
         }
 
