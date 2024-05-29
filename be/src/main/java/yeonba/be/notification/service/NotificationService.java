@@ -9,10 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yeonba.be.chatting.entity.ChatRoom;
 import yeonba.be.chatting.repository.chatroom.ChatRoomQuery;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.NotificationException;
 import yeonba.be.notification.dto.request.NotificationPageRequest;
+import yeonba.be.notification.dto.response.ChattingAcceptedNotificationResponse;
 import yeonba.be.notification.dto.response.ChattingRequestedNotificationResponse;
 import yeonba.be.notification.dto.response.NotificationPageResponse;
 import yeonba.be.notification.dto.response.NotificationResponse;
@@ -77,12 +79,19 @@ public class NotificationService {
 
     private NotificationResponse toNotificationResponse(Notification notification) {
 
-        if (notification.getType().isChattingRequest()) {
+        NotificationType type = notification.getType();
 
-            List<User> users = List.of(notification.getSender(), notification.getReceiver());
-            boolean canChat = !chatRoomQuery.existsBy(users);
+        if (type.isChattingAccept()) {
 
-            return ChattingRequestedNotificationResponse.from(notification, canChat);
+            ChatRoom chatRoom = chatRoomQuery.findBy(notification.getReceiver(),
+                notification.getSender());
+
+            return ChattingAcceptedNotificationResponse.from(notification, chatRoom.getId());
+        }
+
+        if (type.isChattingRequest()) {
+
+            return ChattingRequestedNotificationResponse.from(notification);
         }
 
         return SimpleNotificationResponse.from(notification);
