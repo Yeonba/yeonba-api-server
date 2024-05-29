@@ -34,6 +34,6 @@ public class ChatRoomQuery {
 
     public boolean existsBy(User sender, User receiver) {
 
-        return chatRoomRepository.existsBySenderAndReceiver(sender, receiver);
+        return chatRoomRepository.existsBySenderAndReceiverAndActiveIsTrue(sender, receiver);
     }
 }

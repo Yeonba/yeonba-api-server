@@ -12,5 +12,5 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>,
 
     Optional<ChatRoom> findBySenderAndReceiver(User sender, User receiver);
 
-    boolean existsBySenderAndReceiver(User sender, User receiver);
+    boolean existsBySenderAndReceiverAndActiveIsTrue(User sender, User receiver);
 }
