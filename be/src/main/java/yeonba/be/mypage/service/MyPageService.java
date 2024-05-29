@@ -1,19 +1,13 @@
 package yeonba.be.mypage.service;
 
-import static yeonba.be.util.BoundsValidator.validateBounds;
-
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import yeonba.be.exception.BlockException;
 import yeonba.be.exception.GeneralException;
 import yeonba.be.exception.NotificationException;
@@ -21,6 +15,7 @@ import yeonba.be.exception.UserException;
 import yeonba.be.mypage.dto.NotificationPermissionDetail;
 import yeonba.be.mypage.dto.request.NotificationPermissionsUpdateRequest;
 import yeonba.be.mypage.dto.request.UserChangeInactiveStatusRequest;
+import yeonba.be.mypage.dto.request.UserUpdateProfilePhotoRequest;
 import yeonba.be.mypage.dto.request.UserUpdateProfileRequest;
 import yeonba.be.mypage.dto.response.BlockedUserResponse;
 import yeonba.be.mypage.dto.response.BlockedUsersResponse;
@@ -44,6 +39,8 @@ import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceQuery;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
 import yeonba.be.util.AgeValidator;
+import yeonba.be.util.BoundsValidator;
+import yeonba.be.util.S3Service;
 
 @Service
 @RequiredArgsConstructor
@@ -59,10 +56,7 @@ public class MyPageService {
 
     private final BlockCommand blockCommand;
 
-    private final S3Client s3Client;
-
-    @Value("${S3_BUCKET_NAME}")
-    private String bucketName;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public UserSimpleProfileResponse getSimpleProfile(long userId) {
@@ -118,11 +112,11 @@ public class MyPageService {
         // 하한, 상한 값이 모두 존재할 경우만 하한 <= 상한 검증
         Integer preferredAgeLowerBound = request.getPreferredAgeLowerBound();
         Integer preferredAgeUpperBound = request.getPreferredAgeUpperBound();
-        validateBounds(preferredAgeLowerBound, preferredAgeUpperBound);
+        BoundsValidator.validateBounds(preferredAgeLowerBound, preferredAgeUpperBound);
 
         Integer preferredHeightLowerBound = request.getPreferredHeightLowerBound();
         Integer preferredHeightUpperBound = request.getPreferredHeightUpperBound();
-        validateBounds(preferredHeightLowerBound, preferredHeightUpperBound);
+        BoundsValidator.validateBounds(preferredHeightLowerBound, preferredHeightUpperBound);
 
         // 사용자 프로필 및 선호 조건 업데이트
         user.updateProfile(
@@ -174,14 +168,14 @@ public class MyPageService {
             .orElseThrow(() -> new GeneralException(UserException.AREA_NOT_FOUND));
     }
 
-    public void updateProfilePhotos(List<MultipartFile> profilePhotos, MultipartFile realTimePhoto,
-        long userId) {
+    @Transactional
+    public void updateProfilePhotos(long userId, UserUpdateProfilePhotoRequest request) {
 
         User user = userQuery.findById(userId);
 
-        // TODO: AI server 연동 후 얼굴 인식 로직 추가
-        // TODO: 사용자마다 정해전 경로에 파일을 업로드 하기 때문에 회원 가입 시 파일을 저장할 경로를 만들어야 함.
-        uploadProfilePhotos(profilePhotos, user);
+        // 사진 업로드 및 사진 싱크로율 업데이트
+        s3Service.uploadProfilePhotos(request.getProfilePhotos(), user);
+        user.updatePhotoSyncRate(request.getPhotoSyncRate());
     }
 
     public BlockedUsersResponse getBlockedUsers(long userId) {
@@ -226,40 +220,6 @@ public class MyPageService {
 
         User user = userQuery.findById(userId);
         user.delete();
-    }
-
-    /**
-     * 사용자마다 정해진 profile photo url에 파일을 업로드한다.
-     */
-    private void uploadProfilePhotos(List<MultipartFile> profilePhotos, User user) {
-
-        List<String> fileNames = user.getProfilePhotoUrls();
-
-        // TODO: 회의 후 확장자 제한 로직 추가, 확장자 검증 후 업로드 시작
-        // validateFileExtension(profilePhoto);
-
-        for (int profilePhotoIdx = 0; profilePhotoIdx < profilePhotos.size();
-            profilePhotoIdx++) {
-
-            MultipartFile profilePhoto = profilePhotos.get(profilePhotoIdx);
-
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(fileNames.get(profilePhotoIdx))
-                .contentDisposition("inline")
-                .contentType(profilePhoto.getContentType())
-                .build();
-
-            try {
-                s3Client.putObject(putObjectRequest,
-                    RequestBody.fromInputStream(profilePhoto.getInputStream(),
-                        profilePhoto.getSize()));
-
-            } catch (Exception e) {
-                throw new IllegalStateException(
-                    "Failed to upload file: " + profilePhoto.getOriginalFilename(), e);
-            }
-        }
     }
 
     @Transactional(readOnly = true)

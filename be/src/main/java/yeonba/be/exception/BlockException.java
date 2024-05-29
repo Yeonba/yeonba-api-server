@@ -1,7 +1,11 @@
 package yeonba.be.exception;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
+@AllArgsConstructor
 public enum BlockException implements BaseException {
 
     ALREADY_BLOCKED_USER(
@@ -14,21 +18,4 @@ public enum BlockException implements BaseException {
 
     private final HttpStatus httpStatus;
     private final String reason;
-
-    BlockException(HttpStatus httpStatus, String reason) {
-        this.httpStatus = httpStatus;
-        this.reason = reason;
-    }
-
-    @Override
-    public HttpStatus getHttpStatus() {
-
-        return httpStatus;
-    }
-
-    @Override
-    public String getReason() {
-
-        return reason;
-    }
 }
