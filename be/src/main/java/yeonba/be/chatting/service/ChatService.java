@@ -77,9 +77,14 @@ public class ChatService {
         List<ChatMessage> chatMessages = chatMessageQuery.findAllByChatRoom(chatRoom);
 
         return chatMessages.stream()
-            .map(chatMessage -> new ChatMessageResponse(chatMessage.getSender().getId(),
-                chatMessage.getSender().getNickname(),
-                chatMessage.getContent(), chatMessage.getSentAt()))
+            .map(chatMessage -> {
+                if (!chatMessage.isRead()) {
+                    chatMessage.readMessage();
+                }
+                return new ChatMessageResponse(chatMessage.getSender().getId(),
+                    chatMessage.getSender().getNickname(), chatMessage.getContent(),
+                    chatMessage.getSentAt());
+            })
             .toList();
     }
 
