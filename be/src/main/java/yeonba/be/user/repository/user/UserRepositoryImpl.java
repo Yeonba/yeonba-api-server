@@ -25,11 +25,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.util.StringUtils;
+import yeonba.be.arrow.enums.ArrowTransactionType;
+import yeonba.be.user.dto.request.UserSearchRequest;
 import yeonba.be.user.dto.response.UserQueryResponse;
+import yeonba.be.user.entity.User;
 import yeonba.be.user.entity.UserPreference;
 
 @RequiredArgsConstructor
@@ -43,8 +48,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         int limit = pageRequest.getPageSize();
         int offset = pageRequest.getPageNumber() * limit;
 
-        List<UserQueryResponse> content = selectUserQueryResponse(
-            Expressions.constant(true))
+        List<UserQueryResponse> content = selectUserQueryResponse(Expressions.constant(true))
             .where(findFavoritesCondition(userId))
             .limit(limit)
             .offset(offset)
@@ -125,8 +129,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     @Override
     public Page<UserQueryResponse> findRecommendUsers(
-        long userId,
-        boolean userGender,
+        User queryingUser,
         PageRequest pageRequest,
         LocalDate recommendDay) {
 
@@ -135,27 +138,26 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         // 추천 대상 사용자의 선호조건 조회
         UserPreference preference = queryFactory.selectFrom(userPreference)
-            .where(userPreference.user.id.eq(userId))
+            .where(userPreference.user.id.eq(queryingUser.getId()))
             .fetchFirst();
 
         List<UserQueryResponse> content = selectUserQueryResponse(
             Expressions.constant(false))
-            .where(recommendUserCondition(userId, userGender, preference, recommendDay))
+            .where(recommendUserCondition(queryingUser, preference, recommendDay))
             .limit(limit)
             .offset(offset)
             .fetch();
 
         JPAQuery<Long> countQuery = queryFactory.select(user.count())
             .from(user)
-            .where(recommendUserCondition(userId, userGender, preference, recommendDay));
+            .where(recommendUserCondition(queryingUser, preference, recommendDay));
 
         return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
     }
 
     /*
     이성 추천시 배제되는 사용자
-    - 자기 자신(조회하는 사용자)
-    - 동성
+    - 같은 성별 사용자
     - 추천(선호) 조건을 만족하지 않는 사용자
     - 화살을 주고 받은 적이 있는 사용자
     - 즐겨찾기한 사용자
@@ -165,14 +167,14 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     - 추천 일자에 검색된 적 있는 사용자
      */
     private BooleanExpression recommendUserCondition(
-        long userId,
-        Boolean gender,
+        User queryingUser,
         UserPreference preference,
         LocalDate recommendDay) {
 
+        long userId = queryingUser.getId();
+
         return Expressions.allOf(
-            user.id.ne(userId),
-            user.gender.ne(gender),
+            notSameGenderCondition(queryingUser.getGenderBoolean()),
             isActiveAndNotDeletedUserCondition(),
             isNotAcquaintanceCondition(userId),
             isNotBlockedUserCondition(userId),
@@ -184,22 +186,115 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             isNotUserSearchedOnDayCondition(userId, recommendDay));
     }
 
-    private JPQLQuery<Integer> findOneArrowReceivedTransactionBy(long receiverId) {
+    @Override
+    public Page<UserQueryResponse> findUsersBySearchCondition(
+        User searchingUser,
+        PageRequest pageRequest,
+        LocalDate searchDay,
+        UserSearchRequest request) {
 
-        return JPAExpressions.selectOne()
-            .from(arrowTransaction)
-            .where(
-                arrowTransaction.receiver.id.eq(receiverId),
-                arrowTransaction.sender.id.eq(user.id));
+        int limit = pageRequest.getPageSize();
+        int offset = pageRequest.getPageNumber() * limit;
+
+        BooleanExpression searchUserCondition =
+            searchUserCondition(searchingUser, request, searchDay);
+
+        List<UserQueryResponse> content = selectUserQueryResponse(
+            Expressions.as(findOneFavoriteBy(searchingUser.getId()).exists(), "isFavorite"))
+            .from(user)
+            .where(searchUserCondition)
+            .limit(limit)
+            .offset(offset)
+            .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory.select(user.count())
+            .from(user)
+            .where(searchUserCondition);
+
+        return PageableExecutionUtils.getPage(content, pageRequest, countQuery::fetchOne);
+    }
+
+    /*
+    이성 검색시 제외되는 사용자
+    - 같은 성별 사용자
+    - 지인
+    - 차단한 사용자
+    - 휴면, 삭제 상태 사용자
+    - 화실을 주고 받은 적 있는 사용자
+    - 검색일에 이미 검색된 적 있는 사용자
+     */
+    // TODO : 채팅 이력 있는 사용자 제외 조건 추가
+    private BooleanExpression searchUserCondition(
+        User searchingUser, UserSearchRequest request, LocalDate searchDay) {
+
+        long userId = searchingUser.getId();
+
+        return Expressions.allOf(
+            notSameGenderCondition(searchingUser.getGenderBoolean()),
+            isNotAcquaintanceCondition(userId),
+            isNotBlockedUserCondition(userId),
+            isActiveAndNotDeletedUserCondition(),
+            findOneArrowReceivedTransactionBy(userId).notExists(),
+            findOneArrowSentTransactionBy(userId).notExists(),
+            isNotUserRecommendedOnDayCondition(userId, searchDay),
+            isNotUserSearchedOnDayCondition(userId, searchDay),
+            searchCondition(userId, request)
+        );
+    }
+
+    private BooleanExpression searchCondition(long userId, UserSearchRequest request) {
+
+        if (Objects.isNull(request)) {
+
+            return null;
+        }
+
+        String area = request.getArea();
+        BooleanExpression userAreaEqualCondition =
+            StringUtils.hasText(area) ? user.area.name.eq(area) : null;
+
+        String vocalRange = request.getVocalRange();
+        BooleanExpression userVocalRangeEqualCondition =
+            StringUtils.hasText(vocalRange) ? user.vocalRange.classification.eq(vocalRange) : null;
+
+        BooleanExpression userAgeRangeCondition =
+            userAgeRangeCondition(request.getAgeLowerBound(), request.getAgeUpperBound());
+
+        BooleanExpression userHeightRangeCondition =
+            userHeightRangeCondition(request.getHeightLowerBound(), request.getHeightUpperBound());
+
+        BooleanExpression includePreferredAnimalCondition =
+            includePreferredAnimalCondition(userId, request.getIncludePreferredAnimal());
+
+        return Expressions.allOf(
+            userAreaEqualCondition,
+            userVocalRangeEqualCondition,
+            userAgeRangeCondition,
+            userHeightRangeCondition,
+            includePreferredAnimalCondition);
+    }
+
+    private BooleanExpression includePreferredAnimalCondition(
+        long userId, Boolean includePreferredAnimal) {
+
+        if (Objects.isNull(includePreferredAnimal) || !includePreferredAnimal) {
+
+            return null;
+        }
+
+        Long preferredAnimalId = queryFactory.select(userPreference.animal.id)
+            .from(userPreference)
+            .where(userPreference.user.id.eq(userId))
+            .fetchFirst();
+
+        return Objects.nonNull(preferredAnimalId) ? user.animal.id.eq(preferredAnimalId) : null;
     }
 
     private JPQLQuery<Integer> findOneFavoriteBy(long userId) {
 
         return JPAExpressions.selectOne()
             .from(favorite)
-            .where(
-                favorite.user.id.eq(userId),
-                favorite.favoriteUser.id.eq(user.id));
+            .where(favorite.user.id.eq(userId), favorite.favoriteUser.id.eq(user.id));
     }
 
     private JPQLQuery<Integer> findOneArrowSentTransactionBy(long senderId) {
@@ -207,20 +302,33 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         return JPAExpressions.selectOne()
             .from(arrowTransaction)
             .where(
+                arrowTransaction.type.eq(ArrowTransactionType.USER_TO_USER),
                 arrowTransaction.sender.id.eq(senderId),
                 arrowTransaction.receiver.id.eq(user.id));
+    }
+
+    private JPQLQuery<Integer> findOneArrowReceivedTransactionBy(long receiverId) {
+
+        return JPAExpressions.selectOne()
+            .from(arrowTransaction)
+            .where(
+                arrowTransaction.type.eq(ArrowTransactionType.USER_TO_USER),
+                arrowTransaction.receiver.id.eq(receiverId),
+                arrowTransaction.sender.id.eq(user.id));
     }
 
     private BooleanExpression isUserSatisfiedPreferenceCondition(UserPreference preference) {
 
         return Expressions.allOf(
-            user.age.between(preference.getAgeLowerBound(), preference.getAgeUpperBound()),
-            user.height.between(preference.getHeightLowerBound(), preference.getHeightUpperBound()),
             user.mbti.eq(preference.getMbti()),
             user.bodyType.eq(preference.getBodyType()),
             user.vocalRange.id.eq(preference.getVocalRange().getId()),
             user.area.id.eq(preference.getArea().getId()),
-            user.animal.id.eq(preference.getAnimal().getId()));
+            user.animal.id.eq(preference.getAnimal().getId()),
+            userAgeRangeCondition(preference.getAgeLowerBound(), preference.getAgeUpperBound()),
+            userHeightRangeCondition(
+                preference.getHeightLowerBound(), preference.getHeightUpperBound())
+        );
     }
 
     private BooleanExpression isNotUserRecommendedOnDayCondition(
@@ -256,9 +364,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     /*
-    응답 dto에 필요한 필드를 select하는 공통 사용 쿼리, 별도 분리
-    경우에 따라 즐겨찾기 등록 여부(favorite)을 상수로 주입하기에
-    해당 부분만 파라미터로 받도록 구성
+    응답 dto에 필요한 필드를 select하는 공통 사용 쿼리, 사용하는 로직에 따라
+    조회하는 사용자, 조회되는 사용자간 즐겨찾기 존재 여부를 상수로 주입, 혹은 서브 쿼리로 확인
      */
     private JPAQuery<UserQueryResponse> selectUserQueryResponse(
         Expression<Boolean> checkFavoriteExistsNestedQuery) {
@@ -285,6 +392,11 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
             .where(isRepresentativeProfilePhotoCondition());
     }
 
+    private BooleanExpression notSameGenderCondition(boolean userGender) {
+
+        return user.gender.ne(userGender);
+    }
+
     private BooleanExpression isRepresentativeProfilePhotoCondition() {
 
         return profilePhoto.id.eq(
@@ -295,8 +407,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
     private BooleanExpression isActiveAndNotDeletedUserCondition() {
 
-        return user.deleted.isFalse()
-            .and(user.inactive.isFalse());
+        return user.deleted.isFalse().and(user.inactive.isFalse());
     }
 
     private BooleanExpression isNotAcquaintanceCondition(long userId) {
@@ -317,5 +428,27 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 block.user.id.eq(userId),
                 block.blockedUser.id.eq(user.id))
             .notExists();
+    }
+
+    private BooleanExpression userAgeRangeCondition(
+        Integer ageLowerBound, Integer ageUpperBound) {
+
+        BooleanExpression userAgeGoeCondition =
+            Objects.nonNull(ageLowerBound) ? user.age.goe(ageLowerBound) : null;
+        BooleanExpression userAgeLoeCondition =
+            Objects.nonNull(ageUpperBound) ? user.age.loe(ageUpperBound) : null;
+
+        return Expressions.allOf(userAgeLoeCondition, userAgeGoeCondition);
+    }
+
+    private BooleanExpression userHeightRangeCondition(
+        Integer heightLowerBound, Integer heightUpperBound) {
+
+        BooleanExpression userHeightGoeCondition =
+            Objects.nonNull(heightLowerBound) ? user.height.goe(heightLowerBound) : null;
+        BooleanExpression userHeightLoeCondition =
+            Objects.nonNull(heightUpperBound) ? user.height.loe(heightUpperBound) : null;
+
+        return Expressions.allOf(userHeightGoeCondition, userHeightLoeCondition);
     }
 }

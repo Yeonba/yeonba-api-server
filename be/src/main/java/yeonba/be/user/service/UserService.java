@@ -1,8 +1,11 @@
 package yeonba.be.user.service;
 
+import static yeonba.be.util.BoundsValidator.validateBounds;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +19,7 @@ import yeonba.be.exception.JoinException;
 import yeonba.be.exception.UserException;
 import yeonba.be.login.dto.request.UserJoinRequest;
 import yeonba.be.user.dto.request.UserQueryRequest;
+import yeonba.be.user.dto.request.UserSearchRequest;
 import yeonba.be.user.dto.request.UserUpdateDeviceTokenRequest;
 import yeonba.be.user.dto.response.UserProfileResponse;
 import yeonba.be.user.dto.response.UserQueryPageResponse;
@@ -26,6 +30,7 @@ import yeonba.be.user.entity.ProfilePhoto;
 import yeonba.be.user.entity.User;
 import yeonba.be.user.entity.UserPreference;
 import yeonba.be.user.entity.UserRecommendation;
+import yeonba.be.user.entity.UserSearchLog;
 import yeonba.be.user.entity.VocalRange;
 import yeonba.be.user.enums.Gender;
 import yeonba.be.user.enums.LoginType;
@@ -35,8 +40,10 @@ import yeonba.be.user.repository.profilephoto.ProfilePhotoCommand;
 import yeonba.be.user.repository.user.UserCommand;
 import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceCommand;
+import yeonba.be.user.repository.userpreference.UserPreferenceQuery;
 import yeonba.be.user.repository.userrecommendation.UserRecommendationCommand;
 import yeonba.be.user.repository.userrecommendation.UserRecommendationQuery;
+import yeonba.be.user.repository.usersearchlog.UserSearchLogCommand;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
 import yeonba.be.util.AgeValidator;
 import yeonba.be.util.S3Service;
@@ -49,11 +56,13 @@ public class UserService {
     private final UserCommand userCommand;
     private final UserPreferenceCommand userPreferenceCommand;
     private final UserRecommendationCommand userRecommendationCommand;
+    private final UserSearchLogCommand userSearchLogCommand;
 
     private final AnimalQuery animalQuery;
     private final AreaQuery areaQuery;
     private final ArrowQuery arrowQuery;
     private final UserQuery userQuery;
+    private final UserPreferenceQuery userPreferenceQuery;
     private final UserRecommendationQuery userRecommendationQuery;
     private final VocalRangeQuery vocalRangeQuery;
 
@@ -63,22 +72,13 @@ public class UserService {
     public UserProfileResponse getTargetUserProfile(long userId, long targetUserId) {
 
         User user = userQuery.findById(userId);
-        User targetUser = userQuery.findById(targetUserId);
 
+        // 조회하는 사용자 정보, 선호조건, 이전 화살 송신 여부 조회
+        User targetUser = userQuery.findById(targetUserId);
+        UserPreference targetUserPreference = userPreferenceQuery.findByUser(targetUser);
         boolean isAlreadySentArrow = arrowQuery.isArrowTransactionExist(user, targetUser);
 
-        return new UserProfileResponse(
-            targetUser.getProfilePhotoUrls(),
-            targetUser.getGenderString(),
-            targetUser.getNickname(),
-            targetUser.getArrow(),
-            targetUser.getAge(),
-            targetUser.getHeight(),
-            targetUser.getArea().getName(),
-            targetUser.getPhotoSyncRate(),
-            targetUser.getVocalRange().getClassification(),
-            targetUser.getAnimal().getName(),
-            isAlreadySentArrow);
+        return UserProfileResponse.from(targetUser, targetUserPreference, isAlreadySentArrow);
     }
 
     public User saveUser(UserJoinRequest request) {
@@ -173,7 +173,7 @@ public class UserService {
     public UserQueryPageResponse findUsersByQueryCondition(long userId, UserQueryRequest request) {
 
         int page = Optional.ofNullable(request.getPage()).orElse(0);
-        int size = 6;
+        int size = 30;
         PageRequest pageRequest = PageRequest.of(page, size);
 
         // 사용자 존재 여부 검증
@@ -208,10 +208,9 @@ public class UserService {
 
         // 추천 사용자 응답 조회,
         int numberOfRecommendUsers = 2;
-        boolean userGender = Gender.from(user.getGenderString()).genderBoolean;
         PageRequest pageRequest = PageRequest.of(0, numberOfRecommendUsers);
         UserQueryPageResponse response = userQuery
-            .findRecommendUsers(userId, userGender, pageRequest, recommendDay);
+            .findRecommendUsers(user, pageRequest, recommendDay);
 
         // 추천 가능 여부 확인(추천 가능한 사용자 2명 이상)
         List<UserQueryResponse> content = response.getUsers();
@@ -220,10 +219,7 @@ public class UserService {
         }
 
         // 추천 사용자 조회
-        List<Long> userIds = content.stream()
-            .map(UserQueryResponse::getId)
-            .toList();
-        List<User> recommendUsers = userQuery.findByIds(userIds);
+        List<User> recommendUsers = findAllUsersInResponse(response);
 
         // 추천 내역 저장
         List<UserRecommendation> userRecommendations = recommendUsers.stream()
@@ -239,5 +235,50 @@ public class UserService {
 
         User user = userQuery.findById(userId);
         user.updateDeviceToken(request.getDeviceToken());
+    }
+
+    @Transactional
+    public UserQueryPageResponse findUsersBySearchCondition(long userId,
+        UserSearchRequest request) {
+
+        int page = 0;
+        if(Objects.nonNull(request) && Objects.nonNull(request.getPage())) {
+            page = request.getPage();
+
+            // 검색 나이/키 하한 <= 상한 여부 검증
+            validateBounds(request.getAgeLowerBound(), request.getAgeUpperBound());
+            validateBounds(request.getHeightLowerBound(), request.getHeightUpperBound());
+        }
+
+        int size = 30;
+        PageRequest pageRequest = PageRequest.of(page, size);
+        LocalDate searchDay = LocalDate.now();
+
+        // 검색하는 사용자 조회
+        User user = userQuery.findById(userId);
+
+        // 응답 조회
+        UserQueryPageResponse response = userQuery
+            .findUsersBySearchCondition(user, pageRequest, searchDay, request);
+
+        // 검색된 사용자 조회
+        List<User> searchingUsers = findAllUsersInResponse(response);
+
+        // 검색 내역 저장
+        List<UserSearchLog> userSearchLogs = searchingUsers.stream()
+            .map(searchingUser -> new UserSearchLog(user, searchingUser))
+            .toList();
+        userSearchLogCommand.saveAll(userSearchLogs);
+
+        return response;
+    }
+
+    private List<User> findAllUsersInResponse(UserQueryPageResponse response) {
+
+        List<Long> userIds = response.getUsers().stream()
+            .map(UserQueryResponse::getId)
+            .toList();
+
+        return userQuery.findByIds(userIds);
     }
 }

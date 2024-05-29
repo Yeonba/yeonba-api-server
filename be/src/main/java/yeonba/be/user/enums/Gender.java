@@ -13,6 +13,7 @@ public enum Gender {
 
     public final String genderString;
     public final boolean genderBoolean;
+
     public static Gender from(String genderString) {
 
         if (StringUtils.equals(genderString, MALE.genderString)) {
