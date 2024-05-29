@@ -39,6 +39,7 @@ import yeonba.be.user.repository.user.UserQuery;
 import yeonba.be.user.repository.userpreference.UserPreferenceQuery;
 import yeonba.be.user.repository.vocalrange.VocalRangeQuery;
 import yeonba.be.util.AgeValidator;
+import yeonba.be.util.BoundsValidator;
 import yeonba.be.util.S3Service;
 
 @Service
@@ -73,8 +74,9 @@ public class MyPageService {
     public UserProfileDetailResponse getProfileDetail(long userId) {
 
         User user = userQuery.findById(userId);
+        UserPreference userPreference = userPreferenceQuery.findByUser(user);
 
-        return new UserProfileDetailResponse(user);
+        return UserProfileDetailResponse.from(user, userPreference);
     }
 
     @Transactional
@@ -110,11 +112,11 @@ public class MyPageService {
         // 하한, 상한 값이 모두 존재할 경우만 하한 <= 상한 검증
         Integer preferredAgeLowerBound = request.getPreferredAgeLowerBound();
         Integer preferredAgeUpperBound = request.getPreferredAgeUpperBound();
-        validateBounds(preferredAgeLowerBound, preferredAgeUpperBound);
+        BoundsValidator.validateBounds(preferredAgeLowerBound, preferredAgeUpperBound);
 
         Integer preferredHeightLowerBound = request.getPreferredHeightLowerBound();
         Integer preferredHeightUpperBound = request.getPreferredHeightUpperBound();
-        validateBounds(preferredHeightLowerBound, preferredHeightUpperBound);
+        BoundsValidator.validateBounds(preferredHeightLowerBound, preferredHeightUpperBound);
 
         // 사용자 프로필 및 선호 조건 업데이트
         user.updateProfile(
@@ -164,18 +166,6 @@ public class MyPageService {
             .filter(area -> area.hasSameNameAs(name))
             .findFirst()
             .orElseThrow(() -> new GeneralException(UserException.AREA_NOT_FOUND));
-    }
-
-    private void validateBounds(Integer lowerBound, Integer upperBound) {
-
-        if (Objects.isNull(lowerBound) || Objects.isNull(upperBound)) {
-
-            return;
-        }
-
-        if (lowerBound > upperBound) {
-            throw new GeneralException(UserException.LOWER_BOUND_LESS_THAN_OR_EQUAL_UPPER_BOUND);
-        }
     }
 
     @Transactional

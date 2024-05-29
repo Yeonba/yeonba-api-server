@@ -15,6 +15,12 @@ public class ChatRoomQuery {
 
     private final ChatRoomRepository chatRoomRepository;
 
+    public ChatRoom findById(long id) {
+
+        return chatRoomRepository.findById(id)
+            .orElseThrow(() -> new GeneralException(NOT_FOUND_CHAT_ROOM));
+    }
+
     public List<ChatRoom> findAllBy(User user) {
 
         return chatRoomRepository.findAllByUserAndActiveIsTrue(user);
@@ -24,5 +30,10 @@ public class ChatRoomQuery {
 
         return chatRoomRepository.findBySenderAndReceiver(sender, receiver)
             .orElseThrow(() -> new GeneralException(NOT_FOUND_CHAT_ROOM));
+    }
+
+    public boolean existsBy(User sender, User receiver) {
+
+        return chatRoomRepository.existsBySenderAndReceiverAndActiveIsTrue(sender, receiver);
     }
 }

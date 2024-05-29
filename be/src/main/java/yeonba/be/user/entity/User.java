@@ -215,7 +215,6 @@ public class User {
     }
 
     public void updateProfilePhotos(List<ProfilePhoto> profilePhotos) {
-
         this.profilePhotos = profilePhotos;
     }
 

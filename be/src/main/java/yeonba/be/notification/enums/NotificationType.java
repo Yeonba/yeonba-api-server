@@ -23,4 +23,9 @@ public enum NotificationType {
 
         return this == CHATTING_REQUESTED;
     }
+
+    public boolean isChattingAccept() {
+
+        return this == CHATTING_REQUEST_ACCEPTED;
+    }
 }

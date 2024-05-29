@@ -54,7 +54,7 @@ public class LoginService {
     @Transactional
     public UserRefrehJwtResponse refreshJwt(UserRefreshJwtRequest request) {
 
-        long userId = jwtUtil.getUserIdFromToken(request.getRefreshToken());
+        long userId = jwtUtil.getUserIdFromJwt(request.getRefreshToken());
 
         User user = userQuery.findById(userId);
         user.validateRefreshToken(request.getRefreshToken());

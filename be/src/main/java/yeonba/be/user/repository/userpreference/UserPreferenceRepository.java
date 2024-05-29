@@ -10,5 +10,4 @@ import yeonba.be.user.entity.UserPreference;
 public interface UserPreferenceRepository extends JpaRepository<UserPreference, Long> {
 
     Optional<UserPreference> findFirstByUser(User user);
-
 }

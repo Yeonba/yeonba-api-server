@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    private final DevAuthInterceptor devAuthInterceptor;
+    private final AuthInterceptor devAuthInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -17,7 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
             .addPathPatterns("/**")
             .excludePathPatterns("/swagger-ui/**",
                 "/swagger-resources/**",
-                "/v2/api-docs",
+                "/v3/api-docs/**",
                 "/webjars/**",
                 "/error")
             .excludePathPatterns(

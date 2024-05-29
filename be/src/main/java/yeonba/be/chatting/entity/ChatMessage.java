@@ -53,12 +53,13 @@ public class ChatMessage {
 
     private LocalDateTime deletedAt;
 
-    public ChatMessage(ChatRoom chatRoom, User sender, User receiver, String content) {
+    public ChatMessage(ChatRoom chatRoom, User sender, User receiver, String content, LocalDateTime sentAt) {
 
         this.chatRoom = chatRoom;
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
+        this.sentAt = sentAt;
         this.read = false;
     }
 }
