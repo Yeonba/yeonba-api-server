@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.ResponseBody;
 import yeonba.be.chatting.dto.request.ChatPublishRequest;
 import yeonba.be.chatting.dto.response.ChatMessageResponse;
+import yeonba.be.chatting.dto.response.ChatRequestAcceptResponse;
 import yeonba.be.chatting.dto.response.ChatRoomResponse;
 import yeonba.be.chatting.service.ChatService;
 import yeonba.be.util.CustomResponse;
@@ -86,16 +87,17 @@ public class ChatController {
     @ApiResponse(responseCode = "200", description = "채팅 요청 수락 정상 처리")
     @ResponseBody
     @PostMapping("/notifications/{notificationId}/chat")
-    public ResponseEntity<CustomResponse<Void>> acceptRequestedChat(
+    public ResponseEntity<CustomResponse<ChatRequestAcceptResponse>> acceptRequestedChat(
         @RequestAttribute("userId") long userId,
         @Parameter(description = "알림 ID", example = "1")
         @PathVariable long notificationId) {
 
-        chatService.acceptRequestedChat(userId, notificationId);
+        ChatRequestAcceptResponse response = chatService.acceptRequestedChat(userId,
+            notificationId);
 
         return ResponseEntity
             .ok()
-            .body(new CustomResponse<>());
+            .body(new CustomResponse<>(response));
     }
 
     @Operation(summary = "채팅방 나가기", description = "채팅방을 나갈 수 있습니다.")
