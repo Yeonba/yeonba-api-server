@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeonba.be.chatting.dto.request.ChatPublishRequest;
 import yeonba.be.chatting.dto.response.ChatMessageResponse;
+import yeonba.be.chatting.dto.response.ChatRequestAcceptResponse;
 import yeonba.be.chatting.dto.response.ChatRoomResponse;
 import yeonba.be.chatting.entity.ChatMessage;
 import yeonba.be.chatting.entity.ChatRoom;
@@ -145,7 +146,7 @@ public class ChatService {
     }
 
     @Transactional
-    public void acceptRequestedChat(long userId, long notificationId) {
+    public ChatRequestAcceptResponse acceptRequestedChat(long userId, long notificationId) {
 
         Notification notification = notificationQuery.findById(notificationId);
 
@@ -159,7 +160,7 @@ public class ChatService {
         User receiver = userQuery.findById(notification.getReceiver().getId());
 
         // 본인에게 온 채팅 요청인지 검증
-        if (receiver.equals(userQuery.findById(userId))) {
+        if (!receiver.equals(userQuery.findById(userId))) {
 
             throw new GeneralException(
                 NotificationException.NOT_YOUR_CHATTING_REQUEST_NOTIFICATION);
@@ -183,6 +184,8 @@ public class ChatService {
             LocalDateTime.now());
 
         eventPublisher.publishEvent(notificationSendEvent);
+
+        return new ChatRequestAcceptResponse(chatRoom.getId());
     }
 
     @Transactional
