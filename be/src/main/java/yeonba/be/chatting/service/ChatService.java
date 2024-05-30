@@ -66,7 +66,7 @@ public class ChatService {
             new ChatMessage(chatRoom, sender, receiver, request.getContent(), request.getSentAt()));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<ChatMessageResponse> getChatMessages(long userId, long roomId) {
 
         User user = userQuery.findById(userId);
