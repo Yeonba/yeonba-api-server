@@ -44,7 +44,11 @@
 - 팀원들이 가장 익숙한 DB
 
 ### Swagger
+- 코드(어노테이션) 기반으로 간편히 API 명세서 생성 가능
+  
+- 깔끔하고 가독성 높은 UI 제공
 
+- API 문서를 생성하는데 드는 공수를 덜고 본질적인 개발에 집중 가능
 
 ## 🌴Git & Branch convention
 ### Git 컨벤션
@@ -136,6 +140,8 @@ public ResponseEntity<CustomResponse<UserSimpleProfileResponse>> getSimpleProfil
 - postfix : Request, Response
 
 ## 🗃️ DB 설계
+![Yeonba_ERD](https://github.com/user-attachments/assets/635b906e-75e9-4131-8320-03026ce1977c)
+
 ### DB convertion
 - 테이블 이름 복수형(`users`)
 
@@ -147,6 +153,7 @@ public ResponseEntity<CustomResponse<UserSimpleProfileResponse>> getSimpleProfil
 - 레코드 생성 일시 : `created_at`
   
 - 레코드 최종 수정 일시 : `updated_at`
+
 
 ### 시간 데이터 형식
 - DB에 있는 모든 데이터는 UTC
