@@ -1,4 +1,6 @@
-<img width="690" alt="image" src="https://github.com/user-attachments/assets/3e69694c-b708-4393-b1b6-4c0e84ada91a">
+<div align="center">
+  <img width="690" alt="image" src="https://github.com/user-attachments/assets/3e69694c-b708-4393-b1b6-4c0e84ada91a">
+</div>
 
 ## 기술 스택
 ### Backend
