@@ -1,4 +1,4 @@
-package yeonba.be.mypage.fixtures;
+package yeonba.be.fixtures;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -32,8 +32,9 @@ public abstract class UserFixtures {
     public static final Animal ANIMAL = new Animal("강아지상");
     public static final VocalRange VOCAL_RANGE = new VocalRange("저음");
     public static final Area AREA = new Area("서울");
-    public static final List<String> PROFILE_PHOTO_URLS = List
-        .of("profilephoto/1-0", "profilephoto/1-1");
+    public static final String PROFILE_PHOTO_URL = "profilephoto/1-0";
+    public static final List<String> PROFILE_PHOTO_URLS = List.of(PROFILE_PHOTO_URL,
+        "profilephoto/1-1");
 
     public static final int AGE_LOWER_BOUND = 20;
     public static final int AGE_UPPER_BOUND = 40;
