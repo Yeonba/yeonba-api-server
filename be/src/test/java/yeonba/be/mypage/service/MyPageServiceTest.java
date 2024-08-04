@@ -8,23 +8,23 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static yeonba.be.mypage.fixtures.UserFixtures.AGE_LOWER_BOUND;
-import static yeonba.be.mypage.fixtures.UserFixtures.AGE_UPPER_BOUND;
-import static yeonba.be.mypage.fixtures.UserFixtures.ANIMAL;
-import static yeonba.be.mypage.fixtures.UserFixtures.AREA;
-import static yeonba.be.mypage.fixtures.UserFixtures.BIRTH;
-import static yeonba.be.mypage.fixtures.UserFixtures.BODY_TYPE;
-import static yeonba.be.mypage.fixtures.UserFixtures.HEIGHT;
-import static yeonba.be.mypage.fixtures.UserFixtures.HEIGHT_LOWER_BOUND;
-import static yeonba.be.mypage.fixtures.UserFixtures.HEIGHT_UPPER_BOUND;
-import static yeonba.be.mypage.fixtures.UserFixtures.JOB;
-import static yeonba.be.mypage.fixtures.UserFixtures.MBTI;
-import static yeonba.be.mypage.fixtures.UserFixtures.NICKNAME;
-import static yeonba.be.mypage.fixtures.UserFixtures.PHOTO_SYNC_RATE;
-import static yeonba.be.mypage.fixtures.UserFixtures.USER_ID;
-import static yeonba.be.mypage.fixtures.UserFixtures.VOCAL_RANGE;
-import static yeonba.be.mypage.fixtures.UserFixtures.user;
-import static yeonba.be.mypage.fixtures.UserFixtures.userPreference;
+import static yeonba.be.fixtures.UserFixtures.AGE_LOWER_BOUND;
+import static yeonba.be.fixtures.UserFixtures.AGE_UPPER_BOUND;
+import static yeonba.be.fixtures.UserFixtures.ANIMAL;
+import static yeonba.be.fixtures.UserFixtures.AREA;
+import static yeonba.be.fixtures.UserFixtures.BIRTH;
+import static yeonba.be.fixtures.UserFixtures.BODY_TYPE;
+import static yeonba.be.fixtures.UserFixtures.HEIGHT;
+import static yeonba.be.fixtures.UserFixtures.HEIGHT_LOWER_BOUND;
+import static yeonba.be.fixtures.UserFixtures.HEIGHT_UPPER_BOUND;
+import static yeonba.be.fixtures.UserFixtures.JOB;
+import static yeonba.be.fixtures.UserFixtures.MBTI;
+import static yeonba.be.fixtures.UserFixtures.NICKNAME;
+import static yeonba.be.fixtures.UserFixtures.PHOTO_SYNC_RATE;
+import static yeonba.be.fixtures.UserFixtures.USER_ID;
+import static yeonba.be.fixtures.UserFixtures.VOCAL_RANGE;
+import static yeonba.be.fixtures.UserFixtures.user;
+import static yeonba.be.fixtures.UserFixtures.userPreference;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -181,7 +181,7 @@ class MyPageServiceTest {
             });
         }
 
-        @DisplayName("사용자가 존재하지 않을 경우 예외가 발생한다.")
+        @DisplayName("존재하지 않은 사용자인 경우 예외가 발생한다.")
         @Test
         void userNotFound() {
             // given
