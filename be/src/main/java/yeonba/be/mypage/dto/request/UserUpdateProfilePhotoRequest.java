@@ -1,12 +1,12 @@
 package yeonba.be.mypage.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
@@ -24,7 +24,7 @@ public class UserUpdateProfilePhotoRequest {
         type = "number",
         description = "사진 싱크로율",
         example = "85")
-    @Min(value = 75, message = "사진 싱크로율이 75퍼이상이어야 합니다.")
+    @Range(min = 75, max = 100, message = "사진 싱크로율은 75~100 범위내 값만 가능합니다.")
     @NotNull(message = "사진 싱크로율은 반드시 입력되어야 합니다.")
     private int photoSyncRate;
 }
